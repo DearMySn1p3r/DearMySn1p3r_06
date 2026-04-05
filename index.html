@@ -42,11 +42,11 @@
             text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
         .hidden-view { display: none !important; }
         
-        /* 🔥 캔버스 공통 🔥 */
+        /* 캔버스 공통 */
         .canvas-container { width: 100%; aspect-ratio: 1 / 1; position: relative; overflow: hidden; border-radius: 8px; border: 1px solid #ededed; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
         .canvas-area { width: 1600px; height: 1600px; position: absolute; top: 0; left: 0; box-sizing: border-box; transform-origin: top left; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* 📖 책갈피 1페이지 레이아웃 */
+        /* 책갈피 레이아웃 */
         .book-canvas-container { width: 100%; aspect-ratio: 1 / 1.5; max-width: 500px; margin: 0 auto; position: relative; overflow: hidden; border-radius: 8px; border: 1px solid #ededed; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
         .book-canvas { width: 1000px; height: 1500px; background: #fffcf8; position: absolute; top: 0; left: 0; transform-origin: top left; display: flex; flex-direction: column; box-sizing: border-box; position: relative; }
         .break-all-words { word-break: keep-all; overflow-wrap: break-word; }
@@ -396,6 +396,15 @@
                     <button onclick="addGalleryItem()" class="btn-minimal w-full">갤러리에 추가하기</button>
                 </div>
             </div>
+            
+            <div id="gallery-filter-area" class="max-w-5xl mx-auto hidden flex items-center gap-2">
+                <span class="text-xs font-bold text-diary-pink bg-diary-pink-light/30 px-3 py-1.5 rounded-full flex items-center gap-2">
+                    <span id="gallery-tag-name"></span>
+                    <button onclick="clearGalleryFilter()" class="hover:text-red-400 transition-colors">✕</button>
+                </span>
+                <span class="text-[10px] text-gray-400">태그로 필터링됨</span>
+            </div>
+
             <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8 max-w-5xl mx-auto"></div>
         </section>
 
@@ -419,6 +428,15 @@
                 </div>
                 <input type="text" id="ooc-tags" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-diary-pink" placeholder="태그 입력 (쉼표로 구분)" onkeypress="if(event.key === 'Enter') addOOC()">
             </div>
+            
+            <div id="ooc-filter-area" class="hidden flex items-center gap-2 pt-4">
+                <span class="text-xs font-bold text-diary-pink bg-diary-pink-light/30 px-3 py-1.5 rounded-full flex items-center gap-2">
+                    <span id="ooc-tag-name"></span>
+                    <button onclick="clearOOCFilter()" class="hover:text-red-400 transition-colors">✕</button>
+                </span>
+                <span class="text-[10px] text-gray-400">태그로 필터링됨</span>
+            </div>
+
             <ul id="ooc-list" class="space-y-3 mt-5"></ul>
         </section>
 
@@ -456,6 +474,7 @@
     </div>
 
     <script>
+        /* 기본 로직 */
         window.showView = function(viewId) {
             document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden-view'));
             const target = document.getElementById('view-' + viewId);
@@ -473,12 +492,13 @@
                 applyScale('pola-wrapper', 'polamaker-canvas', 1000); 
             }, 50);
             if(viewId === 'booklog') setTimeout(triggerProcessBookLog, 100);
-            if(viewId === 'ooc') loadOOC(); 
+            if(viewId === 'ooc') { currentOOCTag = null; loadOOC(); } 
             if(viewId === 'persona') loadPersonaList(); 
-            if(viewId === 'gallery') loadGallery();
+            if(viewId === 'gallery') { currentGalleryTag = null; loadGallery(); }
             if(viewId === 'usernote') loadUserNotes();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
+
         function applyScale(wrapperId, canvasId, baseWidth) {
             const wrap = document.getElementById(wrapperId);
             const can = document.getElementById(canvasId);
@@ -494,7 +514,6 @@
             applyScale('pola-wrapper', 'polamaker-canvas', 1000);
         });
 
-        // 🔥 PNG 무손실 압축 🔥
         function compressImage(file, maxWidth = null) {
             return new Promise(resolve => {
                 const r = new FileReader();
@@ -504,13 +523,8 @@
                         const can = document.createElement('canvas');
                         let w = img.width;
                         let h = img.height;
-
-                        if (maxWidth && w > maxWidth) {
-                            h = Math.round(h * maxWidth / w);
-                            w = maxWidth;
-                        }
-                        can.width = w;
-                        can.height = h;
+                        if (maxWidth && w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+                        can.width = w; can.height = h;
                         const ctx = can.getContext('2d');
                         ctx.drawImage(img, 0, 0, w, h);
                         resolve(can.toDataURL('image/png'));
@@ -521,338 +535,176 @@
             });
         }
 
-        // 🔥 최강 화질 + 무결점 직접 캡처 렌더링 🔥
         window.captureSquare = async function(id, filename) {
             await document.fonts.ready;
             const target = document.getElementById(id);
             const parent = target.parentElement;
-            
             const origTransform = target.style.transform;
-            const parentTransform = parent ? parent.style.transform : '';
             target.style.transform = 'none';
-            target.style.position = 'fixed';
-            target.style.left = '0';
-            target.style.top = '0';
-            target.style.zIndex = '9999';
-
+            target.style.position = 'fixed'; target.style.left = '0'; target.style.top = '0'; target.style.zIndex = '9999';
             if(parent) parent.style.transform = 'none';
             await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-
-            const canvas = await html2canvas(target, {
-                scale: 1, 
-                useCORS: true,
-                backgroundColor: null
-            });
+            const canvas = await html2canvas(target, { scale: 1, useCORS: true, backgroundColor: null });
             target.style.transform = origTransform;
-            target.style.position = '';
-            target.style.left = '';
-            target.style.top = '';
-            target.style.zIndex = '';
-            
-            if(parent) parent.style.transform = parentTransform;
-
+            target.style.position = ''; target.style.left = ''; target.style.top = ''; target.style.zIndex = '';
+            if(parent) parent.style.transform = '';
             const link = document.createElement('a');
             link.download = `${filename}_${Date.now()}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+            link.href = canvas.toDataURL('image/png'); link.click();
         };
 
-        /* ================= 1. 조각글 발췌 ================= */
+        /* 1. 조각글 발췌 */
         window.updateSnippet = function() {
             const can = document.getElementById('snippet-canvas');
             const txt = document.getElementById('s-text-display');
             const sub = document.getElementById('s-sub-display');
-            
             txt.innerText = document.getElementById('s-input').value || '내용이 표시됩니다.';
             txt.className = `w-full ${document.getElementById('s-font').value} ${document.getElementById('s-align').value} leading-[1.8] break-keep flex-1 flex flex-col justify-center`;
-            
             const tColor = document.getElementById('s-text-color').value;
-            txt.style.color = tColor;
-            sub.style.color = tColor;
-            
+            txt.style.color = tColor; sub.style.color = tColor;
             const creator = document.getElementById('s-creator').value;
             const character = document.getElementById('s-character').value;
-            if(creator || character) {
-                sub.innerHTML = `${creator ? creator : ''} ${creator && character ? ' | ' : ''} <span class="font-bold">${character}</span>`;
-            } else { sub.innerHTML = ''; }
-            
+            if(creator || character) { sub.innerHTML = `${creator ? creator : ''} ${creator && character ? ' | ' : ''} <span class="font-bold">${character}</span>`; } else { sub.innerHTML = ''; }
             const dir = document.getElementById('s-grad-dir').value;
-            const col1 = document.getElementById('s-color1').value;
-            const col2 = document.getElementById('s-color2').value;
-            if(dir === 'circle') {
-                can.style.background = `radial-gradient(circle, ${col1} 0%, ${col2} 100%)`;
-            } else {
-                can.style.background = `linear-gradient(${dir}, ${col1} 0%, ${col2} 100%)`;
-            }
+            const col1 = document.getElementById('s-color1').value; const col2 = document.getElementById('s-color2').value;
+            if(dir === 'circle') { can.style.background = `radial-gradient(circle, ${col1} 0%, ${col2} 100%)`; } else { can.style.background = `linear-gradient(${dir}, ${col1} 0%, ${col2} 100%)`; }
         };
 
-        /* ================= 2. 책갈피 로그 ================= */
-        let pages = [];
-        let currentIdx = 0;
-        let bookLogTimeout;
-
+        /* 2. 책갈피 로그 */
+        let pages = []; let currentIdx = 0; let bookLogTimeout;
         window.formatHighlight = function(text) {
             if(!text) return "";
             const c1 = document.getElementById('b-highlight-color-1').value;
             const c2 = document.getElementById('b-highlight-color-2').value;
             const c3 = document.getElementById('b-highlight-color-3').value;
-            
             let escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             escaped = escaped.replace(/\*(.*?)\*/g, `<span style="color: ${c1}; font-weight: bold;">$1</span>`);
             escaped = escaped.replace(/\^(.*?)\^/g, `<span style="color: ${c2}; font-weight: bold;">$1</span>`);
             escaped = escaped.replace(/~(.*?)~/g, `<span style="color: ${c3}; font-weight: bold;">$1</span>`);
             return escaped;
         };
-        window.triggerProcessBookLog = function() {
-            clearTimeout(bookLogTimeout);
-            bookLogTimeout = setTimeout(processBookLog, 300);
-        };
-
+        window.triggerProcessBookLog = function() { clearTimeout(bookLogTimeout); bookLogTimeout = setTimeout(processBookLog, 300); };
         window.processBookLog = async function() {
             const text = document.getElementById('b-input').value;
             if(!text) { pages = [""]; currentIdx = 0; renderBookPage(); return; }
-
             const font = document.getElementById('b-font').value;
-            const lh = document.getElementById('b-lh').value;
-            const ls = document.getElementById('b-ls').value;
+            const lh = document.getElementById('b-lh').value; const ls = document.getElementById('b-ls').value;
             const indent = document.getElementById('b-indent').value;
-            const py = parseInt(document.getElementById('b-py').value);
-            const px = parseInt(document.getElementById('b-px').value);
-
-            document.getElementById('b-lh-val').innerText = lh;
-            document.getElementById('b-ls-val').innerText = ls;
-            document.getElementById('b-py-val').innerText = py;
-            document.getElementById('b-px-val').innerText = px;
-
+            const py = parseInt(document.getElementById('b-py').value); const px = parseInt(document.getElementById('b-px').value);
+            document.getElementById('b-lh-val').innerText = lh; document.getElementById('b-ls-val').innerText = ls;
+            document.getElementById('b-py-val').innerText = py; document.getElementById('b-px-val').innerText = px;
             const exactWidth = 1000 - (px * 2);
             const firstPageMaxH = 1500 - (py * 2) - 160 - 120;
             const normalMaxH = 1500 - (py * 2) - 160; 
-
             const measureDiv = document.createElement('div');
             measureDiv.className = `${font} break-all-words`;
-            measureDiv.style.width = exactWidth + 'px';
-            measureDiv.style.position = 'absolute';
-            measureDiv.style.left = '-9999px';
-            measureDiv.style.top = '0';
-            measureDiv.style.visibility = 'hidden';
-            measureDiv.style.fontSize = '28px';
-            measureDiv.style.lineHeight = lh;
-            measureDiv.style.letterSpacing = ls + 'px';
-            measureDiv.style.textIndent = indent === '0' ? '0' : indent;
-            
+            measureDiv.style.width = exactWidth + 'px'; measureDiv.style.position = 'absolute'; measureDiv.style.left = '-9999px';
+            measureDiv.style.visibility = 'hidden'; measureDiv.style.fontSize = '28px'; measureDiv.style.lineHeight = lh;
+            measureDiv.style.letterSpacing = ls + 'px'; measureDiv.style.textIndent = indent === '0' ? '0' : indent;
             document.body.appendChild(measureDiv);
-
-            pages = [];
-            let currentPageText = "";
-            let paragraphs = text.split('\n');
-
+            pages = []; let currentPageText = ""; let paragraphs = text.split('\n');
             for (let i = 0; i < paragraphs.length; i++) {
                 let p = paragraphs[i] + (i < paragraphs.length - 1 ? '\n' : '');
                 measureDiv.innerText = currentPageText + p;
                 let currentMaxH = (pages.length === 0) ? firstPageMaxH : normalMaxH;
                 if (measureDiv.clientHeight > currentMaxH) {
-                    if (currentPageText !== "") {
-                        pages.push(currentPageText.replace(/\n$/, ''));
-                        currentPageText = "";
-                        currentMaxH = (pages.length === 0) ? firstPageMaxH : normalMaxH;
-                    }
-                    
+                    if (currentPageText !== "") { pages.push(currentPageText.replace(/\n$/, '')); currentPageText = ""; currentMaxH = (pages.length === 0) ? firstPageMaxH : normalMaxH; }
                     let chars = Array.from(p);
                     for(let char of chars) {
                         measureDiv.innerText = currentPageText + char;
-                        if(measureDiv.clientHeight > currentMaxH && currentPageText !== "") {
-                            pages.push(currentPageText);
-                            currentPageText = char;
-                            currentMaxH = normalMaxH;
-                        } else {
-                            currentPageText += char;
-                        }
+                        if(measureDiv.clientHeight > currentMaxH && currentPageText !== "") { pages.push(currentPageText); currentPageText = char; currentMaxH = normalMaxH; } else { currentPageText += char; }
                     }
-                } else {
-                    currentPageText += p;
-                }
+                } else { currentPageText += p; }
             }
             if (currentPageText) pages.push(currentPageText.replace(/\n$/, ''));
             if (pages.length === 0) pages.push("");
-            
             document.body.removeChild(measureDiv);
-
             if(currentIdx >= pages.length) currentIdx = pages.length - 1;
             if(currentIdx < 0) currentIdx = 0;
             renderBookPage();
         };
-        
         window.renderBookPage = function() {
             const title = document.getElementById('b-title').value;
             const titleColor = document.getElementById('b-title-color').value;
             const titleFontValue = document.getElementById('b-title-font').value;
-            
             const headerMain = document.getElementById('b-header-main');
             const headerSub = document.getElementById('b-header-sub');
             if (currentIdx === 0) {
-                headerMain.style.display = 'block';
-                headerMain.innerText = title;
-                headerMain.style.color = titleColor;
+                headerMain.style.display = 'block'; headerMain.innerText = title; headerMain.style.color = titleColor;
                 headerMain.className = `text-center text-[48px] mb-16 font-bold tracking-widest book-header-main ${titleFontValue} ${titleFontValue === 'font-serif' ? 'italic' : ''}`;
                 headerSub.innerText = '';
             } else {
-                headerMain.style.display = 'none';
-                headerSub.innerText = title;
-                headerSub.style.color = titleColor;
+                headerMain.style.display = 'none'; headerSub.innerText = title; headerSub.style.color = titleColor;
                 headerSub.className = `text-[24px] tracking-widest ${titleFontValue} ${titleFontValue === 'font-serif' ? 'italic' : ''}`;
             }
-            
             const font = document.getElementById('b-font').value;
-            const lh = document.getElementById('b-lh').value;
-            const ls = document.getElementById('b-ls').value;
+            const lh = document.getElementById('b-lh').value; const ls = document.getElementById('b-ls').value;
             const indent = document.getElementById('b-indent').value;
-            const py = document.getElementById('b-py').value;
-            const px = document.getElementById('b-px').value;
+            const py = document.getElementById('b-py').value; const px = document.getElementById('b-px').value;
             const pageContent = document.getElementById('b-page-content');
             pageContent.className = `flex-1 ${font} text-[28px] whitespace-pre-wrap break-keep text-justify break-all-words`;
-            pageContent.style.lineHeight = lh;
-            pageContent.style.letterSpacing = ls + 'px';
-            pageContent.style.textIndent = indent === '0' ? '0' : indent;
-
+            pageContent.style.lineHeight = lh; pageContent.style.letterSpacing = ls + 'px'; pageContent.style.textIndent = indent === '0' ? '0' : indent;
             const canvas = document.getElementById('book-canvas');
             const themeEl = document.getElementById('b-theme');
-            canvas.style.background = themeEl ? themeEl.value : '#fffcf8';
-            canvas.style.padding = `${py}px ${px}px`;
-            
+            canvas.style.background = themeEl ? themeEl.value : '#fffcf8'; canvas.style.padding = `${py}px ${px}px`;
             const footer = document.getElementById('b-footer');
-            footer.style.left = `${px}px`;
-            footer.style.width = `calc(100% - ${px * 2}px)`;
-            footer.style.bottom = `${parseInt(py)/2}px`;
-            
+            footer.style.left = `${px}px`; footer.style.width = `calc(100% - ${px * 2}px)`; footer.style.bottom = `${parseInt(py)/2}px`;
             pageContent.innerHTML = formatHighlight(pages[currentIdx] || '');
             document.getElementById('b-num').innerText = currentIdx + 1;
-            
             const total = pages.length; 
             document.getElementById('page-indicator').innerText = `${currentIdx + 1} / ${total || 1}`;
             document.getElementById('btn-prev').disabled = currentIdx === 0; document.getElementById('btn-next').disabled = currentIdx >= total - 1;
         };
-
         window.changePage = function(d) { currentIdx += d; renderBookPage(); };
-
         window.downloadAllBookPagesMultiple = async function() {
             if(!pages.length || (pages.length === 1 && pages[0] === "")) return alert("내용이 없습니다.");
-            const btn = document.getElementById('btn-dl-all'); 
-            btn.innerText = "⏳ 순차적으로 다운로드 중... (팝업 허용 필요)"; 
-            btn.disabled = true; 
-            
-            await document.fonts.ready;
-            const origIdx = currentIdx; 
-            const total = pages.length;
-            const target = document.getElementById('book-canvas');
-            const parent = target.parentElement;
+            const btn = document.getElementById('btn-dl-all'); btn.innerText = "⏳ 순차적으로 다운로드 중..."; btn.disabled = true; 
+            await document.fonts.ready; const origIdx = currentIdx; const total = pages.length;
+            const target = document.getElementById('book-canvas'); const parent = target.parentElement;
             for(let i=0; i<total; i++) { 
-                currentIdx = i;
-                renderBookPage(); 
-                await new Promise(r => setTimeout(r, 200)); 
-                
-                const origTransform = target.style.transform;
-                const parentTransform = parent ? parent.style.transform : '';
-                target.style.transform = 'none';
-                target.style.position = 'fixed';
-                target.style.left = '0';
-                target.style.top = '0';
-                target.style.zIndex = '9999';
-
+                currentIdx = i; renderBookPage(); await new Promise(r => setTimeout(r, 200)); 
+                const origTransform = target.style.transform; target.style.transform = 'none';
+                target.style.position = 'fixed'; target.style.left = '0'; target.style.top = '0'; target.style.zIndex = '9999';
                 if(parent) parent.style.transform = 'none';
                 await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-
                 const c = await html2canvas(target, { scale: 1, useCORS: true, backgroundColor: null }); 
-                
-                target.style.transform = origTransform;
-                target.style.position = '';
-                target.style.left = '';
-                target.style.top = '';
-                target.style.zIndex = '';
-                if(parent) parent.style.transform = parentTransform;
-                
-                const link = document.createElement('a'); 
-                link.download = `BookLog_Page_${i+1}.png`;
-                link.href = c.toDataURL('image/png'); 
-                link.click();
-
+                target.style.transform = origTransform; target.style.position = ''; target.style.left = ''; target.style.top = ''; target.style.zIndex = '';
+                if(parent) parent.style.transform = '';
+                const link = document.createElement('a'); link.download = `BookLog_Page_${i+1}.png`; link.href = c.toDataURL('image/png'); link.click();
                 await new Promise(r => setTimeout(r, 600));
             }
-            
-            currentIdx = origIdx;
-            renderBookPage(); 
-            btn.innerText = "전체 페이지 분할 PNG로 저장"; 
-            btn.disabled = false;
+            currentIdx = origIdx; renderBookPage(); btn.innerText = "전체 페이지 분할 PNG로 저장"; btn.disabled = false;
         };
         window.downloadAllBookPagesSingle = async function() {
             if(!pages.length || (pages.length === 1 && pages[0] === "")) return alert("내용이 없습니다.");
-            const btn = document.getElementById('btn-dl-single'); 
-            btn.innerText = "⏳ 긴 이미지로 굽는 중..."; 
-            btn.disabled = true; 
-            
-            await document.fonts.ready;
-            
-            const origIdx = currentIdx;
-            const total = pages.length;
-            let canvases = [];
-
-            const target = document.getElementById('book-canvas');
-            const parent = target.parentElement;
+            const btn = document.getElementById('btn-dl-single'); btn.innerText = "⏳ 긴 이미지로 굽는 중..."; btn.disabled = true; 
+            await document.fonts.ready; const origIdx = currentIdx; const total = pages.length; let canvases = [];
+            const target = document.getElementById('book-canvas'); const parent = target.parentElement;
             for(let i=0; i<total; i++) { 
-                currentIdx = i;
-                renderBookPage(); 
-                await new Promise(r => setTimeout(r, 150)); 
-                
-                const origTransform = target.style.transform;
-                const parentTransform = parent ? parent.style.transform : '';
-                target.style.transform = 'none';
-                target.style.position = 'fixed';
-                target.style.left = '0';
-                target.style.top = '0';
-                target.style.zIndex = '9999';
-
+                currentIdx = i; renderBookPage(); await new Promise(r => setTimeout(r, 150)); 
+                const origTransform = target.style.transform; target.style.transform = 'none';
+                target.style.position = 'fixed'; target.style.left = '0'; target.style.top = '0'; target.style.zIndex = '9999';
                 if(parent) parent.style.transform = 'none';
                 await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-
                 const c = await html2canvas(target, { scale: 1, useCORS: true, backgroundColor: null });
-                target.style.transform = origTransform;
-                target.style.position = '';
-                target.style.left = '';
-                target.style.top = '';
-                target.style.zIndex = '';
-                if(parent) parent.style.transform = parentTransform;
-
+                target.style.transform = origTransform; target.style.position = ''; target.style.left = ''; target.style.top = ''; target.style.zIndex = '';
+                if(parent) parent.style.transform = '';
                 canvases.push(c);
             }
-            
             if(canvases.length > 0) {
-                const masterCanvas = document.createElement('canvas');
-                masterCanvas.width = canvases[0].width;
-                masterCanvas.height = canvases[0].height * canvases.length;
-                const ctx = masterCanvas.getContext('2d');
-                for(let i=0; i<canvases.length; i++) {
-                    ctx.drawImage(canvases[i], 0, i * canvases[0].height);
-                }
-
-                const link = document.createElement('a');
-                link.download = `BookLog_Long_${Date.now()}.png`; 
-                link.href = masterCanvas.toDataURL('image/png'); 
-                link.click();
+                const masterCanvas = document.createElement('canvas'); masterCanvas.width = canvases[0].width;
+                masterCanvas.height = canvases[0].height * canvases.length; const ctx = masterCanvas.getContext('2d');
+                for(let i=0; i<canvases.length; i++) { ctx.drawImage(canvases[i], 0, i * canvases[0].height); }
+                const link = document.createElement('a'); link.download = `BookLog_Long_${Date.now()}.png`; link.href = masterCanvas.toDataURL('image/png'); link.click();
             }
-            
-            currentIdx = origIdx;
-            renderBookPage(); 
-            btn.innerText = "세로로 길게 한 장으로 저장"; 
-            btn.disabled = false;
+            currentIdx = origIdx; renderBookPage(); btn.innerText = "세로로 길게 한 장으로 저장"; btn.disabled = false;
         };
 
-        /* ================= 3. 캐릭터 보관함 ================= */
-        let currentPersonaIndex = -1;
-        let currentPImg = null;
+        /* 3. 캐릭터 보관함 */
+        let currentPersonaIndex = -1; let currentPImg = null;
         function getPersonas() { return JSON.parse(localStorage.getItem('studio_personas') || '[]'); }
-        
         window.loadPersonaList = function() {
-            const list = getPersonas();
-            const container = document.getElementById('persona-list');
+            const list = getPersonas(); const container = document.getElementById('persona-list');
             if(list.length === 0) { container.innerHTML = '<div class="text-center text-xs text-gray-400 mt-10">저장된 캐릭터가 없습니다.</div>'; createNewPersona(); return; }
             container.innerHTML = list.map((p, i) => `
                 <div onclick="selectPersona(${i})" class="flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors border ${currentPersonaIndex === i ? 'border-diary-pink bg-diary-pink-light/20' : 'border-transparent hover:bg-gray-50'}">
@@ -866,26 +718,21 @@
             if(currentPersonaIndex === -1 && list.length > 0) selectPersona(0);
         };
         window.createNewPersona = function() {
-            currentPersonaIndex = -1;
-            currentPImg = null;
+            currentPersonaIndex = -1; currentPImg = null;
             document.getElementById('p-name').value = ''; document.getElementById('p-age').value = ''; document.getElementById('p-features').value = ''; document.getElementById('p-appearance').value = ''; document.getElementById('p-personality').value = '';
             document.getElementById('p-background').value = '';
             document.getElementById('p-img-display').classList.add('hidden'); document.getElementById('p-img-placeholder').classList.remove('hidden');
             document.getElementById('btn-delete-persona').classList.add('hidden');
-            document.getElementById('btn-save-persona').innerText = "새 캐릭터 저장";
-            loadPersonaList(); 
+            document.getElementById('btn-save-persona').innerText = "새 캐릭터 저장"; loadPersonaList(); 
         };
         window.selectPersona = function(index) {
-            currentPersonaIndex = index;
-            const p = getPersonas()[index]; if(!p) return;
+            currentPersonaIndex = index; const p = getPersonas()[index]; if(!p) return;
             document.getElementById('p-name').value = p.name || ''; document.getElementById('p-age').value = p.age || ''; document.getElementById('p-features').value = p.features || ''; document.getElementById('p-appearance').value = p.app || ''; document.getElementById('p-personality').value = p.per || ''; document.getElementById('p-background').value = p.bg || '';
-            currentPImg = p.img;
-            const disp = document.getElementById('p-img-display');
+            currentPImg = p.img; const disp = document.getElementById('p-img-display');
             if(currentPImg) { disp.src = currentPImg; disp.classList.remove('hidden'); document.getElementById('p-img-placeholder').classList.add('hidden'); } 
             else { disp.classList.add('hidden'); document.getElementById('p-img-placeholder').classList.remove('hidden'); }
             document.getElementById('btn-delete-persona').classList.remove('hidden');
-            document.getElementById('btn-save-persona').innerText = "정보 수정하기";
-            loadPersonaList();
+            document.getElementById('btn-save-persona').innerText = "정보 수정하기"; loadPersonaList();
         };
         window.handlePersonaUpload = async function(input) {
             if(input.files[0]) { currentPImg = await compressImage(input.files[0], null);
@@ -896,29 +743,24 @@
             let list = getPersonas();
             try {
                 if(currentPersonaIndex === -1) { list.unshift(p); currentPersonaIndex = 0; } else { list[currentPersonaIndex] = p; }
-                localStorage.setItem('studio_personas', JSON.stringify(list));
-                alert("저장되었습니다."); loadPersonaList();
+                localStorage.setItem('studio_personas', JSON.stringify(list)); alert("저장되었습니다."); loadPersonaList();
             } catch (e) { alert("저장 공간이 부족합니다!"); }
         };
         window.deleteCurrentPersona = function() {
-            if(currentPersonaIndex === -1) return;
-            if(!confirm("이 캐릭터 정보를 삭제할까요?")) return;
+            if(currentPersonaIndex === -1) return; if(!confirm("이 캐릭터 정보를 삭제할까요?")) return;
             let list = getPersonas(); list.splice(currentPersonaIndex, 1); localStorage.setItem('studio_personas', JSON.stringify(list)); createNewPersona();
         };
 
-        /* ================= 4. 폴라로이드 메이커 ================= */
+        /* 4. 폴라로이드 메이커 */
         let currentPolaImg = null;
         window.handlePolaMakerUpload = async function(input) {
             if(input.files[0]) {
                 currentPolaImg = await compressImage(input.files[0], null);
                 const pmImg = document.getElementById('pm-img');
-                
-                // 🔥 바둑판 버그 해결된 완벽한 코드 세트 적용 완료
                 pmImg.style.backgroundImage = `url(${currentPolaImg})`;
                 pmImg.style.backgroundRepeat = 'no-repeat';
                 pmImg.style.backgroundSize = 'cover';
                 pmImg.style.backgroundPosition = 'center';
-
                 pmImg.classList.remove('hidden');
                 document.getElementById('pm-placeholder').classList.add('hidden');
                 updatePolaMaker(); 
@@ -935,88 +777,87 @@
             }
         };
 
-        /* ================= 5. 이미지 갤러리 (태그 기능 포함) ================= */
+        /* 5. 이미지 갤러리 (태그 필터링 포함) */
         let currentGalleryIndex = -1;
+        let currentGalleryTag = null;
         function getGallery() { return JSON.parse(localStorage.getItem('studio_gallery') || '[]'); }
+        
         window.addGalleryItem = async function() {
             const input = document.getElementById('g-img-upload');
             const prompt = document.getElementById('g-prompt').value;
-            const tags = document.getElementById('g-tags').value; // 태그 값 가져오기
+            const tags = document.getElementById('g-tags').value;
             if(!input.files[0]) return alert("이미지를 첨부해주세요.");
             const base64Img = await compressImage(input.files[0], null); const gallery = getGallery();
-            gallery.unshift({ img: base64Img, prompt: prompt, tags: tags }); // 태그 데이터 저장
+            gallery.unshift({ img: base64Img, prompt: prompt, tags: tags });
             try { 
                 localStorage.setItem('studio_gallery', JSON.stringify(gallery)); 
-                input.value = ''; 
-                document.getElementById('g-prompt').value = ''; 
-                document.getElementById('g-tags').value = ''; // 태그 입력칸 초기화
+                input.value = ''; document.getElementById('g-prompt').value = ''; document.getElementById('g-tags').value = '';
                 loadGallery();
-            } 
-            catch(e) { alert("용량 부족!"); }
+            } catch(e) { alert("용량 부족!"); }
         };
+
         window.loadGallery = function() {
             const gal = getGallery();
             const grid = document.getElementById('gallery-grid');
-            grid.innerHTML = gal.map((item, i) => {
+            const filterArea = document.getElementById('gallery-filter-area');
+            const tagNameDisplay = document.getElementById('gallery-tag-name');
+
+            let filtered = gal;
+            if(currentGalleryTag) {
+                filtered = gal.filter(item => item.tags && item.tags.split(',').map(t=>t.trim().toLowerCase()).includes(currentGalleryTag.toLowerCase()));
+                filterArea.classList.remove('hidden');
+                tagNameDisplay.innerText = '#' + currentGalleryTag;
+            } else {
+                filterArea.classList.add('hidden');
+            }
+
+            grid.innerHTML = filtered.map((item, i) => {
                 let tagsHtml = '';
                 if(item.tags) {
-                    // 태그 렌더링 (쉼표 기준으로 나누고 해시태그 붙이기)
-                    tagsHtml = `<div class="flex flex-wrap gap-1 mt-1">${item.tags.split(',').map(t => t.trim()).filter(t=>t).map(t => `<span class="bg-diary-pink-light/30 text-diary-pink px-1.5 py-0.5 rounded text-[9px] font-bold">#${t}</span>`).join('')}</div>`;
+                    tagsHtml = `<div class="flex flex-wrap gap-1 mt-1">${item.tags.split(',').map(t => t.trim()).filter(t=>t).map(t => `<button onclick="event.stopPropagation(); filterGalleryByTag('${t}')" class="bg-diary-pink-light/30 text-diary-pink px-1.5 py-0.5 rounded text-[9px] font-bold hover:bg-diary-pink hover:text-white transition-colors">#${t}</button>`).join('')}</div>`;
                 }
+                const originalIndex = gal.indexOf(item);
                 return `
-                <div onclick="openGalleryModal(${i})" class="bg-white rounded-2xl p-3 flex flex-col gap-2 relative group border border-gray-100 shadow-sm hover:shadow-md hover:border-diary-pink transition-all cursor-pointer">
+                <div onclick="openGalleryModal(${originalIndex})" class="bg-white rounded-2xl p-3 flex flex-col gap-2 relative group border border-gray-100 shadow-sm hover:shadow-md hover:border-diary-pink transition-all cursor-pointer">
                     <img src="${item.img}" class="w-full aspect-square object-cover rounded-xl">
                     <p class="text-[10px] text-gray-400 whitespace-pre-wrap px-1 truncate flex-1">${item.prompt || '메모 없음'}</p>
                     ${tagsHtml}
                 </div>
             `}).join('');
         };
+
+        window.filterGalleryByTag = function(tag) { currentGalleryTag = tag; loadGallery(); window.scrollTo({ top: document.getElementById('gallery-filter-area').offsetTop - 100, behavior: 'smooth' }); };
+        window.clearGalleryFilter = function() { currentGalleryTag = null; loadGallery(); };
         window.openGalleryModal = function(index) {
-            currentGalleryIndex = index;
-            const item = getGallery()[index]; if(!item) return;
-            document.getElementById('modal-img').src = item.img; 
-            document.getElementById('modal-prompt').value = item.prompt || '';
-            document.getElementById('modal-tags').value = item.tags || ''; // 모달에 태그 띄우기
-            document.getElementById('gallery-modal').classList.remove('hidden');
+            currentGalleryIndex = index; const item = getGallery()[index]; if(!item) return;
+            document.getElementById('modal-img').src = item.img; document.getElementById('modal-prompt').value = item.prompt || '';
+            document.getElementById('modal-tags').value = item.tags || ''; document.getElementById('gallery-modal').classList.remove('hidden');
         };
         window.closeGalleryModal = function() { document.getElementById('gallery-modal').classList.add('hidden'); currentGalleryIndex = -1; };
         window.saveModalPrompt = function() {
             if(currentGalleryIndex === -1) return;
-            const gal = getGallery(); 
-            gal[currentGalleryIndex].prompt = document.getElementById('modal-prompt').value;
-            gal[currentGalleryIndex].tags = document.getElementById('modal-tags').value; // 수정된 태그 저장
-            try { localStorage.setItem('studio_gallery', JSON.stringify(gal)); alert("수정되었습니다."); loadGallery();
-            } catch(e){}
+            const gal = getGallery(); gal[currentGalleryIndex].prompt = document.getElementById('modal-prompt').value;
+            gal[currentGalleryIndex].tags = document.getElementById('modal-tags').value;
+            try { localStorage.setItem('studio_gallery', JSON.stringify(gal)); alert("수정되었습니다."); loadGallery(); } catch(e){}
         };
         window.deleteModalItem = function() {
-            if(currentGalleryIndex === -1) return;
-            if(!confirm("삭제할까요?")) return;
+            if(currentGalleryIndex === -1) return; if(!confirm("삭제할까요?")) return;
             const gal = getGallery(); gal.splice(currentGalleryIndex, 1); localStorage.setItem('studio_gallery', JSON.stringify(gal));
             closeGalleryModal(); loadGallery();
         };
 
-        /* ================= 6. 유저 노트 ================= */
+        /* 6. 유저 노트 */
         let currentUserNoteIndex = -1;
         function getUserNotes() { return JSON.parse(localStorage.getItem('studio_usernotes') || '[]'); }
-        
         window.addUserNote = function() {
             const title = document.getElementById('un-title').value.trim();
             const content = document.getElementById('un-content').value.trim();
             if(!title && !content) return alert("내용을 입력해주세요.");
-            
-            const notes = getUserNotes();
-            notes.unshift({ title, content, date: new Date().toLocaleDateString() });
-            try {
-                localStorage.setItem('studio_usernotes', JSON.stringify(notes));
-                document.getElementById('un-title').value = '';
-                document.getElementById('un-content').value = '';
-                loadUserNotes();
-            } catch(e) { alert("저장 공간이 부족합니다."); }
+            const notes = getUserNotes(); notes.unshift({ title, content, date: new Date().toLocaleDateString() });
+            try { localStorage.setItem('studio_usernotes', JSON.stringify(notes)); document.getElementById('un-title').value = ''; document.getElementById('un-content').value = ''; loadUserNotes(); } catch(e) { alert("저장 공간이 부족합니다."); }
         };
-
         window.loadUserNotes = function() {
-            const notes = getUserNotes();
-            const grid = document.getElementById('usernote-grid');
+            const notes = getUserNotes(); const grid = document.getElementById('usernote-grid');
             grid.innerHTML = notes.map((note, i) => `
                 <div onclick="openUserNoteModal(${i})" class="bg-white rounded-2xl p-5 flex flex-col gap-2 relative group border border-gray-100 shadow-sm hover:shadow-md hover:border-diary-pink transition-all cursor-pointer h-40">
                     <h3 class="font-bold text-sm text-diary-text truncate">${note.title || '제목 없음'}</h3>
@@ -1025,138 +866,109 @@
                 </div>
             `).join('');
         };
-
         window.openUserNoteModal = function(index) {
-            currentUserNoteIndex = index;
-            const note = getUserNotes()[index];
-            if(!note) return;
-            
-            document.getElementById('modal-un-title').value = note.title || '';
-            document.getElementById('modal-un-content').value = note.content || '';
-            document.getElementById('usernote-modal').classList.remove('hidden');
+            currentUserNoteIndex = index; const note = getUserNotes()[index]; if(!note) return;
+            document.getElementById('modal-un-title').value = note.title || ''; document.getElementById('modal-un-content').value = note.content || ''; document.getElementById('usernote-modal').classList.remove('hidden');
         };
-        window.closeUserNoteModal = function() {
-            document.getElementById('usernote-modal').classList.add('hidden');
-            currentUserNoteIndex = -1;
-        };
+        window.closeUserNoteModal = function() { document.getElementById('usernote-modal').classList.add('hidden'); currentUserNoteIndex = -1; };
         window.saveUserNoteModal = function() {
             if(currentUserNoteIndex === -1) return;
-            const notes = getUserNotes();
-            notes[currentUserNoteIndex].title = document.getElementById('modal-un-title').value.trim();
+            const notes = getUserNotes(); notes[currentUserNoteIndex].title = document.getElementById('modal-un-title').value.trim();
             notes[currentUserNoteIndex].content = document.getElementById('modal-un-content').value.trim();
-            
-            localStorage.setItem('studio_usernotes', JSON.stringify(notes));
-            alert("수정되었습니다.");
-            loadUserNotes();
-            closeUserNoteModal();
+            localStorage.setItem('studio_usernotes', JSON.stringify(notes)); alert("수정되었습니다."); loadUserNotes(); closeUserNoteModal();
         };
         window.deleteUserNoteModal = function() {
-            if(currentUserNoteIndex === -1) return;
-            if(!confirm("이 노트를 삭제할까요?")) return;
-            
-            const notes = getUserNotes();
-            notes.splice(currentUserNoteIndex, 1);
-            localStorage.setItem('studio_usernotes', JSON.stringify(notes));
-            
-            closeUserNoteModal();
-            loadUserNotes();
+            if(currentUserNoteIndex === -1) return; if(!confirm("이 노트를 삭제할까요?")) return;
+            const notes = getUserNotes(); notes.splice(currentUserNoteIndex, 1); localStorage.setItem('studio_usernotes', JSON.stringify(notes));
+            closeUserNoteModal(); loadUserNotes();
         };
 
-        /* ================= 7. OOC 메모장 ================= */
+        /* 7. OOC 메모장 (태그 필터링 포함) */
         let editOocIndex = -1;
+        let currentOOCTag = null;
         function getOOC() { return JSON.parse(localStorage.getItem('studio_ooc') || '[]'); }
+        
         window.loadOOC = function() {
             const list = document.getElementById('ooc-list');
-            list.innerHTML = getOOC().map((item, i) => {
-                // 이전 문자열 배열 호환성 처리
+            const oocs = getOOC();
+            const filterArea = document.getElementById('ooc-filter-area');
+            const tagNameDisplay = document.getElementById('ooc-tag-name');
+
+            let filtered = oocs;
+            if(currentOOCTag) {
+                filtered = oocs.filter(item => {
+                    const tags = typeof item === 'string' ? '' : (item.tags || '');
+                    return tags.split(',').map(t=>t.trim().toLowerCase()).includes(currentOOCTag.toLowerCase());
+                });
+                filterArea.classList.remove('hidden');
+                tagNameDisplay.innerText = '#' + currentOOCTag;
+            } else {
+                filterArea.classList.add('hidden');
+            }
+
+            list.innerHTML = filtered.map((item, i) => {
                 let text = typeof item === 'string' ? item : item.text;
                 let tags = typeof item === 'string' ? '' : (item.tags || '');
-                
                 let tagsHtml = '';
                 if(tags) {
-                    tagsHtml = `<div class="flex flex-wrap gap-1 mt-1 pl-1">${tags.split(',').map(t => t.trim()).filter(t=>t).map(t => `<span class="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded text-[10px] font-bold">#${t}</span>`).join('')}</div>`;
+                    tagsHtml = `<div class="flex flex-wrap gap-1 mt-1 pl-1">${tags.split(',').map(t => t.trim()).filter(t=>t).map(t => `<button onclick="event.stopPropagation(); filterOOCByTag('${t}')" class="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded text-[10px] font-bold hover:bg-diary-pink hover:text-white transition-colors">#${t}</button>`).join('')}</div>`;
                 }
-
+                const originalIndex = oocs.indexOf(item);
                 return `
                 <li class="bg-white border border-gray-100 rounded-2xl flex flex-col p-4 text-sm shadow-sm hover:border-diary-pink transition-colors group">
                     <div class="flex justify-between items-center w-full">
                         <span class="cursor-pointer text-gray-600 hover:text-diary-pink hover:font-bold transition-all flex-1 pr-4" onclick="navigator.clipboard.writeText('${text.replace(/'/g, "\\'")}')">${text}</span>
                         <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="editOOC(${i})" class="text-gray-300 hover:text-blue-400 font-bold text-xs">수정</button>
-                            <button onclick="deleteOOC(${i})" class="text-gray-300 hover:text-red-400 font-bold ml-2 text-xs">삭제</button>
+                            <button onclick="editOOC(${originalIndex})" class="text-gray-300 hover:text-blue-400 font-bold text-xs">수정</button>
+                            <button onclick="deleteOOC(${originalIndex})" class="text-gray-300 hover:text-red-400 font-bold ml-2 text-xs">삭제</button>
                         </div>
                     </div>
                     ${tagsHtml}
                 </li>
             `}).join('');
         };
+
+        window.filterOOCByTag = function(tag) { currentOOCTag = tag; loadOOC(); };
+        window.clearOOCFilter = function() { currentOOCTag = null; loadOOC(); };
         window.addOOC = function() { 
-            const inEl = document.getElementById('ooc-input');
-            const tagEl = document.getElementById('ooc-tags');
-            const val = inEl.value.trim(); 
-            const tagsVal = tagEl.value.trim();
+            const inEl = document.getElementById('ooc-input'); const tagEl = document.getElementById('ooc-tags');
+            const val = inEl.value.trim(); const tagsVal = tagEl.value.trim();
             if(!val) return; 
-            
             const o = getOOC(); 
             if(editOocIndex > -1) { 
-                if (typeof o[editOocIndex] === 'string') {
-                    o[editOocIndex] = { text: val, tags: tagsVal };
-                } else {
-                    o[editOocIndex].text = val;
-                    o[editOocIndex].tags = tagsVal;
-                }
-                editOocIndex = -1;
-                document.getElementById('btn-ooc-add').innerText = '추가'; 
-            } 
-            else { 
-                o.unshift({ text: val, tags: tagsVal });
-            }
-            localStorage.setItem('studio_ooc', JSON.stringify(o)); 
-            inEl.value = ''; 
-            tagEl.value = '';
-            loadOOC(); 
+                if (typeof o[editOocIndex] === 'string') { o[editOocIndex] = { text: val, tags: tagsVal }; } 
+                else { o[editOocIndex].text = val; o[editOocIndex].tags = tagsVal; }
+                editOocIndex = -1; document.getElementById('btn-ooc-add').innerText = '추가'; 
+            } else { o.unshift({ text: val, tags: tagsVal }); }
+            localStorage.setItem('studio_ooc', JSON.stringify(o)); inEl.value = ''; tagEl.value = ''; loadOOC(); 
         };
         window.editOOC = function(i) {
-            const item = getOOC()[i];
-            const text = typeof item === 'string' ? item : item.text;
-            const tags = typeof item === 'string' ? '' : (item.tags || '');
-
-            document.getElementById('ooc-input').value = text;
-            document.getElementById('ooc-tags').value = tags;
-            editOocIndex = i;
-            document.getElementById('btn-ooc-add').innerText = '수정 완료'; 
-            document.getElementById('ooc-input').focus();
+            const item = getOOC()[i]; const text = typeof item === 'string' ? item : item.text; const tags = typeof item === 'string' ? '' : (item.tags || '');
+            document.getElementById('ooc-input').value = text; document.getElementById('ooc-tags').value = tags;
+            editOocIndex = i; document.getElementById('btn-ooc-add').innerText = '수정 완료'; document.getElementById('ooc-input').focus();
         };
         window.deleteOOC = function(i) { const o = getOOC(); o.splice(i, 1); localStorage.setItem('studio_ooc', JSON.stringify(o)); loadOOC(); };
 
-        /* ================= 공통 (백업/업로드) ================= */
+        /* 백업/복구 */
         window.exportAllData = function() { 
             const data = JSON.stringify(localStorage);
             const blob = new Blob([data], { type: "application/json" }); 
-            const lnk = document.createElement("a"); 
-            lnk.href = URL.createObjectURL(blob); 
-            lnk.download = `Studio_Backup_${new Date().toISOString().slice(0,10)}.json`;
-            lnk.click(); 
+            const lnk = document.createElement("a"); lnk.href = URL.createObjectURL(blob); 
+            lnk.download = `Studio_Backup_${new Date().toISOString().slice(0,10)}.json`; lnk.click(); 
         };
-        
         window.importAllData = function(input) {
             if (!input.files[0]) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    for (let key in data) {
-                        localStorage.setItem(key, data[key]);
-                    }
-                    alert("데이터가 성공적으로 복원되었습니다!");
-                    location.reload();
-                } catch(err) {
-                    alert("잘못된 백업 파일입니다.");
-                }
+                    for (let key in data) { localStorage.setItem(key, data[key]); }
+                    alert("복원되었습니다!"); location.reload();
+                } catch(err) { alert("잘못된 파일입니다."); }
             };
             reader.readAsText(input.files[0]);
         };
-        window.onload = function() { try { showView('home'); setTimeout(triggerProcessBookLog, 100); } catch(e){} };
+        window.onload = function() { try { showView('home'); } catch(e){} };
     </script>
 </body>
 </html>
