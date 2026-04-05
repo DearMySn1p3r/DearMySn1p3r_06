@@ -42,11 +42,11 @@
             text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
         .hidden-view { display: none !important; }
         
-        /* 캔버스 공통 */
+        /* 🔥 캔버스 공통 (초고화질을 위해 베이스 사이즈 대폭 확장) 🔥 */
         .canvas-container { width: 100%; aspect-ratio: 1 / 1; position: relative; overflow: hidden; border-radius: 8px; border: 1px solid #ededed; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
         .canvas-area { width: 1600px; height: 1600px; position: absolute; top: 0; left: 0; box-sizing: border-box; transform-origin: top left; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* 📖 책갈피 1페이지 레이아웃 */
+        /* 📖 책갈피 1페이지 레이아웃 (베이스 1000x1500px 확장) */
         .book-canvas-container { width: 100%; aspect-ratio: 1 / 1.5; max-width: 500px; margin: 0 auto; position: relative; overflow: hidden; border-radius: 8px; border: 1px solid #ededed; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
         .book-canvas { width: 1000px; height: 1500px; background: #fffcf8; position: absolute; top: 0; left: 0; transform-origin: top left; display: flex; flex-direction: column; box-sizing: border-box; position: relative; }
         .break-all-words { word-break: keep-all; overflow-wrap: break-word; }
@@ -62,8 +62,6 @@
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
-
-    <div id="capture-root" style="position:fixed; left:-9999px; top:0;"></div>
 
     <header class="bg-white/90 backdrop-blur-md border-b border-ededed sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
@@ -392,14 +390,12 @@
                     <input type="file" id="g-img-upload" accept="image/*" class="w-full text-xs text-gray-500 file:mr-3 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-diary-pink-light file:text-diary-pink hover:file:bg-diary-pink hover:file:text-white cursor-pointer border border-dashed border-diary-pink p-2 rounded-xl transition-colors">
                 </div>
                 <div class="flex-1 flex flex-col gap-3">
-                    <label class="block text-xs font-bold text-diary-pink mb-1">태그 & 프롬프트 메모</label>
-                    <input type="text" id="g-tags" class="w-full p-2 bg-gray-50 border border-gray-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all" placeholder="태그 입력 (쉼표로 구분, 예: 캐릭터, 배경)">
+                    <label class="block text-xs font-bold text-diary-pink mb-1">프롬프트 메모</label>
                     <textarea id="g-prompt" class="w-full flex-1 p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all" placeholder="이 이미지에 사용된 프롬프트나 영감을 적어두세요."></textarea>
                     <button onclick="addGalleryItem()" class="btn-minimal w-full">갤러리에 추가하기</button>
                 </div>
             </div>
-            <div id="gallery-tag-filter" class="flex flex-wrap gap-2 max-w-5xl mx-auto"></div>
-            <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4 max-w-5xl mx-auto"></div>
+            <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8 max-w-5xl mx-auto"></div>
         </section>
 
         <section id="view-usernote" class="hidden-view space-y-6">
@@ -417,11 +413,9 @@
             <h2 class="text-xl font-bold text-diary-pink mb-5">OOC Note</h2>
             <div class="flex gap-2">
                 <input type="text" id="ooc-input" class="wiki-card flex-1 p-4 text-sm focus:outline-none focus:border-diary-pink transition-all shadow-sm" placeholder="(OOC: 명령어 또는 시스템 메모 입력) 엔터로 추가" onkeypress="if(event.key === 'Enter') addOOC()">
-                <input type="text" id="ooc-tags" class="w-32 p-4 text-sm focus:outline-none focus:border-diary-pink transition-all shadow-sm border border-gray-100 rounded-xl" placeholder="태그 (쉼표)">
                 <button onclick="addOOC()" id="btn-ooc-add" class="btn-minimal px-6">추가</button>
             </div>
-            <div id="ooc-tag-filter" class="flex flex-wrap gap-2 mt-4"></div>
-            <ul id="ooc-list" class="space-y-3 mt-4"></ul>
+            <ul id="ooc-list" class="space-y-3 mt-5"></ul>
         </section>
 
     </main>
@@ -434,7 +428,6 @@
             </div>
             <div class="w-full md:w-1/2 p-8 flex flex-col">
                 <h3 class="text-lg font-bold text-diary-pink mb-4">Prompt Info</h3>
-                <input type="text" id="modal-tags" class="w-full p-2 mb-3 bg-gray-50 border border-gray-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all" placeholder="태그 (쉼표로 구분)">
                 <textarea id="modal-prompt" class="flex-1 w-full p-4 bg-gray-50 border border-gray-100 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all"></textarea>
                 <div class="flex gap-3 mt-6">
                     <button onclick="saveModalPrompt()" class="flex-1 btn-minimal">내용 수정 저장</button>
@@ -458,23 +451,19 @@
     </div>
 
     <script>
-        // 문자열 콤마 분리 헬퍼 함수
-        function parseTags(str) {
-            if(!str) return [];
-            return str.split(',').map(t => t.trim()).filter(t => t);
-        }
-
         window.showView = function(viewId) {
             document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden-view'));
             const target = document.getElementById('view-' + viewId);
             if(target) target.classList.remove('hidden-view');
             
+            // 스마트 뒤로가기 버튼 처리
             const btnBack = document.getElementById('btn-back');
             if(btnBack) {
                 if(viewId === 'home') btnBack.classList.add('hidden');
                 else btnBack.classList.remove('hidden');
             }
             
+            // 베이스 캔버스 사이즈 확대에 맞춘 스케일 적용
             setTimeout(() => { 
                 applyScale('s-wrapper', 'snippet-canvas', 1600); 
                 applyScale('b-wrapper', 'book-canvas', 1000); 
@@ -504,6 +493,7 @@
             applyScale('pola-wrapper', 'polamaker-canvas', 1000);
         });
 
+        // 🔥 PNG 무손실 압축 🔥
         function compressImage(file, maxWidth = null) {
             return new Promise(resolve => {
                 const r = new FileReader();
@@ -513,6 +503,7 @@
                         const can = document.createElement('canvas');
                         let w = img.width;
                         let h = img.height;
+
                         if (maxWidth && w > maxWidth) {
                             h = Math.round(h * maxWidth / w);
                             w = maxWidth;
@@ -529,6 +520,7 @@
             });
         }
 
+        // 🔥 최강 화질 + 무결점 직접 캡처 렌더링 🔥
         window.captureSquare = async function(id, filename) {
             await document.fonts.ready;
 
@@ -538,26 +530,30 @@
             const origTransform = target.style.transform;
             const parentTransform = parent ? parent.style.transform : '';
 
+            // 화면상 스케일 및 부모 스케일 완전 제거
             target.style.transform = 'none';
             target.style.position = 'fixed';
             target.style.left = '0';
             target.style.top = '0';
             target.style.zIndex = '9999';
+
             if(parent) parent.style.transform = 'none';
 
             await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
             const canvas = await html2canvas(target, {
-                scale: 1, 
+                scale: 1, // 베이스 크기가 이미 충분히 크므로 1로 고정하여 완벽한 화질 캡처
                 useCORS: true,
                 backgroundColor: null
             });
 
+            // 복구
             target.style.transform = origTransform;
             target.style.position = '';
             target.style.left = '';
             target.style.top = '';
             target.style.zIndex = '';
+            
             if(parent) parent.style.transform = parentTransform;
 
             const link = document.createElement('a');
@@ -594,7 +590,7 @@
             }
         };
 
-        /* ================= 2. 책갈피 로그 ================= */
+        /* ================= 2. 책갈피 로그 (자동 분할 & 직접 캡처 대응) ================= */
         let pages = []; let currentIdx = 0;
         let bookLogTimeout;
 
@@ -632,6 +628,7 @@
             document.getElementById('b-py-val').innerText = py;
             document.getElementById('b-px-val').innerText = px;
 
+            // 캔버스 사이즈업 반영에 따른 계산
             const exactWidth = 1000 - (px * 2);
             const firstPageMaxH = 1500 - (py * 2) - 160 - 120; 
             const normalMaxH = 1500 - (py * 2) - 160; 
@@ -643,7 +640,7 @@
             measureDiv.style.left = '-9999px';
             measureDiv.style.top = '0';
             measureDiv.style.visibility = 'hidden';
-            measureDiv.style.fontSize = '28px'; 
+            measureDiv.style.fontSize = '28px'; // 폰트 사이즈업
             measureDiv.style.lineHeight = lh;
             measureDiv.style.letterSpacing = ls + 'px';
             measureDiv.style.textIndent = indent === '0' ? '0' : indent;
@@ -747,6 +744,7 @@
 
         window.changePage = function(d) { currentIdx += d; renderBookPage(); };
 
+        // 🔥 책갈피 직접 캡처로 찌그러짐 원천 차단 🔥
         window.downloadAllBookPagesMultiple = async function() {
             if(!pages.length || (pages.length === 1 && pages[0] === "")) return alert("내용이 없습니다."); 
             const btn = document.getElementById('btn-dl-all'); 
@@ -777,6 +775,7 @@
 
                 await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
+                // 원본을 1:1로 직접 캡처
                 const c = await html2canvas(target, { 
                     scale: 1, 
                     useCORS: true,
@@ -910,7 +909,7 @@
             loadPersonaList();
         };
         window.handlePersonaUpload = async function(input) {
-            if(input.files[0]) { currentPImg = await compressImage(input.files[0], 1200); document.getElementById('p-img-display').src = currentPImg; document.getElementById('p-img-display').classList.remove('hidden'); document.getElementById('p-img-placeholder').classList.add('hidden'); }
+            if(input.files[0]) { currentPImg = await compressImage(input.files[0], null); document.getElementById('p-img-display').src = currentPImg; document.getElementById('p-img-display').classList.remove('hidden'); document.getElementById('p-img-placeholder').classList.add('hidden'); }
         };
         window.savePersona = function() {
             const p = { name: document.getElementById('p-name').value, age: document.getElementById('p-age').value, features: document.getElementById('p-features').value, app: document.getElementById('p-appearance').value, per: document.getElementById('p-personality').value, bg: document.getElementById('p-background').value, img: currentPImg };
@@ -931,7 +930,7 @@
             if(input.files[0]) {
                 currentPolaImg = await compressImage(input.files[0], null);
                 const pmImg = document.getElementById('pm-img');
-                pmImg.src = currentPolaImg;
+                pmImg.style.backgroundImage = `url(${currentPolaImg})`;
                 pmImg.classList.remove('hidden');
                 document.getElementById('pm-placeholder').classList.add('hidden');
                 updatePolaMaker(); 
@@ -944,106 +943,39 @@
             if(currentPolaImg) {
                 const posX = document.getElementById('pm-pos-x').value;
                 const posY = document.getElementById('pm-pos-y').value;
-                img.style.objectPosition = `${posX}% ${posY}%`;
+                img.style.backgroundPosition = `${posX}% ${posY}%`;
             }
         };
 
-        /* ================= 5. 이미지 갤러리 (+ 태그 필터 기능) ================= */
+        /* ================= 5. 이미지 갤러리 ================= */
         let currentGalleryIndex = -1; 
-        let activeGalleryTag = null;
-        
-        function getGallery() { 
-            const raw = JSON.parse(localStorage.getItem('studio_gallery') || '[]'); 
-            // 이전 데이터 호환성 유지 (태그 없는 객체에 빈 태그 배열 추가)
-            return raw.map(item => {
-                if(!item.tags) item.tags = [];
-                return item;
-            });
-        }
-        
-        window.setGalleryFilter = function(tag) {
-            activeGalleryTag = activeGalleryTag === tag ? null : tag;
-            loadGallery();
-        };
-
+        function getGallery() { return JSON.parse(localStorage.getItem('studio_gallery') || '[]'); }
         window.addGalleryItem = async function() {
-            const input = document.getElementById('g-img-upload'); 
-            const prompt = document.getElementById('g-prompt').value;
-            const tagsInput = document.getElementById('g-tags').value;
-            
+            const input = document.getElementById('g-img-upload'); const prompt = document.getElementById('g-prompt').value;
             if(!input.files[0]) return alert("이미지를 첨부해주세요.");
-            const base64Img = await compressImage(input.files[0], null); 
-            const tags = parseTags(tagsInput);
-            
-            const gallery = getGallery(); 
-            gallery.unshift({ img: base64Img, prompt: prompt, tags: tags });
-            
-            try { 
-                localStorage.setItem('studio_gallery', JSON.stringify(gallery)); 
-                input.value = ''; 
-                document.getElementById('g-prompt').value = ''; 
-                document.getElementById('g-tags').value = '';
-                loadGallery(); 
-            } catch(e) { alert("용량 부족!"); }
+            const base64Img = await compressImage(input.files[0], null); const gallery = getGallery(); gallery.unshift({ img: base64Img, prompt: prompt });
+            try { localStorage.setItem('studio_gallery', JSON.stringify(gallery)); input.value = ''; document.getElementById('g-prompt').value = ''; loadGallery(); } 
+            catch(e) { alert("용량 부족!"); }
         };
-        
         window.loadGallery = function() {
-            const gal = getGallery(); 
-            const grid = document.getElementById('gallery-grid');
-            const filterContainer = document.getElementById('gallery-tag-filter');
-            
-            // 모든 고유 태그 수집
-            const allTags = new Set();
-            gal.forEach(item => item.tags.forEach(t => allTags.add(t)));
-            
-            // 필터 UI 생성
-            if(allTags.size > 0) {
-                let filterHtml = `<button onclick="setGalleryFilter(null)" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all ${!activeGalleryTag ? 'bg-diary-pink text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}">전체</button>`;
-                Array.from(allTags).forEach(tag => {
-                    filterHtml += `<button onclick="setGalleryFilter('${tag}')" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all ${activeGalleryTag === tag ? 'bg-diary-pink text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}">#${tag}</button>`;
-                });
-                filterContainer.innerHTML = filterHtml;
-            } else {
-                filterContainer.innerHTML = '';
-            }
-
-            // 필터 적용하여 리스트 렌더링
-            const filteredGal = activeGalleryTag ? gal.filter(item => item.tags.includes(activeGalleryTag)) : gal;
-            
-            grid.innerHTML = filteredGal.map((item, originalIndex) => {
-                // 필터링된 배열의 인덱스가 아니라, 원본 배열의 인덱스를 찾아야 함
-                const realIndex = gal.indexOf(item);
-                const tagHtml = item.tags && item.tags.length > 0 
-                    ? `<div class="mt-1 flex flex-wrap gap-1">${item.tags.map(t => `<span class="px-1.5 py-0.5 bg-diary-pink-light/50 text-diary-pink rounded text-[9px] font-bold">#${t}</span>`).join('')}</div>` 
-                    : '';
-                    
-                return `
-                    <div onclick="openGalleryModal(${realIndex})" class="bg-white rounded-2xl p-3 flex flex-col gap-2 relative group border border-gray-100 shadow-sm hover:shadow-md hover:border-diary-pink transition-all cursor-pointer">
-                        <img src="${item.img}" class="w-full aspect-square object-cover rounded-xl">
-                        ${tagHtml}
-                        <p class="text-[10px] text-gray-400 whitespace-pre-wrap px-1 truncate">${item.prompt || '메모 없음'}</p>
-                    </div>
-                `;
-            }).join('');
+            const gal = getGallery(); const grid = document.getElementById('gallery-grid');
+            grid.innerHTML = gal.map((item, i) => `
+                <div onclick="openGalleryModal(${i})" class="bg-white rounded-2xl p-3 flex flex-col gap-2 relative group border border-gray-100 shadow-sm hover:shadow-md hover:border-diary-pink transition-all cursor-pointer">
+                    <img src="${item.img}" class="w-full aspect-square object-cover rounded-xl">
+                    <p class="text-[10px] text-gray-400 whitespace-pre-wrap px-1 truncate">${item.prompt || '메모 없음'}</p>
+                </div>
+            `).join('');
         };
-        
         window.openGalleryModal = function(index) {
             currentGalleryIndex = index; const item = getGallery()[index]; if(!item) return;
-            document.getElementById('modal-img').src = item.img; 
-            document.getElementById('modal-prompt').value = item.prompt || '';
-            document.getElementById('modal-tags').value = item.tags ? item.tags.join(', ') : '';
+            document.getElementById('modal-img').src = item.img; document.getElementById('modal-prompt').value = item.prompt || '';
             document.getElementById('gallery-modal').classList.remove('hidden');
         };
         window.closeGalleryModal = function() { document.getElementById('gallery-modal').classList.add('hidden'); currentGalleryIndex = -1; };
-        
         window.saveModalPrompt = function() {
-            if(currentGalleryIndex === -1) return; 
-            const gal = getGallery(); 
-            gal[currentGalleryIndex].prompt = document.getElementById('modal-prompt').value;
-            gal[currentGalleryIndex].tags = parseTags(document.getElementById('modal-tags').value);
-            try { localStorage.setItem('studio_gallery', JSON.stringify(gal)); alert("수정되었습니다."); loadGallery(); closeGalleryModal(); } catch(e){}
+            if(currentGalleryIndex === -1) return; const gal = getGallery(); gal[currentGalleryIndex].prompt = document.getElementById('modal-prompt').value;
+            try { localStorage.setItem('studio_gallery', JSON.stringify(gal)); alert("수정되었습니다."); loadGallery(); } catch(e){}
         };
-        
         window.deleteModalItem = function() {
             if(currentGalleryIndex === -1) return; if(!confirm("삭제할까요?")) return;
             const gal = getGallery(); gal.splice(currentGalleryIndex, 1); localStorage.setItem('studio_gallery', JSON.stringify(gal));
@@ -1120,111 +1052,33 @@
             loadUserNotes();
         };
 
-        /* ================= 7. OOC 메모장 (+ 태그 기능 추가) ================= */
+        /* ================= 7. OOC 메모장 ================= */
         let editOocIndex = -1;
-        let activeOocTag = null;
-
-        function getOOC() { 
-            const raw = JSON.parse(localStorage.getItem('studio_ooc') || '[]'); 
-            // 구버전(단순 문자열 배열) 데이터 자동 변환 로직
-            return raw.map(item => {
-                if (typeof item === 'string') {
-                    return { text: item, tags: [] };
-                }
-                if (!item.tags) item.tags = [];
-                return item;
-            });
-        }
-        
-        window.setOocFilter = function(tag) {
-            activeOocTag = activeOocTag === tag ? null : tag;
-            loadOOC();
-        };
-
+        function getOOC() { return JSON.parse(localStorage.getItem('studio_ooc') || '[]'); }
         window.loadOOC = function() {
-            const listEl = document.getElementById('ooc-list');
-            const filterContainer = document.getElementById('ooc-tag-filter');
-            const oocData = getOOC();
-            
-            // 고유 태그 수집
-            const allTags = new Set();
-            oocData.forEach(item => item.tags.forEach(t => allTags.add(t)));
-            
-            // 필터 UI 생성
-            if(allTags.size > 0) {
-                let filterHtml = `<button onclick="setOocFilter(null)" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all ${!activeOocTag ? 'bg-diary-pink text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}">전체</button>`;
-                Array.from(allTags).forEach(tag => {
-                    filterHtml += `<button onclick="setOocFilter('${tag}')" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all ${activeOocTag === tag ? 'bg-diary-pink text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}">#${tag}</button>`;
-                });
-                filterContainer.innerHTML = filterHtml;
-            } else {
-                filterContainer.innerHTML = '';
-            }
-
-            // 필터 적용
-            const filteredOoc = activeOocTag ? oocData.filter(item => item.tags.includes(activeOocTag)) : oocData;
-
-            listEl.innerHTML = filteredOoc.map((o, index) => {
-                const realIndex = oocData.indexOf(o);
-                const tagHtml = o.tags && o.tags.length > 0 
-                    ? `<div class="mt-2 flex flex-wrap gap-1">${o.tags.map(t => `<span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-[10px]">#${t}</span>`).join('')}</div>` 
-                    : '';
-                    
-                return `
-                    <li class="bg-white border border-gray-100 rounded-2xl flex justify-between items-center p-4 text-sm shadow-sm hover:border-diary-pink transition-colors group">
-                        <div class="flex-1 pr-4">
-                            <span class="cursor-pointer text-gray-600 hover:text-diary-pink hover:font-bold transition-all" onclick="navigator.clipboard.writeText('${o.text.replace(/'/g, "\\'")}')">${o.text}</span>
-                            ${tagHtml}
-                        </div>
-                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="editOOC(${realIndex})" class="text-gray-300 hover:text-blue-400 font-bold">수정</button>
-                            <button onclick="deleteOOC(${realIndex})" class="text-gray-300 hover:text-red-400 font-bold ml-2">삭제</button>
-                        </div>
-                    </li>
-                `;
-            }).join('');
+            const list = document.getElementById('ooc-list');
+            list.innerHTML = getOOC().map((o, i) => `
+                <li class="bg-white border border-gray-100 rounded-2xl flex justify-between items-center p-4 text-sm shadow-sm hover:border-diary-pink transition-colors group">
+                    <span class="cursor-pointer text-gray-600 hover:text-diary-pink hover:font-bold transition-all flex-1 pr-4" onclick="navigator.clipboard.writeText('${o.replace(/'/g, "\\'")}')">${o}</span>
+                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="editOOC(${i})" class="text-gray-300 hover:text-blue-400 font-bold">수정</button>
+                        <button onclick="deleteOOC(${i})" class="text-gray-300 hover:text-red-400 font-bold ml-2">삭제</button>
+                    </div>
+                </li>
+            `).join('');
         };
-
         window.addOOC = function() { 
-            const inEl = document.getElementById('ooc-input'); 
-            const tagsEl = document.getElementById('ooc-tags');
-            
-            const val = inEl.value.trim(); 
-            const tags = parseTags(tagsEl.value);
-            
-            if(!val) return; 
-            
-            const oocData = getOOC(); 
-            
-            if(editOocIndex > -1) { 
-                oocData[editOocIndex] = { text: val, tags: tags }; 
-                editOocIndex = -1; 
-                document.getElementById('btn-ooc-add').innerText = '추가'; 
-            } else { 
-                oocData.unshift({ text: val, tags: tags }); 
-            }
-            
-            localStorage.setItem('studio_ooc', JSON.stringify(oocData)); 
-            inEl.value = ''; 
-            tagsEl.value = '';
-            loadOOC(); 
+            const inEl = document.getElementById('ooc-input'); const val = inEl.value.trim(); if(!val) return; 
+            const o = getOOC(); 
+            if(editOocIndex > -1) { o[editOocIndex] = val; editOocIndex = -1; document.getElementById('btn-ooc-add').innerText = '추가'; } 
+            else { o.unshift(val); }
+            localStorage.setItem('studio_ooc', JSON.stringify(o)); inEl.value = ''; loadOOC(); 
         };
-
         window.editOOC = function(i) {
-            const item = getOOC()[i];
-            document.getElementById('ooc-input').value = item.text; 
-            document.getElementById('ooc-tags').value = item.tags ? item.tags.join(', ') : '';
-            editOocIndex = i;
-            document.getElementById('btn-ooc-add').innerText = '수정 완료'; 
-            document.getElementById('ooc-input').focus();
+            document.getElementById('ooc-input').value = getOOC()[i]; editOocIndex = i;
+            document.getElementById('btn-ooc-add').innerText = '수정 완료'; document.getElementById('ooc-input').focus();
         };
-
-        window.deleteOOC = function(i) { 
-            const oocData = getOOC(); 
-            oocData.splice(i, 1); 
-            localStorage.setItem('studio_ooc', JSON.stringify(oocData)); 
-            loadOOC(); 
-        };
+        window.deleteOOC = function(i) { const o = getOOC(); o.splice(i, 1); localStorage.setItem('studio_ooc', JSON.stringify(o)); loadOOC(); };
 
         /* ================= 공통 (백업/업로드) ================= */
         window.exportAllData = function() { 
