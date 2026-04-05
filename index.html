@@ -32,7 +32,6 @@
     </script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@1,500;1,600&family=Gowun+Batang&family=Hahmlet:wght@400;600&family=Nanum+Gothic&family=Nanum+Myeongjo:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
@@ -45,11 +44,11 @@
         
         /* 캔버스 공통 */
         .canvas-container { width: 100%; aspect-ratio: 1 / 1; position: relative; overflow: hidden; border-radius: 8px; border: 1px solid #ededed; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
-        .canvas-area { width: 800px; height: 800px; position: absolute; top: 0; left: 0; box-sizing: border-box; transform-origin: top left; display: flex; flex-direction: column; overflow: hidden; }
+        .canvas-area { width: 1600px; height: 1600px; position: absolute; top: 0; left: 0; box-sizing: border-box; transform-origin: top left; display: flex; flex-direction: column; overflow: hidden; }
 
         /* 📖 책갈피 1페이지 레이아웃 */
         .book-canvas-container { width: 100%; aspect-ratio: 1 / 1.5; max-width: 500px; margin: 0 auto; position: relative; overflow: hidden; border-radius: 8px; border: 1px solid #ededed; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
-        .book-canvas { width: 500px; height: 750px; background: #fffcf8; position: absolute; top: 0; left: 0; transform-origin: top left; display: flex; flex-direction: column; box-sizing: border-box; position: relative; }
+        .book-canvas { width: 1000px; height: 1500px; background: #fffcf8; position: absolute; top: 0; left: 0; transform-origin: top left; display: flex; flex-direction: column; box-sizing: border-box; position: relative; }
         .break-all-words { word-break: keep-all; overflow-wrap: break-word; }
 
         /* 버튼 */
@@ -106,7 +105,6 @@
                 <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">📸</div>
                 <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">폴라로이드</h2></div>
             </div>
-            
             <div onclick="showView('gallery')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3 md:col-span-2">
                 <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">🖼️</div>
                 <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">이미지 갤러리</h2></div>
@@ -115,7 +113,7 @@
                 <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">📓</div>
                 <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">유저 노트</h2></div>
             </div>
-            <div onclick="showView('ooc')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3">
+            <div onclick="showView('ooc')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3 md:col-span-2 lg:col-span-1">
                 <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">💬</div>
                 <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">OOC 메모</h2></div>
             </div>
@@ -151,7 +149,15 @@
                     </select>
                 </div>
                 <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                    <label class="block text-[11px] font-bold text-diary-pink mb-2">배경 그라데이션</label>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-[11px] font-bold text-diary-pink">배경 그라데이션</label>
+                        <select id="s-grad-dir" class="p-1 bg-white border border-gray-100 rounded text-[10px] focus:outline-none" onchange="updateSnippet()">
+                            <option value="135deg">대각선</option>
+                            <option value="to bottom">위에서 아래</option>
+                            <option value="to right">왼쪽에서 오른쪽</option>
+                            <option value="circle">원형 중심</option>
+                        </select>
+                    </div>
                     <div class="flex gap-2">
                         <input type="color" id="s-color1" value="#ffffff" class="h-8 w-full cursor-pointer rounded border border-gray-200" oninput="updateSnippet()">
                         <span class="text-gray-400 self-center">to</span>
@@ -165,9 +171,9 @@
 
             <div class="flex-1 flex items-center justify-center">
                 <div class="canvas-container" id="s-wrapper">
-                    <div class="canvas-area p-[80px]" id="snippet-canvas">
-                        <div id="s-text-display" class="w-full font-sans text-center leading-[1.8] break-keep flex-1 flex flex-col justify-center" style="font-size: 26px; color: #4A4A4A;">내용이 표시됩니다.</div>
-                        <div id="s-sub-display" class="w-full text-center mt-6 text-lg" style="color: #4A4A4A; opacity: 0.8;"></div>
+                    <div class="canvas-area p-[160px]" id="snippet-canvas">
+                        <div id="s-text-display" class="w-full font-sans text-center leading-[1.8] break-keep flex-1 flex flex-col justify-center" style="font-size: 52px; color: #4A4A4A;">내용이 표시됩니다.</div>
+                        <div id="s-sub-display" class="w-full text-center mt-12" style="font-size: 36px; color: #4A4A4A; opacity: 0.8;"></div>
                     </div>
                 </div>
             </div>
@@ -217,20 +223,20 @@
                         <div class="p-3 bg-gray-50 border border-gray-100 rounded-xl space-y-3">
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">상하 여백 (<span id="b-py-val">60</span>px)</label>
-                                    <input type="range" id="b-py" min="30" max="120" step="5" value="60" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()">
+                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">상하 여백 (<span id="b-py-val">120</span>px)</label>
+                                    <input type="range" id="b-py" min="60" max="240" step="10" value="120" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()">
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">좌우 여백 (<span id="b-px-val">75</span>px)</label>
-                                    <input type="range" id="b-px" min="30" max="100" step="5" value="75" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()">
+                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">좌우 여백 (<span id="b-px-val">150</span>px)</label>
+                                    <input type="range" id="b-px" min="60" max="200" step="10" value="150" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()">
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-bold text-diary-pink mb-1">줄간격 (<span id="b-lh-val">2.0</span>)</label>
                                     <input type="range" id="b-lh" min="1.5" max="3.0" step="0.1" value="2.0" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()">
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">자간 (<span id="b-ls-val">-0.5</span>px)</label>
-                                    <input type="range" id="b-ls" min="-2" max="5" step="0.5" value="-0.5" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()">
+                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">자간 (<span id="b-ls-val">-1</span>px)</label>
+                                    <input type="range" id="b-ls" min="-4" max="10" step="1" value="-1" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()">
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
@@ -238,8 +244,9 @@
                                     <label class="block text-[10px] font-bold text-diary-pink mb-1">들여쓰기</label>
                                     <select id="b-indent" class="w-full p-1.5 bg-white border border-gray-100 rounded-lg text-xs focus:outline-none" onchange="triggerProcessBookLog()">
                                         <option value="0">없음</option>
-                                        <option value="15px">작게</option>
-                                        <option value="25px" selected>보통</option>
+                                        <option value="30px">작게</option>
+                                        <option value="50px" selected>보통</option>
+                                        <option value="70px">크게</option>
                                     </select>
                                 </div>
                                 <div>
@@ -273,11 +280,11 @@
                 <div class="book-canvas-container" id="b-wrapper">
                     <div class="book-canvas text-diary-text flex flex-col" id="book-canvas">
                         <div class="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.02)] pointer-events-none"></div>
-                        <div class="text-center text-[26px] mb-8 font-bold tracking-widest book-header-main" id="b-header-main"></div>
-                        <div class="flex-1 text-[14px] whitespace-pre-wrap break-keep text-justify break-all-words" id="b-page-content"></div>
+                        <div class="text-center text-[48px] mb-16 font-bold tracking-widest book-header-main" id="b-header-main"></div>
+                        <div class="flex-1 text-[28px] whitespace-pre-wrap break-keep text-justify break-all-words" id="b-page-content"></div>
                         <div id="b-footer" class="absolute flex justify-between items-end w-full" style="box-sizing: border-box;">
-                            <span id="b-header-sub" class="text-xs opacity-60 tracking-widest font-bold"></span>
-                            <span id="b-num" class="text-xs text-[#a1a1a1]">1</span>
+                            <span id="b-header-sub" class="text-[24px] opacity-60 tracking-widest font-bold"></span>
+                            <span id="b-num" class="text-[24px] text-[#a1a1a1]">1</span>
                         </div>
                     </div>
                 </div>
@@ -366,13 +373,13 @@
             </div>
 
             <div class="flex-1 flex items-center justify-center bg-gray-50/50 rounded-2xl border border-dashed border-gray-200 p-4 overflow-hidden" id="pola-wrapper">
-                <div id="polamaker-canvas" style="width: 500px; height: 600px; padding: 20px; background: transparent; position: relative; margin: 0 auto;">
-                    <div id="pm-frame" style="width: 460px; height: 560px; background: white; padding: 20px; padding-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); transform: rotate(-1.5deg); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; margin: 0 auto; border: 1px solid #ededed;">
-                        <div style="width: 420px; height: 420px; position: relative; overflow: hidden; background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px;">
-                            <div id="pm-img" class="hidden absolute inset-0 w-full h-full" style="background-size: cover; background-position: 50% 50%;"></div>
-                            <span id="pm-placeholder" class="absolute inset-0 flex items-center justify-center text-gray-300 text-sm">사진을 넣어주세요</span>
+                <div id="polamaker-canvas" style="width: 1000px; height: 1200px; padding: 40px; background: transparent; position: relative; margin: 0 auto;">
+                    <div id="pm-frame" style="width: 920px; height: 1120px; background: white; padding: 40px; padding-bottom: 60px; box-shadow: 0 20px 50px rgba(0,0,0,0.08); transform: rotate(-1.5deg); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; margin: 0 auto; border: 1px solid #ededed;">
+                        <div style="width: 840px; height: 840px; position: relative; overflow: hidden; background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px;">
+                            <img id="pm-img" class="hidden absolute inset-0 w-full h-full" style="object-fit: cover; object-position: 50% 50%;">
+                            <span id="pm-placeholder" class="absolute inset-0 flex items-center justify-center text-gray-300 text-xl">사진을 넣어주세요</span>
                         </div>
-                        <div id="pm-display" class="font-pen" style="width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 44px; color: #4a4a4a; margin-top: 15px;"></div>
+                        <div id="pm-display" class="font-pen" style="width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 88px; color: #4a4a4a; margin-top: 30px;"></div>
                     </div>
                 </div>
             </div>
@@ -385,12 +392,14 @@
                     <input type="file" id="g-img-upload" accept="image/*" class="w-full text-xs text-gray-500 file:mr-3 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-diary-pink-light file:text-diary-pink hover:file:bg-diary-pink hover:file:text-white cursor-pointer border border-dashed border-diary-pink p-2 rounded-xl transition-colors">
                 </div>
                 <div class="flex-1 flex flex-col gap-3">
-                    <label class="block text-xs font-bold text-diary-pink mb-1">프롬프트 메모</label>
+                    <label class="block text-xs font-bold text-diary-pink mb-1">태그 & 프롬프트 메모</label>
+                    <input type="text" id="g-tags" class="w-full p-2 bg-gray-50 border border-gray-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all" placeholder="태그 입력 (쉼표로 구분, 예: 캐릭터, 배경)">
                     <textarea id="g-prompt" class="w-full flex-1 p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all" placeholder="이 이미지에 사용된 프롬프트나 영감을 적어두세요."></textarea>
                     <button onclick="addGalleryItem()" class="btn-minimal w-full">갤러리에 추가하기</button>
                 </div>
             </div>
-            <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8 max-w-5xl mx-auto"></div>
+            <div id="gallery-tag-filter" class="flex flex-wrap gap-2 max-w-5xl mx-auto"></div>
+            <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4 max-w-5xl mx-auto"></div>
         </section>
 
         <section id="view-usernote" class="hidden-view space-y-6">
@@ -408,9 +417,11 @@
             <h2 class="text-xl font-bold text-diary-pink mb-5">OOC Note</h2>
             <div class="flex gap-2">
                 <input type="text" id="ooc-input" class="wiki-card flex-1 p-4 text-sm focus:outline-none focus:border-diary-pink transition-all shadow-sm" placeholder="(OOC: 명령어 또는 시스템 메모 입력) 엔터로 추가" onkeypress="if(event.key === 'Enter') addOOC()">
+                <input type="text" id="ooc-tags" class="w-32 p-4 text-sm focus:outline-none focus:border-diary-pink transition-all shadow-sm border border-gray-100 rounded-xl" placeholder="태그 (쉼표)">
                 <button onclick="addOOC()" id="btn-ooc-add" class="btn-minimal px-6">추가</button>
             </div>
-            <ul id="ooc-list" class="space-y-3 mt-5"></ul>
+            <div id="ooc-tag-filter" class="flex flex-wrap gap-2 mt-4"></div>
+            <ul id="ooc-list" class="space-y-3 mt-4"></ul>
         </section>
 
     </main>
@@ -423,6 +434,7 @@
             </div>
             <div class="w-full md:w-1/2 p-8 flex flex-col">
                 <h3 class="text-lg font-bold text-diary-pink mb-4">Prompt Info</h3>
+                <input type="text" id="modal-tags" class="w-full p-2 mb-3 bg-gray-50 border border-gray-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all" placeholder="태그 (쉼표로 구분)">
                 <textarea id="modal-prompt" class="flex-1 w-full p-4 bg-gray-50 border border-gray-100 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all"></textarea>
                 <div class="flex gap-3 mt-6">
                     <button onclick="saveModalPrompt()" class="flex-1 btn-minimal">내용 수정 저장</button>
@@ -446,12 +458,17 @@
     </div>
 
     <script>
+        // 문자열 콤마 분리 헬퍼 함수
+        function parseTags(str) {
+            if(!str) return [];
+            return str.split(',').map(t => t.trim()).filter(t => t);
+        }
+
         window.showView = function(viewId) {
             document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden-view'));
             const target = document.getElementById('view-' + viewId);
             if(target) target.classList.remove('hidden-view');
             
-            // 스마트 뒤로가기 버튼 처리
             const btnBack = document.getElementById('btn-back');
             if(btnBack) {
                 if(viewId === 'home') btnBack.classList.add('hidden');
@@ -459,9 +476,9 @@
             }
             
             setTimeout(() => { 
-                applyScale('s-wrapper', 'snippet-canvas', 800); 
-                applyScale('b-wrapper', 'book-canvas', 500); 
-                applyScale('pola-wrapper', 'polamaker-canvas', 500); 
+                applyScale('s-wrapper', 'snippet-canvas', 1600); 
+                applyScale('b-wrapper', 'book-canvas', 1000); 
+                applyScale('pola-wrapper', 'polamaker-canvas', 1000); 
             }, 50);
             
             if(viewId === 'booklog') setTimeout(triggerProcessBookLog, 100);
@@ -482,12 +499,11 @@
         }
         
         window.addEventListener('resize', () => { 
-            applyScale('s-wrapper', 'snippet-canvas', 800); 
-            applyScale('b-wrapper', 'book-canvas', 500); 
-            applyScale('pola-wrapper', 'polamaker-canvas', 500);
+            applyScale('s-wrapper', 'snippet-canvas', 1600); 
+            applyScale('b-wrapper', 'book-canvas', 1000); 
+            applyScale('pola-wrapper', 'polamaker-canvas', 1000);
         });
 
-        // 🔥 PNG 원본 유지 (손실 없음) 🔥
         function compressImage(file, maxWidth = null) {
             return new Promise(resolve => {
                 const r = new FileReader();
@@ -497,7 +513,6 @@
                         const can = document.createElement('canvas');
                         let w = img.width;
                         let h = img.height;
-
                         if (maxWidth && w > maxWidth) {
                             h = Math.round(h * maxWidth / w);
                             w = maxWidth;
@@ -514,31 +529,36 @@
             });
         }
 
-        // 🔥 완벽한 캡처 렌더링 🔥
         window.captureSquare = async function(id, filename) {
             await document.fonts.ready;
 
-            const original = document.getElementById(id);
-            const captureRoot = document.getElementById('capture-root');
+            const target = document.getElementById(id);
+            const parent = target.parentElement;
+            
+            const origTransform = target.style.transform;
+            const parentTransform = parent ? parent.style.transform : '';
 
-            const clone = original.cloneNode(true);
-            clone.style.transform = 'none';
-            clone.style.position = 'static';
-            clone.style.width = original.offsetWidth + 'px';
-            clone.style.height = original.offsetHeight + 'px';
+            target.style.transform = 'none';
+            target.style.position = 'fixed';
+            target.style.left = '0';
+            target.style.top = '0';
+            target.style.zIndex = '9999';
+            if(parent) parent.style.transform = 'none';
 
-            captureRoot.innerHTML = '';
-            captureRoot.appendChild(clone);
+            await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-            await new Promise(r => setTimeout(r, 50));
-
-            const canvas = await html2canvas(clone, {
-                scale: 4,
+            const canvas = await html2canvas(target, {
+                scale: 1, 
                 useCORS: true,
                 backgroundColor: null
             });
 
-            captureRoot.innerHTML = '';
+            target.style.transform = origTransform;
+            target.style.position = '';
+            target.style.left = '';
+            target.style.top = '';
+            target.style.zIndex = '';
+            if(parent) parent.style.transform = parentTransform;
 
             const link = document.createElement('a');
             link.download = `${filename}_${Date.now()}.png`;
@@ -564,9 +584,14 @@
                 sub.innerHTML = `${creator ? creator : ''} ${creator && character ? ' | ' : ''} <span class="font-bold">${character}</span>`;
             } else { sub.innerHTML = ''; }
             
+            const dir = document.getElementById('s-grad-dir').value;
             const col1 = document.getElementById('s-color1').value;
             const col2 = document.getElementById('s-color2').value;
-            can.style.background = `linear-gradient(135deg, ${col1} 0%, ${col2} 100%)`;
+            if(dir === 'circle') {
+                can.style.background = `radial-gradient(circle, ${col1} 0%, ${col2} 100%)`;
+            } else {
+                can.style.background = `linear-gradient(${dir}, ${col1} 0%, ${col2} 100%)`;
+            }
         };
 
         /* ================= 2. 책갈피 로그 ================= */
@@ -607,9 +632,9 @@
             document.getElementById('b-py-val').innerText = py;
             document.getElementById('b-px-val').innerText = px;
 
-            const exactWidth = 500 - (px * 2);
-            const firstPageMaxH = 750 - (py * 2) - 80 - 60; 
-            const normalMaxH = 750 - (py * 2) - 80; 
+            const exactWidth = 1000 - (px * 2);
+            const firstPageMaxH = 1500 - (py * 2) - 160 - 120; 
+            const normalMaxH = 1500 - (py * 2) - 160; 
 
             const measureDiv = document.createElement('div');
             measureDiv.className = `${font} break-all-words`;
@@ -618,6 +643,7 @@
             measureDiv.style.left = '-9999px';
             measureDiv.style.top = '0';
             measureDiv.style.visibility = 'hidden';
+            measureDiv.style.fontSize = '28px'; 
             measureDiv.style.lineHeight = lh;
             measureDiv.style.letterSpacing = ls + 'px';
             measureDiv.style.textIndent = indent === '0' ? '0' : indent;
@@ -679,13 +705,13 @@
                 headerMain.style.display = 'block';
                 headerMain.innerText = title;
                 headerMain.style.color = titleColor;
-                headerMain.className = `text-center text-[24px] mb-8 font-bold tracking-widest book-header-main ${titleFontValue} ${titleFontValue === 'font-serif' ? 'italic' : ''}`;
+                headerMain.className = `text-center text-[48px] mb-16 font-bold tracking-widest book-header-main ${titleFontValue} ${titleFontValue === 'font-serif' ? 'italic' : ''}`;
                 headerSub.innerText = '';
             } else {
                 headerMain.style.display = 'none';
                 headerSub.innerText = title;
                 headerSub.style.color = titleColor;
-                headerSub.className = `text-xs tracking-widest ${titleFontValue} ${titleFontValue === 'font-serif' ? 'italic' : ''}`;
+                headerSub.className = `text-[24px] tracking-widest ${titleFontValue} ${titleFontValue === 'font-serif' ? 'italic' : ''}`;
             }
             
             const font = document.getElementById('b-font').value;
@@ -696,7 +722,7 @@
             const px = document.getElementById('b-px').value;
 
             const pageContent = document.getElementById('b-page-content');
-            pageContent.className = `flex-1 ${font} text-[14px] whitespace-pre-wrap break-keep text-justify break-all-words`;
+            pageContent.className = `flex-1 ${font} text-[28px] whitespace-pre-wrap break-keep text-justify break-all-words`;
             pageContent.style.lineHeight = lh;
             pageContent.style.letterSpacing = ls + 'px';
             pageContent.style.textIndent = indent === '0' ? '0' : indent;
@@ -731,16 +757,49 @@
             
             const origIdx = currentIdx; 
             const total = pages.length;
+            const target = document.getElementById('book-canvas');
+            const parent = target.parentElement;
 
             for(let i=0; i<total; i++) { 
                 currentIdx = i; renderBookPage(); 
                 await new Promise(r => setTimeout(r, 200)); 
-                await captureSquare('book-canvas', `BookLog_Page_${i+1}`);
+                
+                const origTransform = target.style.transform;
+                const parentTransform = parent ? parent.style.transform : '';
+
+                target.style.transform = 'none';
+                target.style.position = 'fixed';
+                target.style.left = '0';
+                target.style.top = '0';
+                target.style.zIndex = '9999';
+
+                if(parent) parent.style.transform = 'none';
+
+                await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+                const c = await html2canvas(target, { 
+                    scale: 1, 
+                    useCORS: true,
+                    backgroundColor: null
+                }); 
+                
+                target.style.transform = origTransform;
+                target.style.position = '';
+                target.style.left = '';
+                target.style.top = '';
+                target.style.zIndex = '';
+                if(parent) parent.style.transform = parentTransform;
+                
+                const link = document.createElement('a'); 
+                link.download = `BookLog_Page_${i+1}.png`; 
+                link.href = c.toDataURL('image/png'); 
+                link.click();
+
                 await new Promise(r => setTimeout(r, 600)); 
             }
             
             currentIdx = origIdx; renderBookPage(); 
-            btn.innerText = "전체 페이지 개별 PNG로 다중 다운로드"; 
+            btn.innerText = "전체 페이지 분할 PNG로 저장"; 
             btn.disabled = false;
         };
 
@@ -756,31 +815,39 @@
             const total = pages.length;
             let canvases = [];
 
-            const original = document.getElementById('book-canvas');
-            const captureRoot = document.getElementById('capture-root');
+            const target = document.getElementById('book-canvas');
+            const parent = target.parentElement;
 
             for(let i=0; i<total; i++) { 
                 currentIdx = i; renderBookPage(); 
                 await new Promise(r => setTimeout(r, 150)); 
                 
-                const clone = original.cloneNode(true);
-                clone.style.transform = 'none';
-                clone.style.position = 'static';
-                clone.style.width = original.offsetWidth + 'px';
-                clone.style.height = original.offsetHeight + 'px';
+                const origTransform = target.style.transform;
+                const parentTransform = parent ? parent.style.transform : '';
 
-                captureRoot.innerHTML = '';
-                captureRoot.appendChild(clone);
+                target.style.transform = 'none';
+                target.style.position = 'fixed';
+                target.style.left = '0';
+                target.style.top = '0';
+                target.style.zIndex = '9999';
 
-                await new Promise(r => setTimeout(r, 50));
+                if(parent) parent.style.transform = 'none';
 
-                const c = await html2canvas(clone, { 
-                    scale: 4, 
+                await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+                const c = await html2canvas(target, { 
+                    scale: 1, 
                     useCORS: true,
                     backgroundColor: null
                 }); 
                 
-                captureRoot.innerHTML = '';
+                target.style.transform = origTransform;
+                target.style.position = '';
+                target.style.left = '';
+                target.style.top = '';
+                target.style.zIndex = '';
+                if(parent) parent.style.transform = parentTransform;
+
                 canvases.push(c);
             }
             
@@ -843,7 +910,7 @@
             loadPersonaList();
         };
         window.handlePersonaUpload = async function(input) {
-            if(input.files[0]) { currentPImg = await compressImage(input.files[0], null); document.getElementById('p-img-display').src = currentPImg; document.getElementById('p-img-display').classList.remove('hidden'); document.getElementById('p-img-placeholder').classList.add('hidden'); }
+            if(input.files[0]) { currentPImg = await compressImage(input.files[0], 1200); document.getElementById('p-img-display').src = currentPImg; document.getElementById('p-img-display').classList.remove('hidden'); document.getElementById('p-img-placeholder').classList.add('hidden'); }
         };
         window.savePersona = function() {
             const p = { name: document.getElementById('p-name').value, age: document.getElementById('p-age').value, features: document.getElementById('p-features').value, app: document.getElementById('p-appearance').value, per: document.getElementById('p-personality').value, bg: document.getElementById('p-background').value, img: currentPImg };
@@ -864,7 +931,7 @@
             if(input.files[0]) {
                 currentPolaImg = await compressImage(input.files[0], null);
                 const pmImg = document.getElementById('pm-img');
-                pmImg.style.backgroundImage = `url(${currentPolaImg})`;
+                pmImg.src = currentPolaImg;
                 pmImg.classList.remove('hidden');
                 document.getElementById('pm-placeholder').classList.add('hidden');
                 updatePolaMaker(); 
@@ -877,39 +944,106 @@
             if(currentPolaImg) {
                 const posX = document.getElementById('pm-pos-x').value;
                 const posY = document.getElementById('pm-pos-y').value;
-                img.style.backgroundPosition = `${posX}% ${posY}%`;
+                img.style.objectPosition = `${posX}% ${posY}%`;
             }
         };
 
-        /* ================= 5. 이미지 갤러리 ================= */
+        /* ================= 5. 이미지 갤러리 (+ 태그 필터 기능) ================= */
         let currentGalleryIndex = -1; 
-        function getGallery() { return JSON.parse(localStorage.getItem('studio_gallery') || '[]'); }
+        let activeGalleryTag = null;
+        
+        function getGallery() { 
+            const raw = JSON.parse(localStorage.getItem('studio_gallery') || '[]'); 
+            // 이전 데이터 호환성 유지 (태그 없는 객체에 빈 태그 배열 추가)
+            return raw.map(item => {
+                if(!item.tags) item.tags = [];
+                return item;
+            });
+        }
+        
+        window.setGalleryFilter = function(tag) {
+            activeGalleryTag = activeGalleryTag === tag ? null : tag;
+            loadGallery();
+        };
+
         window.addGalleryItem = async function() {
-            const input = document.getElementById('g-img-upload'); const prompt = document.getElementById('g-prompt').value;
+            const input = document.getElementById('g-img-upload'); 
+            const prompt = document.getElementById('g-prompt').value;
+            const tagsInput = document.getElementById('g-tags').value;
+            
             if(!input.files[0]) return alert("이미지를 첨부해주세요.");
-            const base64Img = await compressImage(input.files[0], null); const gallery = getGallery(); gallery.unshift({ img: base64Img, prompt: prompt });
-            try { localStorage.setItem('studio_gallery', JSON.stringify(gallery)); input.value = ''; document.getElementById('g-prompt').value = ''; loadGallery(); } 
-            catch(e) { alert("용량 부족!"); }
+            const base64Img = await compressImage(input.files[0], null); 
+            const tags = parseTags(tagsInput);
+            
+            const gallery = getGallery(); 
+            gallery.unshift({ img: base64Img, prompt: prompt, tags: tags });
+            
+            try { 
+                localStorage.setItem('studio_gallery', JSON.stringify(gallery)); 
+                input.value = ''; 
+                document.getElementById('g-prompt').value = ''; 
+                document.getElementById('g-tags').value = '';
+                loadGallery(); 
+            } catch(e) { alert("용량 부족!"); }
         };
+        
         window.loadGallery = function() {
-            const gal = getGallery(); const grid = document.getElementById('gallery-grid');
-            grid.innerHTML = gal.map((item, i) => `
-                <div onclick="openGalleryModal(${i})" class="bg-white rounded-2xl p-3 flex flex-col gap-2 relative group border border-gray-100 shadow-sm hover:shadow-md hover:border-diary-pink transition-all cursor-pointer">
-                    <img src="${item.img}" class="w-full aspect-square object-cover rounded-xl">
-                    <p class="text-[10px] text-gray-400 whitespace-pre-wrap px-1 truncate">${item.prompt || '메모 없음'}</p>
-                </div>
-            `).join('');
+            const gal = getGallery(); 
+            const grid = document.getElementById('gallery-grid');
+            const filterContainer = document.getElementById('gallery-tag-filter');
+            
+            // 모든 고유 태그 수집
+            const allTags = new Set();
+            gal.forEach(item => item.tags.forEach(t => allTags.add(t)));
+            
+            // 필터 UI 생성
+            if(allTags.size > 0) {
+                let filterHtml = `<button onclick="setGalleryFilter(null)" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all ${!activeGalleryTag ? 'bg-diary-pink text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}">전체</button>`;
+                Array.from(allTags).forEach(tag => {
+                    filterHtml += `<button onclick="setGalleryFilter('${tag}')" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all ${activeGalleryTag === tag ? 'bg-diary-pink text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}">#${tag}</button>`;
+                });
+                filterContainer.innerHTML = filterHtml;
+            } else {
+                filterContainer.innerHTML = '';
+            }
+
+            // 필터 적용하여 리스트 렌더링
+            const filteredGal = activeGalleryTag ? gal.filter(item => item.tags.includes(activeGalleryTag)) : gal;
+            
+            grid.innerHTML = filteredGal.map((item, originalIndex) => {
+                // 필터링된 배열의 인덱스가 아니라, 원본 배열의 인덱스를 찾아야 함
+                const realIndex = gal.indexOf(item);
+                const tagHtml = item.tags && item.tags.length > 0 
+                    ? `<div class="mt-1 flex flex-wrap gap-1">${item.tags.map(t => `<span class="px-1.5 py-0.5 bg-diary-pink-light/50 text-diary-pink rounded text-[9px] font-bold">#${t}</span>`).join('')}</div>` 
+                    : '';
+                    
+                return `
+                    <div onclick="openGalleryModal(${realIndex})" class="bg-white rounded-2xl p-3 flex flex-col gap-2 relative group border border-gray-100 shadow-sm hover:shadow-md hover:border-diary-pink transition-all cursor-pointer">
+                        <img src="${item.img}" class="w-full aspect-square object-cover rounded-xl">
+                        ${tagHtml}
+                        <p class="text-[10px] text-gray-400 whitespace-pre-wrap px-1 truncate">${item.prompt || '메모 없음'}</p>
+                    </div>
+                `;
+            }).join('');
         };
+        
         window.openGalleryModal = function(index) {
             currentGalleryIndex = index; const item = getGallery()[index]; if(!item) return;
-            document.getElementById('modal-img').src = item.img; document.getElementById('modal-prompt').value = item.prompt || '';
+            document.getElementById('modal-img').src = item.img; 
+            document.getElementById('modal-prompt').value = item.prompt || '';
+            document.getElementById('modal-tags').value = item.tags ? item.tags.join(', ') : '';
             document.getElementById('gallery-modal').classList.remove('hidden');
         };
         window.closeGalleryModal = function() { document.getElementById('gallery-modal').classList.add('hidden'); currentGalleryIndex = -1; };
+        
         window.saveModalPrompt = function() {
-            if(currentGalleryIndex === -1) return; const gal = getGallery(); gal[currentGalleryIndex].prompt = document.getElementById('modal-prompt').value;
-            try { localStorage.setItem('studio_gallery', JSON.stringify(gal)); alert("수정되었습니다."); loadGallery(); } catch(e){}
+            if(currentGalleryIndex === -1) return; 
+            const gal = getGallery(); 
+            gal[currentGalleryIndex].prompt = document.getElementById('modal-prompt').value;
+            gal[currentGalleryIndex].tags = parseTags(document.getElementById('modal-tags').value);
+            try { localStorage.setItem('studio_gallery', JSON.stringify(gal)); alert("수정되었습니다."); loadGallery(); closeGalleryModal(); } catch(e){}
         };
+        
         window.deleteModalItem = function() {
             if(currentGalleryIndex === -1) return; if(!confirm("삭제할까요?")) return;
             const gal = getGallery(); gal.splice(currentGalleryIndex, 1); localStorage.setItem('studio_gallery', JSON.stringify(gal));
@@ -986,33 +1120,111 @@
             loadUserNotes();
         };
 
-        /* ================= 7. OOC 메모장 ================= */
+        /* ================= 7. OOC 메모장 (+ 태그 기능 추가) ================= */
         let editOocIndex = -1;
-        function getOOC() { return JSON.parse(localStorage.getItem('studio_ooc') || '[]'); }
+        let activeOocTag = null;
+
+        function getOOC() { 
+            const raw = JSON.parse(localStorage.getItem('studio_ooc') || '[]'); 
+            // 구버전(단순 문자열 배열) 데이터 자동 변환 로직
+            return raw.map(item => {
+                if (typeof item === 'string') {
+                    return { text: item, tags: [] };
+                }
+                if (!item.tags) item.tags = [];
+                return item;
+            });
+        }
+        
+        window.setOocFilter = function(tag) {
+            activeOocTag = activeOocTag === tag ? null : tag;
+            loadOOC();
+        };
+
         window.loadOOC = function() {
-            const list = document.getElementById('ooc-list');
-            list.innerHTML = getOOC().map((o, i) => `
-                <li class="bg-white border border-gray-100 rounded-2xl flex justify-between items-center p-4 text-sm shadow-sm hover:border-diary-pink transition-colors group">
-                    <span class="cursor-pointer text-gray-600 hover:text-diary-pink hover:font-bold transition-all flex-1 pr-4" onclick="navigator.clipboard.writeText('${o.replace(/'/g, "\\'")}')">${o}</span>
-                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="editOOC(${i})" class="text-gray-300 hover:text-blue-400 font-bold">수정</button>
-                        <button onclick="deleteOOC(${i})" class="text-gray-300 hover:text-red-400 font-bold ml-2">삭제</button>
-                    </div>
-                </li>
-            `).join('');
+            const listEl = document.getElementById('ooc-list');
+            const filterContainer = document.getElementById('ooc-tag-filter');
+            const oocData = getOOC();
+            
+            // 고유 태그 수집
+            const allTags = new Set();
+            oocData.forEach(item => item.tags.forEach(t => allTags.add(t)));
+            
+            // 필터 UI 생성
+            if(allTags.size > 0) {
+                let filterHtml = `<button onclick="setOocFilter(null)" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all ${!activeOocTag ? 'bg-diary-pink text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}">전체</button>`;
+                Array.from(allTags).forEach(tag => {
+                    filterHtml += `<button onclick="setOocFilter('${tag}')" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all ${activeOocTag === tag ? 'bg-diary-pink text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}">#${tag}</button>`;
+                });
+                filterContainer.innerHTML = filterHtml;
+            } else {
+                filterContainer.innerHTML = '';
+            }
+
+            // 필터 적용
+            const filteredOoc = activeOocTag ? oocData.filter(item => item.tags.includes(activeOocTag)) : oocData;
+
+            listEl.innerHTML = filteredOoc.map((o, index) => {
+                const realIndex = oocData.indexOf(o);
+                const tagHtml = o.tags && o.tags.length > 0 
+                    ? `<div class="mt-2 flex flex-wrap gap-1">${o.tags.map(t => `<span class="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-[10px]">#${t}</span>`).join('')}</div>` 
+                    : '';
+                    
+                return `
+                    <li class="bg-white border border-gray-100 rounded-2xl flex justify-between items-center p-4 text-sm shadow-sm hover:border-diary-pink transition-colors group">
+                        <div class="flex-1 pr-4">
+                            <span class="cursor-pointer text-gray-600 hover:text-diary-pink hover:font-bold transition-all" onclick="navigator.clipboard.writeText('${o.text.replace(/'/g, "\\'")}')">${o.text}</span>
+                            ${tagHtml}
+                        </div>
+                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="editOOC(${realIndex})" class="text-gray-300 hover:text-blue-400 font-bold">수정</button>
+                            <button onclick="deleteOOC(${realIndex})" class="text-gray-300 hover:text-red-400 font-bold ml-2">삭제</button>
+                        </div>
+                    </li>
+                `;
+            }).join('');
         };
+
         window.addOOC = function() { 
-            const inEl = document.getElementById('ooc-input'); const val = inEl.value.trim(); if(!val) return; 
-            const o = getOOC(); 
-            if(editOocIndex > -1) { o[editOocIndex] = val; editOocIndex = -1; document.getElementById('btn-ooc-add').innerText = '추가'; } 
-            else { o.unshift(val); }
-            localStorage.setItem('studio_ooc', JSON.stringify(o)); inEl.value = ''; loadOOC(); 
+            const inEl = document.getElementById('ooc-input'); 
+            const tagsEl = document.getElementById('ooc-tags');
+            
+            const val = inEl.value.trim(); 
+            const tags = parseTags(tagsEl.value);
+            
+            if(!val) return; 
+            
+            const oocData = getOOC(); 
+            
+            if(editOocIndex > -1) { 
+                oocData[editOocIndex] = { text: val, tags: tags }; 
+                editOocIndex = -1; 
+                document.getElementById('btn-ooc-add').innerText = '추가'; 
+            } else { 
+                oocData.unshift({ text: val, tags: tags }); 
+            }
+            
+            localStorage.setItem('studio_ooc', JSON.stringify(oocData)); 
+            inEl.value = ''; 
+            tagsEl.value = '';
+            loadOOC(); 
         };
+
         window.editOOC = function(i) {
-            document.getElementById('ooc-input').value = getOOC()[i]; editOocIndex = i;
-            document.getElementById('btn-ooc-add').innerText = '수정 완료'; document.getElementById('ooc-input').focus();
+            const item = getOOC()[i];
+            document.getElementById('ooc-input').value = item.text; 
+            document.getElementById('ooc-tags').value = item.tags ? item.tags.join(', ') : '';
+            editOocIndex = i;
+            document.getElementById('btn-ooc-add').innerText = '수정 완료'; 
+            document.getElementById('ooc-input').focus();
         };
-        window.deleteOOC = function(i) { const o = getOOC(); o.splice(i, 1); localStorage.setItem('studio_ooc', JSON.stringify(o)); loadOOC(); };
+
+        window.deleteOOC = function(i) { 
+            const oocData = getOOC(); 
+            oocData.splice(i, 1); 
+            localStorage.setItem('studio_ooc', JSON.stringify(oocData)); 
+            loadOOC(); 
+        };
 
         /* ================= 공통 (백업/업로드) ================= */
         window.exportAllData = function() { 
