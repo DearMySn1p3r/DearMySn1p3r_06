@@ -13,6 +13,7 @@
                     colors: {
                         'diary-pink': '#FFB6C1', 
                         'diary-pink-light': '#FFE4E1', 
+                        'diary-blue': '#AEC6CF', /* 업로드 버튼용 파스텔 블루 */
                         'diary-text': '#4A4A4A', 
                         'ededed': '#ededed', 
                     },
@@ -67,40 +68,49 @@
     <header class="bg-white/90 backdrop-blur-md border-b border-ededed sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
             <h1 class="font-serif italic font-semibold text-3xl text-diary-pink cursor-pointer select-none drop-shadow-sm transition-transform hover:scale-105" onclick="showView('home')">Studio. Archive</h1>
-            <div class="flex gap-4">
-                <button onclick="showView('home')" class="text-neutral-500 font-medium hover:text-diary-pink transition">Home</button>
-                <div class="w-px h-4 bg-ededed my-auto"></div>
-                <button onclick="exportAllData()" class="text-neutral-500 font-medium hover:text-diary-pink transition">Backup</button>
+            <div class="flex gap-2 items-center">
+                <button onclick="showView('home')" class="px-3 py-1.5 text-xs font-bold text-gray-500 bg-gray-50 border border-gray-100 rounded-lg hover:bg-gray-100 transition mr-2">Home</button>
+                
+                <label class="px-3 py-1.5 text-xs font-bold text-white bg-diary-blue rounded-lg hover:bg-[#9eb8c1] transition cursor-pointer shadow-sm">
+                    Upload
+                    <input type="file" accept=".json" class="hidden" onchange="importAllData(this)">
+                </label>
+                <button onclick="exportAllData()" class="px-3 py-1.5 text-xs font-bold text-white bg-diary-pink rounded-lg hover:bg-[#ff9aa2] transition shadow-sm">Backup</button>
             </div>
         </div>
     </header>
 
     <main class="flex-1 overflow-y-auto p-5 md:p-10 max-w-7xl mx-auto w-full">
         
-        <section id="view-home" class="grid grid-cols-2 lg:grid-cols-3 gap-6">
-            <div onclick="showView('snippet')" class="group bg-white rounded-2xl p-8 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-4">
-                <div class="w-14 h-14 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">📝</div>
-                <div><h2 class="text-lg font-bold text-diary-text mb-1 group-hover:text-diary-pink">조각글 발췌</h2><p class="text-xs text-gray-400 hidden md:block">예쁜 색상의 스냅샷 제작</p></div>
+        <section id="view-home" class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            <div onclick="showView('snippet')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3">
+                <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">📝</div>
+                <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">조각글 발췌</h2></div>
             </div>
-            <div onclick="showView('booklog')" class="group bg-white rounded-2xl p-8 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-4 md:col-span-2 lg:col-span-1">
-                <div class="w-14 h-14 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">📖</div>
-                <div><h2 class="text-lg font-bold text-diary-text mb-1 group-hover:text-diary-pink">책갈피 로그</h2><p class="text-xs text-gray-400 hidden md:block">긴 로그 자동 분할 저장</p></div>
+            <div onclick="showView('booklog')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3">
+                <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">📖</div>
+                <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">책갈피 로그</h2></div>
             </div>
-            <div onclick="showView('persona')" class="group bg-white rounded-2xl p-8 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-4">
-                <div class="w-14 h-14 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">🎭</div>
-                <div><h2 class="text-lg font-bold text-diary-text mb-1 group-hover:text-diary-pink">캐릭터 보관함</h2><p class="text-xs text-gray-400 hidden md:block">페르소나 리스트 관리</p></div>
+            <div onclick="showView('persona')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3">
+                <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">🎭</div>
+                <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">캐릭터 보관함</h2></div>
             </div>
-            <div onclick="showView('polaroid')" class="group bg-white rounded-2xl p-8 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-4">
-                <div class="w-14 h-14 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">📸</div>
-                <div><h2 class="text-lg font-bold text-diary-text mb-1 group-hover:text-diary-pink">폴라로이드</h2><p class="text-xs text-gray-400 hidden md:block">손글씨 낙서가 담긴 사진</p></div>
+            <div onclick="showView('polaroid')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3">
+                <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">📸</div>
+                <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">폴라로이드</h2></div>
             </div>
-            <div onclick="showView('gallery')" class="group bg-white rounded-2xl p-8 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-4 md:col-span-2">
-                <div class="w-14 h-14 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">🖼️</div>
-                <div><h2 class="text-lg font-bold text-diary-text mb-1 group-hover:text-diary-pink">이미지 갤러리</h2><p class="text-xs text-gray-400 hidden md:block">프롬프트 & 아트 저장소</p></div>
+            
+            <div onclick="showView('gallery')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3 md:col-span-2">
+                <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">🖼️</div>
+                <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">이미지 갤러리</h2></div>
             </div>
-            <div onclick="showView('ooc')" class="group bg-white rounded-2xl p-8 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-4 md:col-span-2 lg:col-span-1">
-                <div class="w-14 h-14 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">💬</div>
-                <div><h2 class="text-lg font-bold text-diary-text mb-1 group-hover:text-diary-pink">OOC 메모장</h2><p class="text-xs text-gray-400 hidden md:block">자주 쓰는 시스템 명령어</p></div>
+            <div onclick="showView('usernote')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3">
+                <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">📓</div>
+                <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">유저 노트</h2></div>
+            </div>
+            <div onclick="showView('ooc')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3">
+                <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">💬</div>
+                <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">OOC 메모</h2></div>
             </div>
         </section>
 
@@ -161,7 +171,7 @@
                 <div class="flex flex-col md:flex-row gap-5">
                     <div class="flex-1 flex flex-col gap-2">
                         <p class="text-xs text-diary-pink font-bold">*문구* <span class="text-gray-400 font-normal">형태로 작성하면 지정한 강조색으로 변합니다.</span></p>
-                        <textarea id="b-input" class="w-full h-full min-h-[300px] p-4 bg-gray-50 border border-gray-100 rounded-xl text-xs resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all" placeholder="여기에 대화 로그를 붙여넣으세요. 공간이 부족하면 자동으로 다음 페이지로 넘어갑니다." oninput="triggerProcessBookLog()"></textarea>
+                        <textarea id="b-input" class="w-full h-full min-h-[300px] p-4 bg-gray-50 border border-gray-100 rounded-xl text-xs resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all" placeholder="여기에 대화 로그를 붙여넣으세요. 에디터가 자동으로 페이지를 넘겨줍니다." oninput="triggerProcessBookLog()"></textarea>
                     </div>
                     
                     <div class="w-full md:w-80 space-y-4">
@@ -358,7 +368,18 @@
                     <button onclick="addGalleryItem()" class="btn-minimal w-full">갤러리에 추가하기</button>
                 </div>
             </div>
-            <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8"></div>
+            <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8 max-w-5xl mx-auto"></div>
+        </section>
+
+        <section id="view-usernote" class="hidden-view space-y-6">
+            <div class="bg-white rounded-2xl p-6 border border-ededed shadow-sm flex flex-col gap-4 max-w-4xl mx-auto">
+                <div class="flex flex-col gap-3">
+                    <input type="text" id="un-title" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-diary-pink font-bold" placeholder="노트 제목을 입력하세요.">
+                    <textarea id="un-content" class="w-full h-32 p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all" placeholder="기억할 설정, 텍스트 백업, 메모 등을 자유롭게 작성해주세요."></textarea>
+                    <button onclick="addUserNote()" class="btn-minimal w-full">노트 추가하기</button>
+                </div>
+            </div>
+            <div id="usernote-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 max-w-4xl mx-auto"></div>
         </section>
 
         <section id="view-ooc" class="hidden-view max-w-3xl mx-auto space-y-4">
@@ -389,6 +410,19 @@
         </div>
     </div>
 
+    <div id="usernote-modal" class="hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative p-8">
+            <button onclick="closeUserNoteModal()" class="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 flex items-center justify-center transition-colors z-10">✕</button>
+            <h3 class="text-lg font-bold text-diary-pink mb-4">Edit Note</h3>
+            <input type="text" id="modal-un-title" class="w-full p-3 mb-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-diary-pink">
+            <textarea id="modal-un-content" class="flex-1 w-full p-4 min-h-[40vh] bg-gray-50 border border-gray-100 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all"></textarea>
+            <div class="flex gap-3 mt-6">
+                <button onclick="saveUserNoteModal()" class="flex-1 btn-minimal">수정 저장</button>
+                <button onclick="deleteUserNoteModal()" class="px-6 py-3 bg-red-50 text-red-400 rounded-xl font-bold hover:bg-red-100 transition-colors border border-red-100">삭제</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         window.showView = function(viewId) {
             document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden-view'));
@@ -405,6 +439,7 @@
             if(viewId === 'ooc') loadOOC(); 
             if(viewId === 'persona') loadPersonaList(); 
             if(viewId === 'gallery') loadGallery();
+            if(viewId === 'usernote') loadUserNotes();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
@@ -423,7 +458,7 @@
             applyScale('pola-wrapper', 'polamaker-canvas', 500);
         });
 
-        // 🔥 PNG 원본 유지 (손실 없음) 🔥
+        // 🔥 PNG 원본 유지 무손실 압축 🔥
         function compressImage(file, maxWidth = null) {
             return new Promise(resolve => {
                 const r = new FileReader();
@@ -438,13 +473,10 @@
                             h = Math.round(h * maxWidth / w);
                             w = maxWidth;
                         }
-
                         can.width = w;
                         can.height = h;
-
                         const ctx = can.getContext('2d');
                         ctx.drawImage(img, 0, 0, w, h);
-
                         resolve(can.toDataURL('image/png'));
                     };
                     img.src = e.target.result;
@@ -453,21 +485,16 @@
             });
         }
 
-        // 🔥 완벽한 캡처 렌더링 (제공해주신 코드 전면 적용) 🔥
+        // 🔥 완벽한 캡처 렌더링 🔥
         window.captureSquare = async function(id, filename) {
             await document.fonts.ready;
 
             const original = document.getElementById(id);
             const captureRoot = document.getElementById('capture-root');
 
-            // 완전 복제
             const clone = original.cloneNode(true);
-
-            // 핵심: transform 완전 제거
             clone.style.transform = 'none';
             clone.style.position = 'static';
-
-            // 원본 크기 강제 지정
             clone.style.width = original.offsetWidth + 'px';
             clone.style.height = original.offsetHeight + 'px';
 
@@ -504,7 +531,6 @@
             
             const creator = document.getElementById('s-creator').value;
             const character = document.getElementById('s-character').value;
-            
             if(creator || character) {
                 sub.innerHTML = `${creator ? creator : ''} ${creator && character ? ' | ' : ''} <span class="font-bold">${character}</span>`;
             } else { sub.innerHTML = ''; }
@@ -514,7 +540,7 @@
             can.style.background = `linear-gradient(135deg, ${col1} 0%, ${col2} 100%)`;
         };
 
-        /* ================= 2. 책갈피 로그 (자동 분할 & 버그 픽스) ================= */
+        /* ================= 2. 책갈피 로그 ================= */
         let pages = []; let currentIdx = 0;
         let bookLogTimeout;
 
@@ -530,7 +556,6 @@
             bookLogTimeout = setTimeout(processBookLog, 300); 
         };
 
-        // 🔥 오류 수정: innerText 로직으로 완전 교체 🔥
         window.processBookLog = async function() {
             const text = document.getElementById('b-input').value;
             if(!text) { pages = [""]; currentIdx = 0; renderBookPage(); return; }
@@ -571,7 +596,6 @@
             for (let i = 0; i < paragraphs.length; i++) {
                 let p = paragraphs[i] + (i < paragraphs.length - 1 ? '\n' : '');
                 
-                // innerText 로 측정하여 태그 충돌 방지
                 measureDiv.innerText = currentPageText + p;
                 let currentMaxH = (pages.length === 0) ? firstPageMaxH : normalMaxH;
 
@@ -643,10 +667,7 @@
             pageContent.style.textIndent = indent === '0' ? '0' : indent;
 
             const canvas = document.getElementById('book-canvas');
-            
-            // 🔥 에러 방지: 테마 엘리먼트 값 안전하게 가져오기 🔥
-            const themeEl = document.getElementById('b-theme');
-            canvas.style.background = themeEl ? themeEl.value : '#fffcf8';
+            canvas.style.background = '#fffcf8';
             canvas.style.padding = `${py}px ${px}px`;
             
             const footer = document.getElementById('b-footer');
@@ -654,7 +675,6 @@
             footer.style.width = `calc(100% - ${px * 2}px)`;
             footer.style.bottom = `${parseInt(py)/2}px`;
             
-            // 최종 렌더링 시에만 formatHighlight 적용
             pageContent.innerHTML = formatHighlight(pages[currentIdx] || ''); 
             document.getElementById('b-num').innerText = currentIdx + 1;
             
@@ -664,31 +684,6 @@
         };
 
         window.changePage = function(d) { currentIdx += d; renderBookPage(); };
-
-        window.downloadAllBookPagesMultiple = async function() {
-            if(!pages.length || !pages[0]) return alert("내용이 없습니다."); 
-            const btn = document.getElementById('btn-dl-all'); 
-            btn.innerText = "⏳ 순차적으로 다운로드 중... (팝업 허용 필요)"; 
-            btn.disabled = true; 
-            
-            await document.fonts.ready;
-            
-            const origIdx = currentIdx; 
-            const total = pages.length;
-
-            for(let i=0; i<total; i++) { 
-                currentIdx = i; renderBookPage(); 
-                await new Promise(r => setTimeout(r, 200)); 
-                
-                await captureSquare('book-canvas', `BookLog_Page_${i+1}`);
-
-                await new Promise(r => setTimeout(r, 600)); 
-            }
-            
-            currentIdx = origIdx; renderBookPage(); 
-            btn.innerText = "전체 페이지 여러 장의 PNG로 자동 저장하기"; 
-            btn.disabled = false;
-        };
 
         /* ================= 3. 캐릭터 보관함 ================= */
         let currentPersonaIndex = -1; let currentPImg = null;
@@ -728,7 +723,7 @@
             loadPersonaList();
         };
         window.handlePersonaUpload = async function(input) {
-            if(input.files[0]) { currentPImg = await compressImage(input.files[0], 1200); document.getElementById('p-img-display').src = currentPImg; document.getElementById('p-img-display').classList.remove('hidden'); document.getElementById('p-img-placeholder').classList.add('hidden'); }
+            if(input.files[0]) { currentPImg = await compressImage(input.files[0], null); document.getElementById('p-img-display').src = currentPImg; document.getElementById('p-img-display').classList.remove('hidden'); document.getElementById('p-img-placeholder').classList.add('hidden'); }
         };
         window.savePersona = function() {
             const p = { name: document.getElementById('p-name').value, age: document.getElementById('p-age').value, features: document.getElementById('p-features').value, app: document.getElementById('p-appearance').value, per: document.getElementById('p-personality').value, bg: document.getElementById('p-background').value, img: currentPImg };
@@ -772,7 +767,7 @@
         window.addGalleryItem = async function() {
             const input = document.getElementById('g-img-upload'); const prompt = document.getElementById('g-prompt').value;
             if(!input.files[0]) return alert("이미지를 첨부해주세요.");
-            const base64Img = await compressImage(input.files[0], 1200); const gallery = getGallery(); gallery.unshift({ img: base64Img, prompt: prompt });
+            const base64Img = await compressImage(input.files[0], null); const gallery = getGallery(); gallery.unshift({ img: base64Img, prompt: prompt });
             try { localStorage.setItem('studio_gallery', JSON.stringify(gallery)); input.value = ''; document.getElementById('g-prompt').value = ''; loadGallery(); } 
             catch(e) { alert("용량 부족!"); }
         };
@@ -801,7 +796,77 @@
             closeGalleryModal(); loadGallery();
         };
 
-        /* ================= 6. OOC 메모장 ================= */
+        /* ================= 6. 유저 노트 (글만 보관) ================= */
+        let currentUserNoteIndex = -1;
+        function getUserNotes() { return JSON.parse(localStorage.getItem('studio_usernotes') || '[]'); }
+        
+        window.addUserNote = function() {
+            const title = document.getElementById('un-title').value.trim();
+            const content = document.getElementById('un-content').value.trim();
+            if(!title && !content) return alert("내용을 입력해주세요.");
+            
+            const notes = getUserNotes();
+            notes.unshift({ title, content, date: new Date().toLocaleDateString() });
+            try {
+                localStorage.setItem('studio_usernotes', JSON.stringify(notes));
+                document.getElementById('un-title').value = '';
+                document.getElementById('un-content').value = '';
+                loadUserNotes();
+            } catch(e) { alert("저장 공간이 부족합니다."); }
+        };
+
+        window.loadUserNotes = function() {
+            const notes = getUserNotes();
+            const grid = document.getElementById('usernote-grid');
+            grid.innerHTML = notes.map((note, i) => `
+                <div onclick="openUserNoteModal(${i})" class="bg-white rounded-2xl p-5 flex flex-col gap-2 relative group border border-gray-100 shadow-sm hover:shadow-md hover:border-diary-pink transition-all cursor-pointer h-40">
+                    <h3 class="font-bold text-sm text-diary-text truncate">${note.title || '제목 없음'}</h3>
+                    <p class="text-xs text-gray-500 whitespace-pre-wrap flex-1 overflow-hidden opacity-80" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;">${note.content}</p>
+                    <span class="text-[10px] text-gray-300 mt-auto">${note.date || ''}</span>
+                </div>
+            `).join('');
+        };
+
+        window.openUserNoteModal = function(index) {
+            currentUserNoteIndex = index;
+            const note = getUserNotes()[index];
+            if(!note) return;
+            
+            document.getElementById('modal-un-title').value = note.title || '';
+            document.getElementById('modal-un-content').value = note.content || '';
+            document.getElementById('usernote-modal').classList.remove('hidden');
+        };
+
+        window.closeUserNoteModal = function() {
+            document.getElementById('usernote-modal').classList.add('hidden');
+            currentUserNoteIndex = -1;
+        };
+
+        window.saveUserNoteModal = function() {
+            if(currentUserNoteIndex === -1) return;
+            const notes = getUserNotes();
+            notes[currentUserNoteIndex].title = document.getElementById('modal-un-title').value.trim();
+            notes[currentUserNoteIndex].content = document.getElementById('modal-un-content').value.trim();
+            
+            localStorage.setItem('studio_usernotes', JSON.stringify(notes));
+            alert("수정되었습니다.");
+            loadUserNotes();
+            closeUserNoteModal();
+        };
+
+        window.deleteUserNoteModal = function() {
+            if(currentUserNoteIndex === -1) return;
+            if(!confirm("이 노트를 삭제할까요?")) return;
+            
+            const notes = getUserNotes();
+            notes.splice(currentUserNoteIndex, 1);
+            localStorage.setItem('studio_usernotes', JSON.stringify(notes));
+            
+            closeUserNoteModal();
+            loadUserNotes();
+        };
+
+        /* ================= 7. OOC 메모장 ================= */
         let editOocIndex = -1;
         function getOOC() { return JSON.parse(localStorage.getItem('studio_ooc') || '[]'); }
         window.loadOOC = function() {
@@ -829,8 +894,34 @@
         };
         window.deleteOOC = function(i) { const o = getOOC(); o.splice(i, 1); localStorage.setItem('studio_ooc', JSON.stringify(o)); loadOOC(); };
 
-        /* ================= 공통 ================= */
-        window.exportAllData = function() { const data = JSON.stringify(localStorage); const blob = new Blob([data], { type: "application/json" }); const lnk = document.createElement("a"); lnk.href = URL.createObjectURL(blob); lnk.download = `Studio_Backup_${new Date().toISOString().slice(0,10)}.json`; lnk.click(); };
+        /* ================= 공통 (백업/업로드) ================= */
+        window.exportAllData = function() { 
+            const data = JSON.stringify(localStorage); 
+            const blob = new Blob([data], { type: "application/json" }); 
+            const lnk = document.createElement("a"); 
+            lnk.href = URL.createObjectURL(blob); 
+            lnk.download = `Studio_Backup_${new Date().toISOString().slice(0,10)}.json`; 
+            lnk.click(); 
+        };
+        
+        window.importAllData = function(input) {
+            if (!input.files[0]) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    for (let key in data) {
+                        localStorage.setItem(key, data[key]);
+                    }
+                    alert("데이터가 성공적으로 복원되었습니다!");
+                    location.reload();
+                } catch(err) {
+                    alert("잘못된 백업 파일입니다.");
+                }
+            };
+            reader.readAsText(input.files[0]);
+        };
+
         window.onload = function() { try { showView('home'); setTimeout(triggerProcessBookLog, 100); } catch(e){} };
     </script>
 </body>
