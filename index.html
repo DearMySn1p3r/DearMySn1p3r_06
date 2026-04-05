@@ -13,7 +13,7 @@
                     colors: {
                         'diary-pink': '#FFB6C1', 
                         'diary-pink-light': '#FFE4E1', 
-                        'diary-blue': '#AEC6CF', /* 업로드 버튼용 파스텔 블루 */
+                        'diary-blue': '#AEC6CF', 
                         'diary-text': '#4A4A4A', 
                         'ededed': '#ededed', 
                     },
@@ -99,7 +99,6 @@
                 <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">📸</div>
                 <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">폴라로이드</h2></div>
             </div>
-            
             <div onclick="showView('gallery')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3 md:col-span-2">
                 <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">🖼️</div>
                 <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">이미지 갤러리</h2></div>
@@ -144,7 +143,15 @@
                     </select>
                 </div>
                 <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                    <label class="block text-[11px] font-bold text-diary-pink mb-2">배경 그라데이션</label>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-[11px] font-bold text-diary-pink">배경 그라데이션</label>
+                        <select id="s-grad-dir" class="p-1 bg-white border border-gray-100 rounded text-[10px] focus:outline-none" onchange="updateSnippet()">
+                            <option value="135deg">대각선</option>
+                            <option value="to bottom">위에서 아래</option>
+                            <option value="to right">왼쪽에서 오른쪽</option>
+                            <option value="circle">원형 중심</option>
+                        </select>
+                    </div>
                     <div class="flex gap-2">
                         <input type="color" id="s-color1" value="#ffffff" class="h-8 w-full cursor-pointer rounded border border-gray-200" oninput="updateSnippet()">
                         <span class="text-gray-400 self-center">to</span>
@@ -170,7 +177,7 @@
             <div class="bg-white rounded-2xl p-6 border border-ededed shadow-sm flex flex-col gap-5">
                 <div class="flex flex-col md:flex-row gap-5">
                     <div class="flex-1 flex flex-col gap-2">
-                        <p class="text-xs text-diary-pink font-bold">*문구* <span class="text-gray-400 font-normal">형태로 작성하면 지정한 강조색으로 변합니다.</span></p>
+                        <p class="text-[11px] text-diary-pink font-bold">✨ 텍스트 강조: <span class="text-gray-500 font-normal">기호를 붙여 3가지 색상으로 강조할 수 있습니다. (예: *색상1* ^색상2^ ~색상3~)</span></p>
                         <textarea id="b-input" class="w-full h-full min-h-[300px] p-4 bg-gray-50 border border-gray-100 rounded-xl text-xs resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all" placeholder="여기에 대화 로그를 붙여넣으세요. 에디터가 자동으로 페이지를 넘겨줍니다." oninput="triggerProcessBookLog()"></textarea>
                     </div>
                     
@@ -236,8 +243,20 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">강조 색상 (*텍스트*)</label>
-                                    <input type="color" id="b-highlight-color" value="#FF82A9" class="h-6 w-full cursor-pointer rounded border border-gray-100" oninput="renderBookPage()">
+                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">배경 테마</label>
+                                    <select id="b-theme" class="w-full p-1.5 bg-white border border-gray-100 rounded-lg text-xs focus:outline-none" onchange="renderBookPage()">
+                                        <option value="#fffcf8">아이보리</option>
+                                        <option value="#ffffff">순백색</option>
+                                        <option value="#FFF5F7">연분홍</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-diary-pink mb-1">강조 색상 3종 (*, ^, ~)</label>
+                                <div class="flex gap-1">
+                                    <input type="color" id="b-highlight-color-1" value="#FF82A9" class="h-6 w-full cursor-pointer rounded border border-gray-100" oninput="renderBookPage()" title="*기호*">
+                                    <input type="color" id="b-highlight-color-2" value="#82B3FF" class="h-6 w-full cursor-pointer rounded border border-gray-100" oninput="renderBookPage()" title="^기호^">
+                                    <input type="color" id="b-highlight-color-3" value="#B482FF" class="h-6 w-full cursor-pointer rounded border border-gray-100" oninput="renderBookPage()" title="~기호~">
                                 </div>
                             </div>
                         </div>
@@ -264,7 +283,8 @@
                 </div>
             </div>
             
-            <button onclick="downloadAllBookPagesMultiple()" class="w-full btn-minimal text-base py-4" id="btn-dl-all">전체 페이지 여러 장의 PNG로 자동 저장하기</button>
+            <button onclick="downloadAllBookPagesMultiple()" class="w-full btn-minimal text-base py-4" id="btn-dl-all">전체 페이지 개별 PNG로 다중 다운로드</button>
+            <button onclick="downloadAllBookPagesSingle()" class="w-full btn-secondary text-base py-4 mt-2" id="btn-dl-single">세로로 길게 한 장의 PNG로 저장하기</button>
         </section>
 
         <section id="view-persona" class="hidden-view space-y-6">
@@ -458,7 +478,7 @@
             applyScale('pola-wrapper', 'polamaker-canvas', 500);
         });
 
-        // 🔥 PNG 원본 유지 무손실 압축 🔥
+        // 🔥 PNG 무손실 압축 🔥
         function compressImage(file, maxWidth = null) {
             return new Promise(resolve => {
                 const r = new FileReader();
@@ -535,9 +555,16 @@
                 sub.innerHTML = `${creator ? creator : ''} ${creator && character ? ' | ' : ''} <span class="font-bold">${character}</span>`;
             } else { sub.innerHTML = ''; }
             
+            // 그라데이션 방향 설정
+            const dir = document.getElementById('s-grad-dir').value;
             const col1 = document.getElementById('s-color1').value;
             const col2 = document.getElementById('s-color2').value;
-            can.style.background = `linear-gradient(135deg, ${col1} 0%, ${col2} 100%)`;
+            
+            if(dir === 'circle') {
+                can.style.background = `radial-gradient(circle, ${col1} 0%, ${col2} 100%)`;
+            } else {
+                can.style.background = `linear-gradient(${dir}, ${col1} 0%, ${col2} 100%)`;
+            }
         };
 
         /* ================= 2. 책갈피 로그 ================= */
@@ -546,9 +573,15 @@
 
         window.formatHighlight = function(text) {
             if(!text) return "";
-            const hc = document.getElementById('b-highlight-color').value;
+            const c1 = document.getElementById('b-highlight-color-1').value;
+            const c2 = document.getElementById('b-highlight-color-2').value;
+            const c3 = document.getElementById('b-highlight-color-3').value;
+            
             let escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            return escaped.replace(/\*(.*?)\*/g, `<span style="color: ${hc}; font-weight: bold;">$1</span>`);
+            escaped = escaped.replace(/\*(.*?)\*/g, `<span style="color: ${c1}; font-weight: bold;">$1</span>`);
+            escaped = escaped.replace(/\^(.*?)\^/g, `<span style="color: ${c2}; font-weight: bold;">$1</span>`);
+            escaped = escaped.replace(/~(.*?)~/g, `<span style="color: ${c3}; font-weight: bold;">$1</span>`);
+            return escaped;
         };
 
         window.triggerProcessBookLog = function() {
@@ -556,6 +589,7 @@
             bookLogTimeout = setTimeout(processBookLog, 300); 
         };
 
+        // 🔥 innerText를 활용한 안전한 렌더링 측정 🔥
         window.processBookLog = async function() {
             const text = document.getElementById('b-input').value;
             if(!text) { pages = [""]; currentIdx = 0; renderBookPage(); return; }
@@ -596,6 +630,7 @@
             for (let i = 0; i < paragraphs.length; i++) {
                 let p = paragraphs[i] + (i < paragraphs.length - 1 ? '\n' : '');
                 
+                // 순수 텍스트로만 높이 측정하여 HTML 태그 깨짐 방지
                 measureDiv.innerText = currentPageText + p;
                 let currentMaxH = (pages.length === 0) ? firstPageMaxH : normalMaxH;
 
@@ -667,7 +702,9 @@
             pageContent.style.textIndent = indent === '0' ? '0' : indent;
 
             const canvas = document.getElementById('book-canvas');
-            canvas.style.background = '#fffcf8';
+            const themeEl = document.getElementById('b-theme');
+            // 에러 방지 처리 적용
+            canvas.style.background = themeEl ? themeEl.value : '#fffcf8';
             canvas.style.padding = `${py}px ${px}px`;
             
             const footer = document.getElementById('b-footer');
@@ -675,6 +712,7 @@
             footer.style.width = `calc(100% - ${px * 2}px)`;
             footer.style.bottom = `${parseInt(py)/2}px`;
             
+            // 실제 눈에 보이는 영역에만 태그 파싱을 적용
             pageContent.innerHTML = formatHighlight(pages[currentIdx] || ''); 
             document.getElementById('b-num').innerText = currentIdx + 1;
             
@@ -684,6 +722,116 @@
         };
 
         window.changePage = function(d) { currentIdx += d; renderBookPage(); };
+
+        window.downloadAllBookPagesMultiple = async function() {
+            if(!pages.length || (pages.length === 1 && pages[0] === "")) return alert("내용이 없습니다."); 
+            const btn = document.getElementById('btn-dl-all'); 
+            btn.innerText = "⏳ 순차적으로 다운로드 중... (팝업 허용 필요)"; 
+            btn.disabled = true; 
+            
+            await document.fonts.ready;
+            
+            const origIdx = currentIdx; 
+            const total = pages.length;
+            const original = document.getElementById('book-canvas');
+            const captureRoot = document.getElementById('capture-root');
+
+            for(let i=0; i<total; i++) { 
+                currentIdx = i; renderBookPage(); 
+                await new Promise(r => setTimeout(r, 200)); 
+                
+                const clone = original.cloneNode(true);
+                clone.style.transform = 'none';
+                clone.style.position = 'static';
+                clone.style.width = original.offsetWidth + 'px';
+                clone.style.height = original.offsetHeight + 'px';
+
+                captureRoot.innerHTML = '';
+                captureRoot.appendChild(clone);
+
+                await new Promise(r => setTimeout(r, 50)); 
+
+                const c = await html2canvas(clone, { 
+                    scale: 4, 
+                    useCORS: true,
+                    backgroundColor: null
+                }); 
+                
+                captureRoot.innerHTML = '';
+                
+                const link = document.createElement('a'); 
+                link.download = `BookLog_Page_${i+1}.png`; 
+                link.href = c.toDataURL('image/png'); 
+                link.click();
+
+                await new Promise(r => setTimeout(r, 600)); 
+            }
+            
+            currentIdx = origIdx; renderBookPage(); 
+            btn.innerText = "전체 페이지 여러 장의 PNG로 자동 저장하기"; 
+            btn.disabled = false;
+        };
+
+        window.downloadAllBookPagesSingle = async function() {
+            if(!pages.length || (pages.length === 1 && pages[0] === "")) return alert("내용이 없습니다."); 
+            const btn = document.getElementById('btn-dl-single'); 
+            btn.innerText = "⏳ 긴 이미지로 굽는 중..."; 
+            btn.disabled = true; 
+            
+            await document.fonts.ready;
+            
+            const origIdx = currentIdx; 
+            const total = pages.length;
+            let canvases = [];
+
+            const original = document.getElementById('book-canvas');
+            const captureRoot = document.getElementById('capture-root');
+
+            for(let i=0; i<total; i++) { 
+                currentIdx = i; renderBookPage(); 
+                await new Promise(r => setTimeout(r, 150)); 
+                
+                const clone = original.cloneNode(true);
+                clone.style.transform = 'none';
+                clone.style.position = 'static';
+                clone.style.width = original.offsetWidth + 'px';
+                clone.style.height = original.offsetHeight + 'px';
+
+                captureRoot.innerHTML = '';
+                captureRoot.appendChild(clone);
+
+                await new Promise(r => setTimeout(r, 50));
+
+                const c = await html2canvas(clone, { 
+                    scale: 4, 
+                    useCORS: true,
+                    backgroundColor: null
+                }); 
+                
+                captureRoot.innerHTML = '';
+                canvases.push(c);
+            }
+            
+            if(canvases.length > 0) {
+                const masterCanvas = document.createElement('canvas');
+                masterCanvas.width = canvases[0].width;
+                masterCanvas.height = canvases[0].height * canvases.length;
+                const ctx = masterCanvas.getContext('2d');
+                
+                for(let i=0; i<canvases.length; i++) {
+                    ctx.drawImage(canvases[i], 0, i * canvases[0].height);
+                }
+
+                const link = document.createElement('a'); 
+                link.download = `BookLog_Long_${Date.now()}.png`; 
+                link.href = masterCanvas.toDataURL('image/png'); 
+                link.click();
+            }
+            
+            currentIdx = origIdx; renderBookPage(); 
+            btn.innerText = "세로로 길게 한 장의 PNG로 저장하기"; 
+            btn.disabled = false;
+        };
 
         /* ================= 3. 캐릭터 보관함 ================= */
         let currentPersonaIndex = -1; let currentPImg = null;
@@ -796,7 +944,7 @@
             closeGalleryModal(); loadGallery();
         };
 
-        /* ================= 6. 유저 노트 (글만 보관) ================= */
+        /* ================= 6. 유저 노트 ================= */
         let currentUserNoteIndex = -1;
         function getUserNotes() { return JSON.parse(localStorage.getItem('studio_usernotes') || '[]'); }
         
