@@ -32,6 +32,7 @@
     </script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@1,500;1,600&family=Gowun+Batang&family=Hahmlet:wght@400;600&family=Nanum+Gothic&family=Nanum+Myeongjo:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
@@ -67,9 +68,15 @@
 
     <header class="bg-white/90 backdrop-blur-md border-b border-ededed sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
-            <h1 class="font-serif italic font-semibold text-3xl text-diary-pink cursor-pointer select-none drop-shadow-sm transition-transform hover:scale-105" onclick="showView('home')">Studio. Archive</h1>
+            <div class="flex items-center gap-4">
+                <h1 class="font-serif italic font-semibold text-3xl text-diary-pink cursor-pointer select-none drop-shadow-sm transition-transform hover:scale-105" onclick="showView('home')">Studio. Archive</h1>
+            </div>
+            
             <div class="flex gap-2 items-center">
-                <button onclick="showView('home')" class="px-3 py-1.5 text-xs font-bold text-gray-500 bg-gray-50 border border-gray-100 rounded-lg hover:bg-gray-100 transition mr-2">Home</button>
+                <button id="btn-back" onclick="showView('home')" class="hidden px-3 py-1.5 text-xs font-bold text-diary-pink bg-white border border-diary-pink rounded-lg hover:bg-diary-pink hover:text-white transition flex items-center gap-1 shadow-sm mr-2">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
+                    뒤로
+                </button>
                 
                 <label class="px-3 py-1.5 text-xs font-bold text-white bg-diary-blue rounded-lg hover:bg-[#9eb8c1] transition cursor-pointer shadow-sm">
                     Upload
@@ -99,6 +106,7 @@
                 <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">📸</div>
                 <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">폴라로이드</h2></div>
             </div>
+            
             <div onclick="showView('gallery')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3 md:col-span-2">
                 <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">🖼️</div>
                 <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">이미지 갤러리</h2></div>
@@ -143,15 +151,7 @@
                     </select>
                 </div>
                 <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="text-[11px] font-bold text-diary-pink">배경 그라데이션</label>
-                        <select id="s-grad-dir" class="p-1 bg-white border border-gray-100 rounded text-[10px] focus:outline-none" onchange="updateSnippet()">
-                            <option value="135deg">대각선</option>
-                            <option value="to bottom">위에서 아래</option>
-                            <option value="to right">왼쪽에서 오른쪽</option>
-                            <option value="circle">원형 중심</option>
-                        </select>
-                    </div>
+                    <label class="block text-[11px] font-bold text-diary-pink mb-2">배경 그라데이션</label>
                     <div class="flex gap-2">
                         <input type="color" id="s-color1" value="#ffffff" class="h-8 w-full cursor-pointer rounded border border-gray-200" oninput="updateSnippet()">
                         <span class="text-gray-400 self-center">to</span>
@@ -283,8 +283,10 @@
                 </div>
             </div>
             
-            <button onclick="downloadAllBookPagesMultiple()" class="w-full btn-minimal text-base py-4" id="btn-dl-all">전체 페이지 개별 PNG로 다중 다운로드</button>
-            <button onclick="downloadAllBookPagesSingle()" class="w-full btn-secondary text-base py-4 mt-2" id="btn-dl-single">세로로 길게 한 장의 PNG로 저장하기</button>
+            <div class="flex gap-2">
+                <button onclick="downloadAllBookPagesMultiple()" class="flex-1 btn-minimal text-base py-4" id="btn-dl-all">전체 페이지 분할 PNG로 저장</button>
+                <button onclick="downloadAllBookPagesSingle()" class="flex-1 btn-secondary text-base py-4" id="btn-dl-single">세로로 길게 한 장으로 저장</button>
+            </div>
         </section>
 
         <section id="view-persona" class="hidden-view space-y-6">
@@ -449,6 +451,13 @@
             const target = document.getElementById('view-' + viewId);
             if(target) target.classList.remove('hidden-view');
             
+            // 스마트 뒤로가기 버튼 처리
+            const btnBack = document.getElementById('btn-back');
+            if(btnBack) {
+                if(viewId === 'home') btnBack.classList.add('hidden');
+                else btnBack.classList.remove('hidden');
+            }
+            
             setTimeout(() => { 
                 applyScale('s-wrapper', 'snippet-canvas', 800); 
                 applyScale('b-wrapper', 'book-canvas', 500); 
@@ -478,7 +487,7 @@
             applyScale('pola-wrapper', 'polamaker-canvas', 500);
         });
 
-        // 🔥 PNG 무손실 압축 🔥
+        // 🔥 PNG 원본 유지 (손실 없음) 🔥
         function compressImage(file, maxWidth = null) {
             return new Promise(resolve => {
                 const r = new FileReader();
@@ -555,16 +564,9 @@
                 sub.innerHTML = `${creator ? creator : ''} ${creator && character ? ' | ' : ''} <span class="font-bold">${character}</span>`;
             } else { sub.innerHTML = ''; }
             
-            // 그라데이션 방향 설정
-            const dir = document.getElementById('s-grad-dir').value;
             const col1 = document.getElementById('s-color1').value;
             const col2 = document.getElementById('s-color2').value;
-            
-            if(dir === 'circle') {
-                can.style.background = `radial-gradient(circle, ${col1} 0%, ${col2} 100%)`;
-            } else {
-                can.style.background = `linear-gradient(${dir}, ${col1} 0%, ${col2} 100%)`;
-            }
+            can.style.background = `linear-gradient(135deg, ${col1} 0%, ${col2} 100%)`;
         };
 
         /* ================= 2. 책갈피 로그 ================= */
@@ -589,7 +591,6 @@
             bookLogTimeout = setTimeout(processBookLog, 300); 
         };
 
-        // 🔥 innerText를 활용한 안전한 렌더링 측정 🔥
         window.processBookLog = async function() {
             const text = document.getElementById('b-input').value;
             if(!text) { pages = [""]; currentIdx = 0; renderBookPage(); return; }
@@ -630,7 +631,6 @@
             for (let i = 0; i < paragraphs.length; i++) {
                 let p = paragraphs[i] + (i < paragraphs.length - 1 ? '\n' : '');
                 
-                // 순수 텍스트로만 높이 측정하여 HTML 태그 깨짐 방지
                 measureDiv.innerText = currentPageText + p;
                 let currentMaxH = (pages.length === 0) ? firstPageMaxH : normalMaxH;
 
@@ -703,7 +703,6 @@
 
             const canvas = document.getElementById('book-canvas');
             const themeEl = document.getElementById('b-theme');
-            // 에러 방지 처리 적용
             canvas.style.background = themeEl ? themeEl.value : '#fffcf8';
             canvas.style.padding = `${py}px ${px}px`;
             
@@ -712,7 +711,6 @@
             footer.style.width = `calc(100% - ${px * 2}px)`;
             footer.style.bottom = `${parseInt(py)/2}px`;
             
-            // 실제 눈에 보이는 영역에만 태그 파싱을 적용
             pageContent.innerHTML = formatHighlight(pages[currentIdx] || ''); 
             document.getElementById('b-num').innerText = currentIdx + 1;
             
@@ -733,42 +731,16 @@
             
             const origIdx = currentIdx; 
             const total = pages.length;
-            const original = document.getElementById('book-canvas');
-            const captureRoot = document.getElementById('capture-root');
 
             for(let i=0; i<total; i++) { 
                 currentIdx = i; renderBookPage(); 
                 await new Promise(r => setTimeout(r, 200)); 
-                
-                const clone = original.cloneNode(true);
-                clone.style.transform = 'none';
-                clone.style.position = 'static';
-                clone.style.width = original.offsetWidth + 'px';
-                clone.style.height = original.offsetHeight + 'px';
-
-                captureRoot.innerHTML = '';
-                captureRoot.appendChild(clone);
-
-                await new Promise(r => setTimeout(r, 50)); 
-
-                const c = await html2canvas(clone, { 
-                    scale: 4, 
-                    useCORS: true,
-                    backgroundColor: null
-                }); 
-                
-                captureRoot.innerHTML = '';
-                
-                const link = document.createElement('a'); 
-                link.download = `BookLog_Page_${i+1}.png`; 
-                link.href = c.toDataURL('image/png'); 
-                link.click();
-
+                await captureSquare('book-canvas', `BookLog_Page_${i+1}`);
                 await new Promise(r => setTimeout(r, 600)); 
             }
             
             currentIdx = origIdx; renderBookPage(); 
-            btn.innerText = "전체 페이지 여러 장의 PNG로 자동 저장하기"; 
+            btn.innerText = "전체 페이지 개별 PNG로 다중 다운로드"; 
             btn.disabled = false;
         };
 
@@ -829,7 +801,7 @@
             }
             
             currentIdx = origIdx; renderBookPage(); 
-            btn.innerText = "세로로 길게 한 장의 PNG로 저장하기"; 
+            btn.innerText = "세로로 길게 한 장으로 저장"; 
             btn.disabled = false;
         };
 
