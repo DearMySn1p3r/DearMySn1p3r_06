@@ -42,11 +42,11 @@
             text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
         .hidden-view { display: none !important; }
         
-        /* 🔥 캔버스 공통 (초고화질을 위해 베이스 사이즈 대폭 확장) 🔥 */
+        /* 🔥 캔버스 공통 🔥 */
         .canvas-container { width: 100%; aspect-ratio: 1 / 1; position: relative; overflow: hidden; border-radius: 8px; border: 1px solid #ededed; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
         .canvas-area { width: 1600px; height: 1600px; position: absolute; top: 0; left: 0; box-sizing: border-box; transform-origin: top left; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* 📖 책갈피 1페이지 레이아웃 (베이스 1000x1500px 확장) */
+        /* 📖 책갈피 1페이지 레이아웃 */
         .book-canvas-container { width: 100%; aspect-ratio: 1 / 1.5; max-width: 500px; margin: 0 auto; position: relative; overflow: hidden; border-radius: 8px; border: 1px solid #ededed; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
         .book-canvas { width: 1000px; height: 1500px; background: #fffcf8; position: absolute; top: 0; left: 0; transform-origin: top left; display: flex; flex-direction: column; box-sizing: border-box; position: relative; }
         .break-all-words { word-break: keep-all; overflow-wrap: break-word; }
@@ -374,7 +374,7 @@
                 <div id="polamaker-canvas" style="width: 1000px; height: 1200px; padding: 40px; background: transparent; position: relative; margin: 0 auto;">
                     <div id="pm-frame" style="width: 920px; height: 1120px; background: white; padding: 40px; padding-bottom: 60px; box-shadow: 0 20px 50px rgba(0,0,0,0.08); transform: rotate(-1.5deg); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; margin: 0 auto; border: 1px solid #ededed;">
                         <div style="width: 840px; height: 840px; position: relative; overflow: hidden; background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px;">
-                            <img id="pm-img" class="hidden absolute inset-0 w-full h-full" style="object-fit: cover; object-position: 50% 50%;">
+                            <div id="pm-img" class="hidden absolute inset-0 w-full h-full"></div>
                             <span id="pm-placeholder" class="absolute inset-0 flex items-center justify-center text-gray-300 text-xl">사진을 넣어주세요</span>
                         </div>
                         <div id="pm-display" class="font-pen" style="width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 88px; color: #4a4a4a; margin-top: 30px;"></div>
@@ -390,8 +390,9 @@
                     <input type="file" id="g-img-upload" accept="image/*" class="w-full text-xs text-gray-500 file:mr-3 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-diary-pink-light file:text-diary-pink hover:file:bg-diary-pink hover:file:text-white cursor-pointer border border-dashed border-diary-pink p-2 rounded-xl transition-colors">
                 </div>
                 <div class="flex-1 flex flex-col gap-3">
-                    <label class="block text-xs font-bold text-diary-pink mb-1">프롬프트 메모</label>
+                    <label class="block text-xs font-bold text-diary-pink mb-1">프롬프트 메모 및 태그</label>
                     <textarea id="g-prompt" class="w-full flex-1 p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all" placeholder="이 이미지에 사용된 프롬프트나 영감을 적어두세요."></textarea>
+                    <input type="text" id="g-tags" class="w-full p-2 bg-gray-50 border border-gray-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-diary-pink" placeholder="태그 입력 (쉼표로 구분, 예: 귀여운, 캐릭터)">
                     <button onclick="addGalleryItem()" class="btn-minimal w-full">갤러리에 추가하기</button>
                 </div>
             </div>
@@ -411,9 +412,12 @@
 
         <section id="view-ooc" class="hidden-view max-w-3xl mx-auto space-y-4">
             <h2 class="text-xl font-bold text-diary-pink mb-5">OOC Note</h2>
-            <div class="flex gap-2">
-                <input type="text" id="ooc-input" class="wiki-card flex-1 p-4 text-sm focus:outline-none focus:border-diary-pink transition-all shadow-sm" placeholder="(OOC: 명령어 또는 시스템 메모 입력) 엔터로 추가" onkeypress="if(event.key === 'Enter') addOOC()">
-                <button onclick="addOOC()" id="btn-ooc-add" class="btn-minimal px-6">추가</button>
+            <div class="flex flex-col gap-2">
+                <div class="flex gap-2">
+                    <input type="text" id="ooc-input" class="wiki-card flex-1 p-4 text-sm focus:outline-none focus:border-diary-pink transition-all shadow-sm rounded-xl border border-gray-100" placeholder="(OOC: 명령어 또는 시스템 메모 입력)">
+                    <button onclick="addOOC()" id="btn-ooc-add" class="btn-minimal px-6">추가</button>
+                </div>
+                <input type="text" id="ooc-tags" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-diary-pink" placeholder="태그 입력 (쉼표로 구분)" onkeypress="if(event.key === 'Enter') addOOC()">
             </div>
             <ul id="ooc-list" class="space-y-3 mt-5"></ul>
         </section>
@@ -429,6 +433,7 @@
             <div class="w-full md:w-1/2 p-8 flex flex-col">
                 <h3 class="text-lg font-bold text-diary-pink mb-4">Prompt Info</h3>
                 <textarea id="modal-prompt" class="flex-1 w-full p-4 bg-gray-50 border border-gray-100 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all"></textarea>
+                <input type="text" id="modal-tags" class="w-full p-3 mt-3 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-diary-pink" placeholder="태그 (쉼표로 구분)">
                 <div class="flex gap-3 mt-6">
                     <button onclick="saveModalPrompt()" class="flex-1 btn-minimal">내용 수정 저장</button>
                     <button onclick="deleteModalItem()" class="px-6 py-3 bg-red-50 text-red-400 rounded-xl font-bold hover:bg-red-100 transition-colors border border-red-100">삭제</button>
@@ -456,20 +461,17 @@
             const target = document.getElementById('view-' + viewId);
             if(target) target.classList.remove('hidden-view');
             
-            // 스마트 뒤로가기 버튼 처리
             const btnBack = document.getElementById('btn-back');
             if(btnBack) {
                 if(viewId === 'home') btnBack.classList.add('hidden');
                 else btnBack.classList.remove('hidden');
             }
             
-            // 베이스 캔버스 사이즈 확대에 맞춘 스케일 적용
             setTimeout(() => { 
                 applyScale('s-wrapper', 'snippet-canvas', 1600); 
                 applyScale('b-wrapper', 'book-canvas', 1000); 
                 applyScale('pola-wrapper', 'polamaker-canvas', 1000); 
             }, 50);
-            
             if(viewId === 'booklog') setTimeout(triggerProcessBookLog, 100);
             if(viewId === 'ooc') loadOOC(); 
             if(viewId === 'persona') loadPersonaList(); 
@@ -477,9 +479,8 @@
             if(viewId === 'usernote') loadUserNotes();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
-
         function applyScale(wrapperId, canvasId, baseWidth) {
-            const wrap = document.getElementById(wrapperId); 
+            const wrap = document.getElementById(wrapperId);
             const can = document.getElementById(canvasId);
             if(wrap && can && !wrap.closest('.hidden-view')) { 
                 const scale = wrap.getBoundingClientRect().width / baseWidth;
@@ -523,14 +524,11 @@
         // 🔥 최강 화질 + 무결점 직접 캡처 렌더링 🔥
         window.captureSquare = async function(id, filename) {
             await document.fonts.ready;
-
             const target = document.getElementById(id);
             const parent = target.parentElement;
             
             const origTransform = target.style.transform;
             const parentTransform = parent ? parent.style.transform : '';
-
-            // 화면상 스케일 및 부모 스케일 완전 제거
             target.style.transform = 'none';
             target.style.position = 'fixed';
             target.style.left = '0';
@@ -538,16 +536,13 @@
             target.style.zIndex = '9999';
 
             if(parent) parent.style.transform = 'none';
-
             await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
             const canvas = await html2canvas(target, {
-                scale: 1, // 베이스 크기가 이미 충분히 크므로 1로 고정하여 완벽한 화질 캡처
+                scale: 1, 
                 useCORS: true,
                 backgroundColor: null
             });
-
-            // 복구
             target.style.transform = origTransform;
             target.style.position = '';
             target.style.left = '';
@@ -564,7 +559,7 @@
 
         /* ================= 1. 조각글 발췌 ================= */
         window.updateSnippet = function() {
-            const can = document.getElementById('snippet-canvas'); 
+            const can = document.getElementById('snippet-canvas');
             const txt = document.getElementById('s-text-display');
             const sub = document.getElementById('s-sub-display');
             
@@ -572,7 +567,8 @@
             txt.className = `w-full ${document.getElementById('s-font').value} ${document.getElementById('s-align').value} leading-[1.8] break-keep flex-1 flex flex-col justify-center`;
             
             const tColor = document.getElementById('s-text-color').value;
-            txt.style.color = tColor; sub.style.color = tColor;
+            txt.style.color = tColor;
+            sub.style.color = tColor;
             
             const creator = document.getElementById('s-creator').value;
             const character = document.getElementById('s-character').value;
@@ -590,8 +586,9 @@
             }
         };
 
-        /* ================= 2. 책갈피 로그 (자동 분할 & 직접 캡처 대응) ================= */
-        let pages = []; let currentIdx = 0;
+        /* ================= 2. 책갈피 로그 ================= */
+        let pages = [];
+        let currentIdx = 0;
         let bookLogTimeout;
 
         window.formatHighlight = function(text) {
@@ -606,10 +603,9 @@
             escaped = escaped.replace(/~(.*?)~/g, `<span style="color: ${c3}; font-weight: bold;">$1</span>`);
             return escaped;
         };
-
         window.triggerProcessBookLog = function() {
             clearTimeout(bookLogTimeout);
-            bookLogTimeout = setTimeout(processBookLog, 300); 
+            bookLogTimeout = setTimeout(processBookLog, 300);
         };
 
         window.processBookLog = async function() {
@@ -628,9 +624,8 @@
             document.getElementById('b-py-val').innerText = py;
             document.getElementById('b-px-val').innerText = px;
 
-            // 캔버스 사이즈업 반영에 따른 계산
             const exactWidth = 1000 - (px * 2);
-            const firstPageMaxH = 1500 - (py * 2) - 160 - 120; 
+            const firstPageMaxH = 1500 - (py * 2) - 160 - 120;
             const normalMaxH = 1500 - (py * 2) - 160; 
 
             const measureDiv = document.createElement('div');
@@ -640,7 +635,7 @@
             measureDiv.style.left = '-9999px';
             measureDiv.style.top = '0';
             measureDiv.style.visibility = 'hidden';
-            measureDiv.style.fontSize = '28px'; // 폰트 사이즈업
+            measureDiv.style.fontSize = '28px';
             measureDiv.style.lineHeight = lh;
             measureDiv.style.letterSpacing = ls + 'px';
             measureDiv.style.textIndent = indent === '0' ? '0' : indent;
@@ -653,10 +648,8 @@
 
             for (let i = 0; i < paragraphs.length; i++) {
                 let p = paragraphs[i] + (i < paragraphs.length - 1 ? '\n' : '');
-                
                 measureDiv.innerText = currentPageText + p;
                 let currentMaxH = (pages.length === 0) ? firstPageMaxH : normalMaxH;
-
                 if (measureDiv.clientHeight > currentMaxH) {
                     if (currentPageText !== "") {
                         pages.push(currentPageText.replace(/\n$/, ''));
@@ -686,18 +679,16 @@
 
             if(currentIdx >= pages.length) currentIdx = pages.length - 1;
             if(currentIdx < 0) currentIdx = 0;
-
             renderBookPage();
         };
         
         window.renderBookPage = function() {
-            const title = document.getElementById('b-title').value; 
+            const title = document.getElementById('b-title').value;
             const titleColor = document.getElementById('b-title-color').value;
             const titleFontValue = document.getElementById('b-title-font').value;
             
             const headerMain = document.getElementById('b-header-main');
             const headerSub = document.getElementById('b-header-sub');
-            
             if (currentIdx === 0) {
                 headerMain.style.display = 'block';
                 headerMain.innerText = title;
@@ -717,7 +708,6 @@
             const indent = document.getElementById('b-indent').value;
             const py = document.getElementById('b-py').value;
             const px = document.getElementById('b-px').value;
-
             const pageContent = document.getElementById('b-page-content');
             pageContent.className = `flex-1 ${font} text-[28px] whitespace-pre-wrap break-keep text-justify break-all-words`;
             pageContent.style.lineHeight = lh;
@@ -734,7 +724,7 @@
             footer.style.width = `calc(100% - ${px * 2}px)`;
             footer.style.bottom = `${parseInt(py)/2}px`;
             
-            pageContent.innerHTML = formatHighlight(pages[currentIdx] || ''); 
+            pageContent.innerHTML = formatHighlight(pages[currentIdx] || '');
             document.getElementById('b-num').innerText = currentIdx + 1;
             
             const total = pages.length; 
@@ -744,27 +734,24 @@
 
         window.changePage = function(d) { currentIdx += d; renderBookPage(); };
 
-        // 🔥 책갈피 직접 캡처로 찌그러짐 원천 차단 🔥
         window.downloadAllBookPagesMultiple = async function() {
-            if(!pages.length || (pages.length === 1 && pages[0] === "")) return alert("내용이 없습니다."); 
+            if(!pages.length || (pages.length === 1 && pages[0] === "")) return alert("내용이 없습니다.");
             const btn = document.getElementById('btn-dl-all'); 
             btn.innerText = "⏳ 순차적으로 다운로드 중... (팝업 허용 필요)"; 
             btn.disabled = true; 
             
             await document.fonts.ready;
-            
             const origIdx = currentIdx; 
             const total = pages.length;
             const target = document.getElementById('book-canvas');
             const parent = target.parentElement;
-
             for(let i=0; i<total; i++) { 
-                currentIdx = i; renderBookPage(); 
+                currentIdx = i;
+                renderBookPage(); 
                 await new Promise(r => setTimeout(r, 200)); 
                 
                 const origTransform = target.style.transform;
                 const parentTransform = parent ? parent.style.transform : '';
-
                 target.style.transform = 'none';
                 target.style.position = 'fixed';
                 target.style.left = '0';
@@ -772,15 +759,9 @@
                 target.style.zIndex = '9999';
 
                 if(parent) parent.style.transform = 'none';
-
                 await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-                // 원본을 1:1로 직접 캡처
-                const c = await html2canvas(target, { 
-                    scale: 1, 
-                    useCORS: true,
-                    backgroundColor: null
-                }); 
+                const c = await html2canvas(target, { scale: 1, useCORS: true, backgroundColor: null }); 
                 
                 target.style.transform = origTransform;
                 target.style.position = '';
@@ -790,40 +771,39 @@
                 if(parent) parent.style.transform = parentTransform;
                 
                 const link = document.createElement('a'); 
-                link.download = `BookLog_Page_${i+1}.png`; 
+                link.download = `BookLog_Page_${i+1}.png`;
                 link.href = c.toDataURL('image/png'); 
                 link.click();
 
-                await new Promise(r => setTimeout(r, 600)); 
+                await new Promise(r => setTimeout(r, 600));
             }
             
-            currentIdx = origIdx; renderBookPage(); 
+            currentIdx = origIdx;
+            renderBookPage(); 
             btn.innerText = "전체 페이지 분할 PNG로 저장"; 
             btn.disabled = false;
         };
-
         window.downloadAllBookPagesSingle = async function() {
-            if(!pages.length || (pages.length === 1 && pages[0] === "")) return alert("내용이 없습니다."); 
+            if(!pages.length || (pages.length === 1 && pages[0] === "")) return alert("내용이 없습니다.");
             const btn = document.getElementById('btn-dl-single'); 
             btn.innerText = "⏳ 긴 이미지로 굽는 중..."; 
             btn.disabled = true; 
             
             await document.fonts.ready;
             
-            const origIdx = currentIdx; 
+            const origIdx = currentIdx;
             const total = pages.length;
             let canvases = [];
 
             const target = document.getElementById('book-canvas');
             const parent = target.parentElement;
-
             for(let i=0; i<total; i++) { 
-                currentIdx = i; renderBookPage(); 
+                currentIdx = i;
+                renderBookPage(); 
                 await new Promise(r => setTimeout(r, 150)); 
                 
                 const origTransform = target.style.transform;
                 const parentTransform = parent ? parent.style.transform : '';
-
                 target.style.transform = 'none';
                 target.style.position = 'fixed';
                 target.style.left = '0';
@@ -831,15 +811,9 @@
                 target.style.zIndex = '9999';
 
                 if(parent) parent.style.transform = 'none';
-
                 await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-                const c = await html2canvas(target, { 
-                    scale: 1, 
-                    useCORS: true,
-                    backgroundColor: null
-                }); 
-                
+                const c = await html2canvas(target, { scale: 1, useCORS: true, backgroundColor: null });
                 target.style.transform = origTransform;
                 target.style.position = '';
                 target.style.left = '';
@@ -855,28 +829,30 @@
                 masterCanvas.width = canvases[0].width;
                 masterCanvas.height = canvases[0].height * canvases.length;
                 const ctx = masterCanvas.getContext('2d');
-                
                 for(let i=0; i<canvases.length; i++) {
                     ctx.drawImage(canvases[i], 0, i * canvases[0].height);
                 }
 
-                const link = document.createElement('a'); 
+                const link = document.createElement('a');
                 link.download = `BookLog_Long_${Date.now()}.png`; 
                 link.href = masterCanvas.toDataURL('image/png'); 
                 link.click();
             }
             
-            currentIdx = origIdx; renderBookPage(); 
+            currentIdx = origIdx;
+            renderBookPage(); 
             btn.innerText = "세로로 길게 한 장으로 저장"; 
             btn.disabled = false;
         };
 
         /* ================= 3. 캐릭터 보관함 ================= */
-        let currentPersonaIndex = -1; let currentPImg = null;
+        let currentPersonaIndex = -1;
+        let currentPImg = null;
         function getPersonas() { return JSON.parse(localStorage.getItem('studio_personas') || '[]'); }
         
         window.loadPersonaList = function() {
-            const list = getPersonas(); const container = document.getElementById('persona-list');
+            const list = getPersonas();
+            const container = document.getElementById('persona-list');
             if(list.length === 0) { container.innerHTML = '<div class="text-center text-xs text-gray-400 mt-10">저장된 캐릭터가 없습니다.</div>'; createNewPersona(); return; }
             container.innerHTML = list.map((p, i) => `
                 <div onclick="selectPersona(${i})" class="flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors border ${currentPersonaIndex === i ? 'border-diary-pink bg-diary-pink-light/20' : 'border-transparent hover:bg-gray-50'}">
@@ -890,15 +866,18 @@
             if(currentPersonaIndex === -1 && list.length > 0) selectPersona(0);
         };
         window.createNewPersona = function() {
-            currentPersonaIndex = -1; currentPImg = null;
-            document.getElementById('p-name').value = ''; document.getElementById('p-age').value = ''; document.getElementById('p-features').value = ''; document.getElementById('p-appearance').value = ''; document.getElementById('p-personality').value = ''; document.getElementById('p-background').value = '';
+            currentPersonaIndex = -1;
+            currentPImg = null;
+            document.getElementById('p-name').value = ''; document.getElementById('p-age').value = ''; document.getElementById('p-features').value = ''; document.getElementById('p-appearance').value = ''; document.getElementById('p-personality').value = '';
+            document.getElementById('p-background').value = '';
             document.getElementById('p-img-display').classList.add('hidden'); document.getElementById('p-img-placeholder').classList.remove('hidden');
             document.getElementById('btn-delete-persona').classList.add('hidden');
             document.getElementById('btn-save-persona').innerText = "새 캐릭터 저장";
             loadPersonaList(); 
         };
         window.selectPersona = function(index) {
-            currentPersonaIndex = index; const p = getPersonas()[index]; if(!p) return;
+            currentPersonaIndex = index;
+            const p = getPersonas()[index]; if(!p) return;
             document.getElementById('p-name').value = p.name || ''; document.getElementById('p-age').value = p.age || ''; document.getElementById('p-features').value = p.features || ''; document.getElementById('p-appearance').value = p.app || ''; document.getElementById('p-personality').value = p.per || ''; document.getElementById('p-background').value = p.bg || '';
             currentPImg = p.img;
             const disp = document.getElementById('p-img-display');
@@ -909,18 +888,21 @@
             loadPersonaList();
         };
         window.handlePersonaUpload = async function(input) {
-            if(input.files[0]) { currentPImg = await compressImage(input.files[0], null); document.getElementById('p-img-display').src = currentPImg; document.getElementById('p-img-display').classList.remove('hidden'); document.getElementById('p-img-placeholder').classList.add('hidden'); }
+            if(input.files[0]) { currentPImg = await compressImage(input.files[0], null);
+            document.getElementById('p-img-display').src = currentPImg; document.getElementById('p-img-display').classList.remove('hidden'); document.getElementById('p-img-placeholder').classList.add('hidden'); }
         };
         window.savePersona = function() {
             const p = { name: document.getElementById('p-name').value, age: document.getElementById('p-age').value, features: document.getElementById('p-features').value, app: document.getElementById('p-appearance').value, per: document.getElementById('p-personality').value, bg: document.getElementById('p-background').value, img: currentPImg };
             let list = getPersonas();
             try {
                 if(currentPersonaIndex === -1) { list.unshift(p); currentPersonaIndex = 0; } else { list[currentPersonaIndex] = p; }
-                localStorage.setItem('studio_personas', JSON.stringify(list)); alert("저장되었습니다."); loadPersonaList();
+                localStorage.setItem('studio_personas', JSON.stringify(list));
+                alert("저장되었습니다."); loadPersonaList();
             } catch (e) { alert("저장 공간이 부족합니다!"); }
         };
         window.deleteCurrentPersona = function() {
-            if(currentPersonaIndex === -1) return; if(!confirm("이 캐릭터 정보를 삭제할까요?")) return;
+            if(currentPersonaIndex === -1) return;
+            if(!confirm("이 캐릭터 정보를 삭제할까요?")) return;
             let list = getPersonas(); list.splice(currentPersonaIndex, 1); localStorage.setItem('studio_personas', JSON.stringify(list)); createNewPersona();
         };
 
@@ -930,7 +912,13 @@
             if(input.files[0]) {
                 currentPolaImg = await compressImage(input.files[0], null);
                 const pmImg = document.getElementById('pm-img');
+                
+                // 🔥 바둑판 버그 해결된 완벽한 코드 세트 적용 완료
                 pmImg.style.backgroundImage = `url(${currentPolaImg})`;
+                pmImg.style.backgroundRepeat = 'no-repeat';
+                pmImg.style.backgroundSize = 'cover';
+                pmImg.style.backgroundPosition = 'center';
+
                 pmImg.classList.remove('hidden');
                 document.getElementById('pm-placeholder').classList.add('hidden');
                 updatePolaMaker(); 
@@ -947,37 +935,62 @@
             }
         };
 
-        /* ================= 5. 이미지 갤러리 ================= */
-        let currentGalleryIndex = -1; 
+        /* ================= 5. 이미지 갤러리 (태그 기능 포함) ================= */
+        let currentGalleryIndex = -1;
         function getGallery() { return JSON.parse(localStorage.getItem('studio_gallery') || '[]'); }
         window.addGalleryItem = async function() {
-            const input = document.getElementById('g-img-upload'); const prompt = document.getElementById('g-prompt').value;
+            const input = document.getElementById('g-img-upload');
+            const prompt = document.getElementById('g-prompt').value;
+            const tags = document.getElementById('g-tags').value; // 태그 값 가져오기
             if(!input.files[0]) return alert("이미지를 첨부해주세요.");
-            const base64Img = await compressImage(input.files[0], null); const gallery = getGallery(); gallery.unshift({ img: base64Img, prompt: prompt });
-            try { localStorage.setItem('studio_gallery', JSON.stringify(gallery)); input.value = ''; document.getElementById('g-prompt').value = ''; loadGallery(); } 
+            const base64Img = await compressImage(input.files[0], null); const gallery = getGallery();
+            gallery.unshift({ img: base64Img, prompt: prompt, tags: tags }); // 태그 데이터 저장
+            try { 
+                localStorage.setItem('studio_gallery', JSON.stringify(gallery)); 
+                input.value = ''; 
+                document.getElementById('g-prompt').value = ''; 
+                document.getElementById('g-tags').value = ''; // 태그 입력칸 초기화
+                loadGallery();
+            } 
             catch(e) { alert("용량 부족!"); }
         };
         window.loadGallery = function() {
-            const gal = getGallery(); const grid = document.getElementById('gallery-grid');
-            grid.innerHTML = gal.map((item, i) => `
+            const gal = getGallery();
+            const grid = document.getElementById('gallery-grid');
+            grid.innerHTML = gal.map((item, i) => {
+                let tagsHtml = '';
+                if(item.tags) {
+                    // 태그 렌더링 (쉼표 기준으로 나누고 해시태그 붙이기)
+                    tagsHtml = `<div class="flex flex-wrap gap-1 mt-1">${item.tags.split(',').map(t => t.trim()).filter(t=>t).map(t => `<span class="bg-diary-pink-light/30 text-diary-pink px-1.5 py-0.5 rounded text-[9px] font-bold">#${t}</span>`).join('')}</div>`;
+                }
+                return `
                 <div onclick="openGalleryModal(${i})" class="bg-white rounded-2xl p-3 flex flex-col gap-2 relative group border border-gray-100 shadow-sm hover:shadow-md hover:border-diary-pink transition-all cursor-pointer">
                     <img src="${item.img}" class="w-full aspect-square object-cover rounded-xl">
-                    <p class="text-[10px] text-gray-400 whitespace-pre-wrap px-1 truncate">${item.prompt || '메모 없음'}</p>
+                    <p class="text-[10px] text-gray-400 whitespace-pre-wrap px-1 truncate flex-1">${item.prompt || '메모 없음'}</p>
+                    ${tagsHtml}
                 </div>
-            `).join('');
+            `}).join('');
         };
         window.openGalleryModal = function(index) {
-            currentGalleryIndex = index; const item = getGallery()[index]; if(!item) return;
-            document.getElementById('modal-img').src = item.img; document.getElementById('modal-prompt').value = item.prompt || '';
+            currentGalleryIndex = index;
+            const item = getGallery()[index]; if(!item) return;
+            document.getElementById('modal-img').src = item.img; 
+            document.getElementById('modal-prompt').value = item.prompt || '';
+            document.getElementById('modal-tags').value = item.tags || ''; // 모달에 태그 띄우기
             document.getElementById('gallery-modal').classList.remove('hidden');
         };
         window.closeGalleryModal = function() { document.getElementById('gallery-modal').classList.add('hidden'); currentGalleryIndex = -1; };
         window.saveModalPrompt = function() {
-            if(currentGalleryIndex === -1) return; const gal = getGallery(); gal[currentGalleryIndex].prompt = document.getElementById('modal-prompt').value;
-            try { localStorage.setItem('studio_gallery', JSON.stringify(gal)); alert("수정되었습니다."); loadGallery(); } catch(e){}
+            if(currentGalleryIndex === -1) return;
+            const gal = getGallery(); 
+            gal[currentGalleryIndex].prompt = document.getElementById('modal-prompt').value;
+            gal[currentGalleryIndex].tags = document.getElementById('modal-tags').value; // 수정된 태그 저장
+            try { localStorage.setItem('studio_gallery', JSON.stringify(gal)); alert("수정되었습니다."); loadGallery();
+            } catch(e){}
         };
         window.deleteModalItem = function() {
-            if(currentGalleryIndex === -1) return; if(!confirm("삭제할까요?")) return;
+            if(currentGalleryIndex === -1) return;
+            if(!confirm("삭제할까요?")) return;
             const gal = getGallery(); gal.splice(currentGalleryIndex, 1); localStorage.setItem('studio_gallery', JSON.stringify(gal));
             closeGalleryModal(); loadGallery();
         };
@@ -1022,12 +1035,10 @@
             document.getElementById('modal-un-content').value = note.content || '';
             document.getElementById('usernote-modal').classList.remove('hidden');
         };
-
         window.closeUserNoteModal = function() {
             document.getElementById('usernote-modal').classList.add('hidden');
             currentUserNoteIndex = -1;
         };
-
         window.saveUserNoteModal = function() {
             if(currentUserNoteIndex === -1) return;
             const notes = getUserNotes();
@@ -1039,7 +1050,6 @@
             loadUserNotes();
             closeUserNoteModal();
         };
-
         window.deleteUserNoteModal = function() {
             if(currentUserNoteIndex === -1) return;
             if(!confirm("이 노트를 삭제할까요?")) return;
@@ -1057,36 +1067,75 @@
         function getOOC() { return JSON.parse(localStorage.getItem('studio_ooc') || '[]'); }
         window.loadOOC = function() {
             const list = document.getElementById('ooc-list');
-            list.innerHTML = getOOC().map((o, i) => `
-                <li class="bg-white border border-gray-100 rounded-2xl flex justify-between items-center p-4 text-sm shadow-sm hover:border-diary-pink transition-colors group">
-                    <span class="cursor-pointer text-gray-600 hover:text-diary-pink hover:font-bold transition-all flex-1 pr-4" onclick="navigator.clipboard.writeText('${o.replace(/'/g, "\\'")}')">${o}</span>
-                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="editOOC(${i})" class="text-gray-300 hover:text-blue-400 font-bold">수정</button>
-                        <button onclick="deleteOOC(${i})" class="text-gray-300 hover:text-red-400 font-bold ml-2">삭제</button>
+            list.innerHTML = getOOC().map((item, i) => {
+                // 이전 문자열 배열 호환성 처리
+                let text = typeof item === 'string' ? item : item.text;
+                let tags = typeof item === 'string' ? '' : (item.tags || '');
+                
+                let tagsHtml = '';
+                if(tags) {
+                    tagsHtml = `<div class="flex flex-wrap gap-1 mt-1 pl-1">${tags.split(',').map(t => t.trim()).filter(t=>t).map(t => `<span class="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded text-[10px] font-bold">#${t}</span>`).join('')}</div>`;
+                }
+
+                return `
+                <li class="bg-white border border-gray-100 rounded-2xl flex flex-col p-4 text-sm shadow-sm hover:border-diary-pink transition-colors group">
+                    <div class="flex justify-between items-center w-full">
+                        <span class="cursor-pointer text-gray-600 hover:text-diary-pink hover:font-bold transition-all flex-1 pr-4" onclick="navigator.clipboard.writeText('${text.replace(/'/g, "\\'")}')">${text}</span>
+                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="editOOC(${i})" class="text-gray-300 hover:text-blue-400 font-bold text-xs">수정</button>
+                            <button onclick="deleteOOC(${i})" class="text-gray-300 hover:text-red-400 font-bold ml-2 text-xs">삭제</button>
+                        </div>
                     </div>
+                    ${tagsHtml}
                 </li>
-            `).join('');
+            `}).join('');
         };
         window.addOOC = function() { 
-            const inEl = document.getElementById('ooc-input'); const val = inEl.value.trim(); if(!val) return; 
+            const inEl = document.getElementById('ooc-input');
+            const tagEl = document.getElementById('ooc-tags');
+            const val = inEl.value.trim(); 
+            const tagsVal = tagEl.value.trim();
+            if(!val) return; 
+            
             const o = getOOC(); 
-            if(editOocIndex > -1) { o[editOocIndex] = val; editOocIndex = -1; document.getElementById('btn-ooc-add').innerText = '추가'; } 
-            else { o.unshift(val); }
-            localStorage.setItem('studio_ooc', JSON.stringify(o)); inEl.value = ''; loadOOC(); 
+            if(editOocIndex > -1) { 
+                if (typeof o[editOocIndex] === 'string') {
+                    o[editOocIndex] = { text: val, tags: tagsVal };
+                } else {
+                    o[editOocIndex].text = val;
+                    o[editOocIndex].tags = tagsVal;
+                }
+                editOocIndex = -1;
+                document.getElementById('btn-ooc-add').innerText = '추가'; 
+            } 
+            else { 
+                o.unshift({ text: val, tags: tagsVal });
+            }
+            localStorage.setItem('studio_ooc', JSON.stringify(o)); 
+            inEl.value = ''; 
+            tagEl.value = '';
+            loadOOC(); 
         };
         window.editOOC = function(i) {
-            document.getElementById('ooc-input').value = getOOC()[i]; editOocIndex = i;
-            document.getElementById('btn-ooc-add').innerText = '수정 완료'; document.getElementById('ooc-input').focus();
+            const item = getOOC()[i];
+            const text = typeof item === 'string' ? item : item.text;
+            const tags = typeof item === 'string' ? '' : (item.tags || '');
+
+            document.getElementById('ooc-input').value = text;
+            document.getElementById('ooc-tags').value = tags;
+            editOocIndex = i;
+            document.getElementById('btn-ooc-add').innerText = '수정 완료'; 
+            document.getElementById('ooc-input').focus();
         };
         window.deleteOOC = function(i) { const o = getOOC(); o.splice(i, 1); localStorage.setItem('studio_ooc', JSON.stringify(o)); loadOOC(); };
 
         /* ================= 공통 (백업/업로드) ================= */
         window.exportAllData = function() { 
-            const data = JSON.stringify(localStorage); 
+            const data = JSON.stringify(localStorage);
             const blob = new Blob([data], { type: "application/json" }); 
             const lnk = document.createElement("a"); 
             lnk.href = URL.createObjectURL(blob); 
-            lnk.download = `Studio_Backup_${new Date().toISOString().slice(0,10)}.json`; 
+            lnk.download = `Studio_Backup_${new Date().toISOString().slice(0,10)}.json`;
             lnk.click(); 
         };
         
@@ -1107,7 +1156,6 @@
             };
             reader.readAsText(input.files[0]);
         };
-
         window.onload = function() { try { showView('home'); setTimeout(triggerProcessBookLog, 100); } catch(e){} };
     </script>
 </body>
