@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Studio. Archive</title>
+    <title>Studio. Archive 🌸</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -11,11 +11,11 @@
             theme: {
                 extend: {
                     colors: {
-                        'diary-pink': '#FFB6C1', 
-                        'diary-pink-light': '#FFE4E1', 
-                        'diary-blue': '#AEC6CF', 
-                        'diary-text': '#4A4A4A', 
-                        'ededed': '#ededed', 
+                        'diary-bg': '#FFF2F6', /* 러블리한 연핑크 배경 */
+                        'diary-pink': '#FF95A3', /* 메인 핑크 컬러 */
+                        'diary-pink-light': '#FFD6E0', /* 연한 핑크 포인트 */
+                        'diary-text': '#5a5a5a', 
+                        'ededed': '#f0f0f0', 
                     },
                     fontFamily: {
                         'sans': ['Pretendard', 'sans-serif'],
@@ -25,6 +25,10 @@
                         'gowun': ['"Gowun Batang"', 'serif'],
                         'hahmlet': ['"Hahmlet"', 'serif'],
                         'pen': ['"Nanum Pen Script"', 'cursive'],
+                    },
+                    boxShadow: {
+                        'diary': '0 8px 30px rgba(255, 149, 163, 0.08)',
+                        'diary-hover': '0 12px 40px rgba(255, 149, 163, 0.2)',
                     }
                 }
             }
@@ -37,49 +41,67 @@
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
     
     <style>
-        body { background-color: #fcfcfc; color: #2a2a2a; font-family: 'Pretendard', sans-serif;
-            background-image: linear-gradient(#f1f1f1 1px, transparent 1px), linear-gradient(90deg, #f1f1f1 1px, transparent 1px); background-size: 30px 30px; 
-            text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+        body { 
+            background-color: #FFF2F6; /* 연핑크 배경 */
+            color: #5a5a5a; 
+            font-family: 'Pretendard', sans-serif;
+            /* 핑크 도트 패턴 */
+            background-image: radial-gradient(#FFD6E0 1.5px, transparent 1.5px);
+            background-size: 20px 20px;
+            text-rendering: optimizeLegibility; 
+            -webkit-font-smoothing: antialiased; 
+        }
         .hidden-view { display: none !important; }
         
         /* 캔버스 공통 */
-        .canvas-container { width: 100%; aspect-ratio: 1 / 1; position: relative; overflow: hidden; border-radius: 8px; border: 1px solid #ededed; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
-        .canvas-area { width: 1600px; height: 1600px; position: absolute; top: 0; left: 0; box-sizing: border-box; transform-origin: top left; display: flex; flex-direction: column; overflow: hidden; }
+        .canvas-container { width: 100%; aspect-ratio: 1 / 1; position: relative; overflow: hidden; border-radius: 24px; border: 2px solid white; background: white; box-shadow: 0 4px 20px rgba(255,149,163,0.1); }
+        .canvas-area { width: 800px; height: 800px; position: absolute; top: 0; left: 0; box-sizing: border-box; transform-origin: top left; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* 책갈피 레이아웃 */
-        .book-canvas-container { width: 100%; aspect-ratio: 1 / 1.5; max-width: 500px; margin: 0 auto; position: relative; overflow: hidden; border-radius: 8px; border: 1px solid #ededed; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
-        .book-canvas { width: 1000px; height: 1500px; background: #fffcf8; position: absolute; top: 0; left: 0; transform-origin: top left; display: flex; flex-direction: column; box-sizing: border-box; position: relative; }
+        /* 📖 책갈피 1페이지 레이아웃 */
+        .book-canvas-container { width: 100%; aspect-ratio: 1 / 1.5; max-width: 500px; margin: 0 auto; position: relative; overflow: hidden; border-radius: 20px; border: 2px solid white; box-shadow: 0 4px 20px rgba(255,149,163,0.1); }
+        .book-canvas { width: 500px; height: 750px; background: #fffdfc; position: absolute; top: 0; left: 0; transform-origin: top left; display: flex; flex-direction: column; box-sizing: border-box; position: relative; }
         .break-all-words { word-break: keep-all; overflow-wrap: break-word; }
 
-        /* 버튼 */
-        .btn-minimal { background: #FFB6C1; color: white; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; }
-        .btn-minimal:hover { background: #FF9AA2; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255, 182, 193, 0.3); }
-        .btn-secondary { background: #FFF5F7; color: #FFB6C1; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; transition: all 0.2s; border: 1px solid #FFE4E1; cursor: pointer; }
-        .btn-secondary:hover { background: #FFE4E1; color: #FF9AA2; }
+        /* 핑크 테마 버튼 공통 */
+        .btn-minimal { background: #FF95A3; color: white; padding: 12px 20px; border-radius: 9999px; font-size: 14px; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(255, 149, 163, 0.3); }
+        .btn-minimal:hover { background: #FF7B8D; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(255, 149, 163, 0.45); }
+        .btn-secondary { background: #FFF0F2; color: #FF95A3; padding: 10px 16px; border-radius: 9999px; font-size: 14px; font-weight: 600; transition: all 0.2s; border: 1px solid #FFD6E0; cursor: pointer; }
+        .btn-secondary:hover { background: #FFD6E0; color: #FF7B8D; }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #FFE4E1; border-radius: 10px; }
+        /* 귀여운 핑크 스크롤바 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #FFD6E0; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FF95A3; }
+        
+        /* 다이어리 폼 요소 (인풋, 텍스트에어리어 등) */
+        input, textarea, select { 
+            background-color: rgba(255, 255, 255, 0.8) !important;
+            border-color: #FFD6E0 !important;
+            transition: all 0.3s ease; 
+        }
+        input:focus, textarea:focus, select:focus { 
+            transform: translateY(-1px); 
+            box-shadow: 0 4px 12px rgba(255, 149, 163, 0.2) !important; 
+            border-color: #FF95A3 !important;
+        }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
 
-    <header class="bg-white/90 backdrop-blur-md border-b border-ededed sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-4">
-                <h1 class="font-serif italic font-semibold text-3xl text-diary-pink cursor-pointer select-none drop-shadow-sm transition-transform hover:scale-105" onclick="showView('home')">Studio. Archive</h1>
-            </div>
-            
+    <div id="capture-root" style="position:fixed; left:-9999px; top:0;"></div>
+
+    <header class="bg-white/70 backdrop-blur-md border-b border-white sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <h1 class="font-serif italic font-semibold text-3xl text-diary-pink cursor-pointer select-none drop-shadow-sm transition-transform hover:scale-105" onclick="showView('home')">Studio. Archive</h1>
             <div class="flex gap-2 items-center">
-                <button id="btn-back" onclick="showView('home')" class="hidden px-3 py-1.5 text-xs font-bold text-diary-pink bg-white border border-diary-pink rounded-lg hover:bg-diary-pink hover:text-white transition flex items-center gap-1 shadow-sm mr-2">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
-                    뒤로
-                </button>
+                <button onclick="showView('home')" class="px-4 py-2 text-xs font-bold text-diary-pink bg-white border border-diary-pink-light rounded-full hover:bg-diary-pink-light hover:text-white transition shadow-sm mr-2">Home 🌸</button>
                 
-                <label class="px-3 py-1.5 text-xs font-bold text-white bg-diary-blue rounded-lg hover:bg-[#9eb8c1] transition cursor-pointer shadow-sm">
+                <label class="px-4 py-2 text-xs font-bold text-white bg-diary-pink rounded-full hover:bg-[#FF7B8D] transition cursor-pointer shadow-md hover:-translate-y-0.5">
                     Upload
                     <input type="file" accept=".json" class="hidden" onchange="importAllData(this)">
                 </label>
-                <button onclick="exportAllData()" class="px-3 py-1.5 text-xs font-bold text-white bg-diary-pink rounded-lg hover:bg-[#ff9aa2] transition shadow-sm">Backup</button>
+                <button onclick="exportAllData()" class="px-4 py-2 text-xs font-bold text-diary-pink bg-white border border-diary-pink-light rounded-full hover:bg-diary-pink-light hover:text-white transition shadow-md hover:-translate-y-0.5">Backup</button>
             </div>
         </div>
     </header>
@@ -87,255 +109,156 @@
     <main class="flex-1 overflow-y-auto p-5 md:p-10 max-w-7xl mx-auto w-full">
         
         <section id="view-home" class="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            <div onclick="showView('snippet')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3">
-                <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">📝</div>
-                <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">조각글 발췌</h2></div>
+            <div onclick="showView('snippet')" class="group bg-white/80 backdrop-blur-md rounded-3xl p-6 border-2 border-white shadow-diary hover:shadow-diary-hover hover:border-diary-pink-light hover:-translate-y-2 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-4">
+                <div class="w-14 h-14 bg-diary-pink-light/40 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 group-hover:bg-diary-pink-light transition-all duration-300">📝</div>
+                <div><h2 class="text-base font-bold text-gray-500 group-hover:text-diary-pink transition-colors">조각글 발췌</h2></div>
             </div>
-            <div onclick="showView('booklog')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3">
-                <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">📖</div>
-                <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">책갈피 로그</h2></div>
+            <div onclick="showView('booklog')" class="group bg-white/80 backdrop-blur-md rounded-3xl p-6 border-2 border-white shadow-diary hover:shadow-diary-hover hover:border-diary-pink-light hover:-translate-y-2 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-4">
+                <div class="w-14 h-14 bg-diary-pink-light/40 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 group-hover:bg-diary-pink-light transition-all duration-300">📖</div>
+                <div><h2 class="text-base font-bold text-gray-500 group-hover:text-diary-pink transition-colors">책갈피 로그</h2></div>
             </div>
-            <div onclick="showView('persona')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3">
-                <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">🎭</div>
-                <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">캐릭터 보관함</h2></div>
+            <div onclick="showView('persona')" class="group bg-white/80 backdrop-blur-md rounded-3xl p-6 border-2 border-white shadow-diary hover:shadow-diary-hover hover:border-diary-pink-light hover:-translate-y-2 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-4">
+                <div class="w-14 h-14 bg-diary-pink-light/40 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 group-hover:bg-diary-pink-light transition-all duration-300">🎭</div>
+                <div><h2 class="text-base font-bold text-gray-500 group-hover:text-diary-pink transition-colors">캐릭터 보관함</h2></div>
             </div>
-            <div onclick="showView('polaroid')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3">
-                <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">📸</div>
-                <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">폴라로이드</h2></div>
+            <div onclick="showView('polaroid')" class="group bg-white/80 backdrop-blur-md rounded-3xl p-6 border-2 border-white shadow-diary hover:shadow-diary-hover hover:border-diary-pink-light hover:-translate-y-2 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-4">
+                <div class="w-14 h-14 bg-diary-pink-light/40 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 group-hover:bg-diary-pink-light transition-all duration-300">📸</div>
+                <div><h2 class="text-base font-bold text-gray-500 group-hover:text-diary-pink transition-colors">폴라로이드</h2></div>
             </div>
-            <div onclick="showView('gallery')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3 md:col-span-2">
-                <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">🖼️</div>
-                <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">이미지 갤러리</h2></div>
+            
+            <div onclick="showView('gallery')" class="group bg-white/80 backdrop-blur-md rounded-3xl p-6 border-2 border-white shadow-diary hover:shadow-diary-hover hover:border-diary-pink-light hover:-translate-y-2 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-4 md:col-span-2">
+                <div class="w-14 h-14 bg-diary-pink-light/40 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 group-hover:bg-diary-pink-light transition-all duration-300">🖼️</div>
+                <div><h2 class="text-base font-bold text-gray-500 group-hover:text-diary-pink transition-colors">이미지 갤러리</h2></div>
             </div>
-            <div onclick="showView('usernote')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3">
-                <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">📓</div>
-                <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">유저 노트</h2></div>
+            <div onclick="showView('usernote')" class="group bg-white/80 backdrop-blur-md rounded-3xl p-6 border-2 border-white shadow-diary hover:shadow-diary-hover hover:border-diary-pink-light hover:-translate-y-2 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-4">
+                <div class="w-14 h-14 bg-diary-pink-light/40 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 group-hover:bg-diary-pink-light transition-all duration-300">📓</div>
+                <div><h2 class="text-base font-bold text-gray-500 group-hover:text-diary-pink transition-colors">유저 노트</h2></div>
             </div>
-            <div onclick="showView('ooc')" class="group bg-white rounded-2xl p-6 border border-diary-pink-light shadow-sm hover:shadow-xl hover:border-diary-pink hover:-translate-y-1 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-3 md:col-span-2 lg:col-span-1">
-                <div class="w-12 h-12 bg-diary-pink-light/50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">💬</div>
-                <div><h2 class="text-sm font-bold text-diary-text mb-1 group-hover:text-diary-pink">OOC 메모</h2></div>
+            <div onclick="showView('ooc')" class="group bg-white/80 backdrop-blur-md rounded-3xl p-6 border-2 border-white shadow-diary hover:shadow-diary-hover hover:border-diary-pink-light hover:-translate-y-2 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-4">
+                <div class="w-14 h-14 bg-diary-pink-light/40 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 group-hover:bg-diary-pink-light transition-all duration-300">💬</div>
+                <div><h2 class="text-base font-bold text-gray-500 group-hover:text-diary-pink transition-colors">OOC 메모</h2></div>
             </div>
         </section>
 
         <section id="view-snippet" class="hidden-view flex flex-col md:flex-row gap-8">
-            <div class="w-full md:w-80 flex-shrink-0 bg-white rounded-2xl p-6 space-y-5 h-fit border border-ededed shadow-sm">
-                <h2 class="text-lg font-bold text-diary-pink">Snippet Editor</h2>
-                <div>
-                    <textarea id="s-input" class="w-full h-28 p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all" placeholder="발췌 내용을 적어주세요." oninput="updateSnippet()"></textarea>
+            <div class="w-full md:w-80 flex-shrink-0 bg-white/80 backdrop-blur-md rounded-3xl p-6 space-y-5 h-fit border border-white shadow-diary">
+                <h2 class="text-lg font-bold text-diary-pink flex items-center gap-2"><span>📝</span> Snippet</h2>
+                <div><textarea id="s-input" class="w-full h-28 p-4 rounded-2xl text-sm resize-none focus:outline-none focus:ring-2" placeholder="발췌 내용을 적어주세요." oninput="updateSnippet()"></textarea></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-[11px] font-bold text-gray-400 mb-1 pl-1">제작자</label><input type="text" id="s-creator" class="w-full p-3 rounded-2xl text-xs focus:outline-none focus:ring-2" oninput="updateSnippet()"></div>
+                    <div><label class="block text-[11px] font-bold text-gray-400 mb-1 pl-1">캐릭터명</label><input type="text" id="s-character" class="w-full p-3 rounded-2xl text-xs focus:outline-none focus:ring-2" oninput="updateSnippet()"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-400 mb-1">제작자 / 유저</label>
-                        <input type="text" id="s-creator" class="w-full p-2 bg-gray-50 border border-gray-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-diary-pink" placeholder="(선택)" oninput="updateSnippet()">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-gray-400 mb-1">캐릭터명</label>
-                        <input type="text" id="s-character" class="w-full p-2 bg-gray-50 border border-gray-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-diary-pink" placeholder="(선택)" oninput="updateSnippet()">
-                    </div>
+                    <select id="s-font" class="w-full p-3 rounded-2xl text-xs focus:outline-none focus:ring-2" onchange="updateSnippet()"><option value="font-sans">본문 고딕</option><option value="font-gothic">나눔고딕</option><option value="font-myeongjo">나눔명조</option><option value="font-gowun">고운바탕</option><option value="font-hahmlet">함렛</option></select>
+                    <select id="s-align" class="w-full p-3 rounded-2xl text-xs focus:outline-none focus:ring-2" onchange="updateSnippet()"><option value="text-center">가운데 정렬</option><option value="text-left">왼쪽 정렬</option></select>
                 </div>
-                <div class="grid grid-cols-2 gap-3 pt-2">
-                    <select id="s-font" class="w-full p-2 bg-gray-50 border border-gray-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-diary-pink" onchange="updateSnippet()">
-                        <option value="font-sans">본문 고딕</option>
-                        <option value="font-gothic">나눔고딕</option>
-                        <option value="font-myeongjo">나눔명조</option>
-                        <option value="font-gowun">고운바탕</option>
-                        <option value="font-hahmlet">함렛</option>
-                    </select>
-                    <select id="s-align" class="w-full p-2 bg-gray-50 border border-gray-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-diary-pink" onchange="updateSnippet()">
-                        <option value="text-center">가운데 정렬</option>
-                        <option value="text-left">왼쪽 정렬</option>
-                    </select>
-                </div>
-                <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="text-[11px] font-bold text-diary-pink">배경 그라데이션</label>
-                        <select id="s-grad-dir" class="p-1 bg-white border border-gray-100 rounded text-[10px] focus:outline-none" onchange="updateSnippet()">
-                            <option value="135deg">대각선</option>
-                            <option value="to bottom">위에서 아래</option>
-                            <option value="to right">왼쪽에서 오른쪽</option>
-                            <option value="circle">원형 중심</option>
-                        </select>
-                    </div>
-                    <div class="flex gap-2">
-                        <input type="color" id="s-color1" value="#ffffff" class="h-8 w-full cursor-pointer rounded border border-gray-200" oninput="updateSnippet()">
-                        <span class="text-gray-400 self-center">to</span>
-                        <input type="color" id="s-color2" value="#FFE4E1" class="h-8 w-full cursor-pointer rounded border border-gray-200" oninput="updateSnippet()">
-                    </div>
-                    <label class="block text-[11px] font-bold text-diary-pink mb-1 mt-3">글자색</label>
-                    <input type="color" id="s-text-color" value="#4A4A4A" class="h-8 w-full cursor-pointer rounded border border-gray-200" oninput="updateSnippet()">
+                <div class="p-4 bg-white/50 rounded-2xl border border-diary-pink-light/50">
+                    <label class="block text-[11px] font-bold text-diary-pink mb-2">배경 그라데이션</label>
+                    <div class="flex gap-2 items-center"><input type="color" id="s-color1" value="#ffffff" class="h-8 w-full cursor-pointer rounded-lg border-0 bg-transparent" oninput="updateSnippet()"><span class="text-gray-300 text-xs font-bold">to</span><input type="color" id="s-color2" value="#FFE4E1" class="h-8 w-full cursor-pointer rounded-lg border-0 bg-transparent" oninput="updateSnippet()"></div>
+                    <label class="block text-[11px] font-bold text-diary-pink mb-2 mt-4">글자색</label>
+                    <input type="color" id="s-text-color" value="#4A4A4A" class="h-8 w-full cursor-pointer rounded-lg border-0 bg-transparent" oninput="updateSnippet()">
                 </div>
                 <button onclick="captureSquare('snippet-canvas', 'Snippet')" class="w-full btn-minimal mt-2">이미지로 저장하기</button>
             </div>
-
-            <div class="flex-1 flex items-center justify-center">
-                <div class="canvas-container" id="s-wrapper">
-                    <div class="canvas-area p-[160px]" id="snippet-canvas">
-                        <div id="s-text-display" class="w-full font-sans text-center leading-[1.8] break-keep flex-1 flex flex-col justify-center" style="font-size: 52px; color: #4A4A4A;">내용이 표시됩니다.</div>
-                        <div id="s-sub-display" class="w-full text-center mt-12" style="font-size: 36px; color: #4A4A4A; opacity: 0.8;"></div>
-                    </div>
-                </div>
-            </div>
+            <div class="flex-1 flex items-center justify-center"><div class="canvas-container shadow-diary" id="s-wrapper"><div class="canvas-area p-[80px]" id="snippet-canvas"><div id="s-text-display" class="w-full font-sans text-center leading-[1.8] break-keep flex-1 flex flex-col justify-center" style="font-size: 26px; color: #4A4A4A;">내용이 표시됩니다.</div><div id="s-sub-display" class="w-full text-center mt-6 text-lg" style="color: #4A4A4A; opacity: 0.8;"></div></div></div></div>
         </section>
 
         <section id="view-booklog" class="hidden-view space-y-6">
-            <div class="bg-white rounded-2xl p-6 border border-ededed shadow-sm flex flex-col gap-5">
-                <div class="flex flex-col md:flex-row gap-5">
+            <div class="bg-white/80 backdrop-blur-md rounded-3xl p-6 md:p-8 border border-white shadow-diary flex flex-col gap-5">
+                <h2 class="text-lg font-bold text-diary-pink flex items-center gap-2 mb-2"><span>📖</span> Booklog</h2>
+                <div class="flex flex-col md:flex-row gap-6">
                     <div class="flex-1 flex flex-col gap-2">
-                        <p class="text-[11px] text-diary-pink font-bold">✨ 텍스트 강조: <span class="text-gray-500 font-normal">기호를 붙여 3가지 색상으로 강조할 수 있습니다. (예: *색상1* ^색상2^ ~색상3~)</span></p>
-                        <textarea id="b-input" class="w-full h-full min-h-[300px] p-4 bg-gray-50 border border-gray-100 rounded-xl text-xs resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all" placeholder="여기에 대화 로그를 붙여넣으세요. 에디터가 자동으로 페이지를 넘겨줍니다." oninput="triggerProcessBookLog()"></textarea>
+                        <textarea id="b-input" class="w-full h-full min-h-[300px] p-5 rounded-3xl text-sm resize-none focus:outline-none focus:ring-2 transition-all" placeholder="대화 로그를 붙여넣으세요. 에디터가 자동으로 페이지를 넘겨줍니다." oninput="triggerProcessBookLog()"></textarea>
                     </div>
-                    
                     <div class="w-full md:w-80 space-y-4">
                         <div class="grid grid-cols-3 gap-2">
-                            <div class="col-span-2">
-                                <label class="block text-[11px] font-bold text-gray-400 mb-1">책 제목</label>
-                                <input type="text" id="b-title" class="w-full p-2 bg-gray-50 border border-gray-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-diary-pink" placeholder="제목" oninput="renderBookPage()">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-400 mb-1">제목 색상</label>
-                                <input type="color" id="b-title-color" value="#2a2a2a" class="h-8 w-full cursor-pointer rounded border border-gray-100" oninput="renderBookPage()">
-                            </div>
+                            <div class="col-span-2"><input type="text" id="b-title" class="w-full p-3 rounded-2xl text-xs focus:outline-none focus:ring-2" placeholder="책 제목" oninput="renderBookPage()"></div>
+                            <div><input type="color" id="b-title-color" value="#2a2a2a" class="h-full w-full cursor-pointer rounded-2xl border-0 bg-transparent" oninput="renderBookPage()"></div>
                         </div>
-                        
                         <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-400 mb-1">제목 글꼴</label>
-                                <select id="b-title-font" class="w-full p-2 bg-gray-50 border border-gray-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-diary-pink" onchange="renderBookPage()">
-                                    <option value="font-serif">세리프</option>
-                                    <option value="font-sans">고딕</option>
-                                    <option value="font-gowun">고운바탕</option>
-                                    <option value="font-myeongjo">나눔명조</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-400 mb-1">본문 글꼴</label>
-                                <select id="b-font" class="w-full p-2 bg-gray-50 border border-gray-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-diary-pink" onchange="triggerProcessBookLog()">
-                                    <option value="font-myeongjo">나눔명조</option>
-                                    <option value="font-gowun">고운바탕</option>
-                                    <option value="font-hahmlet">함렛</option>
-                                    <option value="font-sans">고딕</option>
-                                </select>
-                            </div>
+                            <select id="b-title-font" class="w-full p-3 rounded-2xl text-xs focus:outline-none focus:ring-2" onchange="renderBookPage()"><option value="font-serif">세리프</option><option value="font-sans">고딕</option><option value="font-gowun">고운바탕</option><option value="font-myeongjo">나눔명조</option></select>
+                            <select id="b-font" class="w-full p-3 rounded-2xl text-xs focus:outline-none focus:ring-2" onchange="triggerProcessBookLog()"><option value="font-myeongjo">나눔명조</option><option value="font-gowun">고운바탕</option><option value="font-hahmlet">함렛</option><option value="font-sans">고딕</option></select>
                         </div>
-
-                        <div class="p-3 bg-gray-50 border border-gray-100 rounded-xl space-y-3">
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">상하 여백 (<span id="b-py-val">120</span>px)</label>
-                                    <input type="range" id="b-py" min="60" max="240" step="10" value="120" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">좌우 여백 (<span id="b-px-val">150</span>px)</label>
-                                    <input type="range" id="b-px" min="60" max="200" step="10" value="150" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">줄간격 (<span id="b-lh-val">2.0</span>)</label>
-                                    <input type="range" id="b-lh" min="1.5" max="3.0" step="0.1" value="2.0" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">자간 (<span id="b-ls-val">-1</span>px)</label>
-                                    <input type="range" id="b-ls" min="-4" max="10" step="1" value="-1" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()">
-                                </div>
+                        <div class="p-4 bg-white/50 border border-diary-pink-light/50 rounded-2xl space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="block text-[10px] font-bold text-diary-pink mb-1">상하 여백 (<span id="b-py-val">60</span>)</label><input type="range" id="b-py" min="30" max="120" step="5" value="60" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()"></div>
+                                <div><label class="block text-[10px] font-bold text-diary-pink mb-1">좌우 여백 (<span id="b-px-val">75</span>)</label><input type="range" id="b-px" min="30" max="100" step="5" value="75" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()"></div>
+                                <div><label class="block text-[10px] font-bold text-diary-pink mb-1">줄간격 (<span id="b-lh-val">2.0</span>)</label><input type="range" id="b-lh" min="1.5" max="3.0" step="0.1" value="2.0" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()"></div>
+                                <div><label class="block text-[10px] font-bold text-diary-pink mb-1">자간 (<span id="b-ls-val">-0.5</span>)</label><input type="range" id="b-ls" min="-2" max="5" step="0.5" value="-0.5" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()"></div>
                             </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">들여쓰기</label>
-                                    <select id="b-indent" class="w-full p-1.5 bg-white border border-gray-100 rounded-lg text-xs focus:outline-none" onchange="triggerProcessBookLog()">
-                                        <option value="0">없음</option>
-                                        <option value="30px">작게</option>
-                                        <option value="50px" selected>보통</option>
-                                        <option value="70px">크게</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">배경 테마</label>
-                                    <select id="b-theme" class="w-full p-1.5 bg-white border border-gray-100 rounded-lg text-xs focus:outline-none" onchange="renderBookPage()">
-                                        <option value="#fffcf8">아이보리</option>
-                                        <option value="#ffffff">순백색</option>
-                                        <option value="#FFF5F7">연분홍</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-diary-pink mb-1">강조 색상 3종 (*, ^, ~)</label>
-                                <div class="flex gap-1">
-                                    <input type="color" id="b-highlight-color-1" value="#FF82A9" class="h-6 w-full cursor-pointer rounded border border-gray-100" oninput="renderBookPage()" title="*기호*">
-                                    <input type="color" id="b-highlight-color-2" value="#82B3FF" class="h-6 w-full cursor-pointer rounded border border-gray-100" oninput="renderBookPage()" title="^기호^">
-                                    <input type="color" id="b-highlight-color-3" value="#B482FF" class="h-6 w-full cursor-pointer rounded border border-gray-100" oninput="renderBookPage()" title="~기호~">
-                                </div>
+                            <div class="grid grid-cols-2 gap-3 pt-2">
+                                <select id="b-indent" class="w-full p-2 bg-white rounded-xl text-xs focus:outline-none border-diary-pink-light" onchange="triggerProcessBookLog()"><option value="0">들여쓰기 없음</option><option value="15px">작게</option><option value="25px" selected>보통</option></select>
+                                <input type="color" id="b-highlight-color" value="#FF95A3" class="h-8 w-full cursor-pointer rounded-xl border-0 bg-transparent" title="강조색 (*텍스트*)" oninput="renderBookPage()">
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                <div class="flex items-center justify-between pt-4 border-t border-diary-pink-light/30">
                     <button onclick="changePage(-1)" class="btn-secondary text-xs" id="btn-prev">이전 장</button>
-                    <span class="font-bold text-diary-pink bg-diary-pink-light/30 px-4 py-2 rounded-full text-xs" id="page-indicator">1 / 1</span>
+                    <span class="font-bold text-diary-pink bg-diary-pink-light/30 px-5 py-2 rounded-full text-xs" id="page-indicator">1 / 1</span>
                     <button onclick="changePage(1)" class="btn-secondary text-xs" id="btn-next">다음 장</button>
                 </div>
             </div>
-
-            <div class="flex justify-center w-full">
-                <div class="book-canvas-container" id="b-wrapper">
-                    <div class="book-canvas text-diary-text flex flex-col" id="book-canvas">
-                        <div class="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.02)] pointer-events-none"></div>
-                        <div class="text-center text-[48px] mb-16 font-bold tracking-widest book-header-main" id="b-header-main"></div>
-                        <div class="flex-1 text-[28px] whitespace-pre-wrap break-keep text-justify break-all-words" id="b-page-content"></div>
-                        <div id="b-footer" class="absolute flex justify-between items-end w-full" style="box-sizing: border-box;">
-                            <span id="b-header-sub" class="text-[24px] opacity-60 tracking-widest font-bold"></span>
-                            <span id="b-num" class="text-[24px] text-[#a1a1a1]">1</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="flex gap-2">
-                <button onclick="downloadAllBookPagesMultiple()" class="flex-1 btn-minimal text-base py-4" id="btn-dl-all">전체 페이지 분할 PNG로 저장</button>
-                <button onclick="downloadAllBookPagesSingle()" class="flex-1 btn-secondary text-base py-4" id="btn-dl-single">세로로 길게 한 장으로 저장</button>
-            </div>
+            <div class="flex justify-center w-full"><div class="book-canvas-container shadow-diary" id="b-wrapper"><div class="book-canvas text-diary-text flex flex-col" id="book-canvas"><div class="absolute inset-0 shadow-[inset_0_0_40px_rgba(255,149,163,0.05)] pointer-events-none"></div><div class="text-center text-[26px] mb-8 font-bold tracking-widest book-header-main" id="b-header-main"></div><div class="flex-1 text-[14px] whitespace-pre-wrap break-keep text-justify break-all-words" id="b-page-content"></div><div id="b-footer" class="absolute flex justify-between items-end w-full" style="box-sizing: border-box;"><span id="b-header-sub" class="text-xs opacity-60 tracking-widest font-bold"></span><span id="b-num" class="text-xs text-[#a1a1a1]">1</span></div></div></div></div>
         </section>
 
         <section id="view-persona" class="hidden-view space-y-6">
             <div class="flex flex-col lg:flex-row gap-8">
-                <div class="w-full lg:w-72 flex-shrink-0 bg-white rounded-2xl p-6 border border-ededed shadow-sm flex flex-col h-[650px]">
-                    <h2 class="text-lg font-bold text-diary-pink mb-4 text-center">My Characters</h2>
-                    <button onclick="createNewPersona()" class="w-full bg-diary-pink-light/30 text-diary-pink font-bold py-3 rounded-xl mb-4 hover:bg-diary-pink hover:text-white transition-all">+ 새 캐릭터 추가</button>
+                <div class="w-full lg:w-80 flex-shrink-0 bg-white/80 backdrop-blur-md rounded-3xl p-6 border border-white shadow-diary flex flex-col h-[700px]">
+                    <h2 class="text-lg font-bold text-diary-pink mb-4 flex items-center gap-2"><span>🎭</span> Characters</h2>
+                    <button onclick="createNewPersona()" class="w-full bg-diary-pink-light/30 text-diary-pink font-bold py-3 rounded-2xl mb-4 hover:bg-diary-pink-light transition-all border border-diary-pink-light shadow-sm">+ 새 캐릭터 쓰기</button>
+                    
+                    <div class="flex gap-2 mb-4">
+                        <select id="p-filter-folder" onchange="loadPersonaList()" class="flex-1 p-2 rounded-xl text-xs focus:outline-none focus:ring-1 text-gray-500">
+                            <option value="all">모든 폴더</option>
+                        </select>
+                        <select id="p-sort" onchange="loadPersonaList()" class="w-24 p-2 rounded-xl text-xs focus:outline-none focus:ring-1 text-gray-500">
+                            <option value="newest">최신순</option>
+                            <option value="oldest">과거순</option>
+                            <option value="asc">가나다 ▲</option>
+                            <option value="desc">가나다 ▼</option>
+                        </select>
+                    </div>
                     <div id="persona-list" class="flex-1 overflow-y-auto space-y-2 pr-2"></div>
                 </div>
                 
-                <div class="flex-1 bg-white rounded-2xl p-8 border border-ededed shadow-sm flex flex-col md:flex-row gap-6 relative">
+                <div class="flex-1 bg-white/80 backdrop-blur-md rounded-3xl p-8 border border-white shadow-diary flex flex-col md:flex-row gap-8 relative">
                     <div class="w-full md:w-72 space-y-4">
-                        <div class="w-full aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 relative group">
+                        <div class="w-full aspect-square bg-white/60 rounded-3xl overflow-hidden border border-diary-pink-light relative group shadow-inner">
                             <img id="p-img-display" src="" class="w-full h-full object-cover hidden">
-                            <div id="p-img-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-gray-300 text-xs gap-2">
-                                <span class="text-2xl">📸</span><span>고화질 이미지 업로드</span>
+                            <div id="p-img-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-diary-pink/60 text-xs gap-2">
+                                <span class="text-3xl mb-1">📸</span><span>이미지 업로드</span>
                             </div>
-                            <label class="absolute inset-0 bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-sm font-bold backdrop-blur-sm">변경
+                            <label class="absolute inset-0 bg-diary-pink/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-sm font-bold backdrop-blur-sm">변경
                                 <input type="file" accept="image/*" class="hidden" onchange="handlePersonaUpload(this)">
                             </label>
                         </div>
-                        <input type="text" id="p-name" placeholder="캐릭터 이름" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-diary-pink font-bold text-center">
-                        <input type="text" id="p-age" placeholder="나이 / 속성" class="w-full p-2 bg-gray-50 border border-gray-100 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-diary-pink text-center">
+                        <input type="text" id="p-name" placeholder="캐릭터 이름" class="w-full p-4 rounded-2xl text-base focus:outline-none focus:ring-2 font-bold text-center">
+                        <div class="flex gap-2">
+                            <input type="text" id="p-age" placeholder="나이/속성" class="w-1/2 p-3 rounded-2xl text-xs focus:outline-none focus:ring-2 text-center">
+                            <input type="text" id="p-folder" placeholder="폴더명 (분류)" class="w-1/2 p-3 rounded-2xl text-xs focus:outline-none focus:ring-2 text-center">
+                        </div>
                     </div>
                     <div class="flex-1 space-y-4 flex flex-col">
                         <div>
-                            <label class="block text-[11px] font-bold text-gray-400 mb-1">한 줄 특징 요약</label>
-                            <textarea id="p-features" class="w-full h-16 p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink"></textarea>
+                            <label class="block text-[11px] font-bold text-gray-400 mb-1 pl-1">한 줄 특징 요약</label>
+                            <textarea id="p-features" class="w-full h-16 p-4 rounded-2xl text-xs resize-none focus:outline-none focus:ring-2"></textarea>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-gray-400 mb-1">외형 묘사</label>
-                            <textarea id="p-appearance" class="w-full h-24 p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink"></textarea>
+                            <label class="block text-[11px] font-bold text-gray-400 mb-1 pl-1">외형 묘사</label>
+                            <textarea id="p-appearance" class="w-full h-24 p-4 rounded-2xl text-xs resize-none focus:outline-none focus:ring-2"></textarea>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-gray-400 mb-1">성격 특징</label>
-                            <textarea id="p-personality" class="w-full h-24 p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink"></textarea>
+                            <label class="block text-[11px] font-bold text-gray-400 mb-1 pl-1">성격 특징</label>
+                            <textarea id="p-personality" class="w-full h-24 p-4 rounded-2xl text-xs resize-none focus:outline-none focus:ring-2"></textarea>
                         </div>
                         <div class="flex-1">
-                            <label class="block text-[11px] font-bold text-gray-400 mb-1">배경 서사</label>
-                            <textarea id="p-background" class="w-full h-full min-h-[96px] p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink"></textarea>
+                            <label class="block text-[11px] font-bold text-gray-400 mb-1 pl-1">배경 서사</label>
+                            <textarea id="p-background" class="w-full h-full min-h-[96px] p-4 rounded-2xl text-xs resize-none focus:outline-none focus:ring-2"></textarea>
                         </div>
-                        <div class="flex gap-2 pt-4">
+                        <div class="flex gap-3 pt-4">
                             <button onclick="savePersona()" id="btn-save-persona" class="flex-1 btn-minimal">설정 저장</button>
-                            <button onclick="deleteCurrentPersona()" id="btn-delete-persona" class="hidden bg-red-50 text-red-400 px-6 rounded-xl font-bold hover:bg-red-100 transition-colors border border-red-100">삭제</button>
+                            <button onclick="deleteCurrentPersona()" id="btn-delete-persona" class="hidden bg-white text-red-400 px-6 rounded-full font-bold hover:bg-red-50 transition-colors border border-red-100 shadow-sm">삭제</button>
                         </div>
                     </div>
                 </div>
@@ -343,164 +266,187 @@
         </section>
 
         <section id="view-polaroid" class="hidden-view flex flex-col md:flex-row gap-8">
-            <div class="w-full md:w-80 flex-shrink-0 bg-white rounded-2xl p-6 space-y-5 h-fit border border-ededed shadow-sm">
-                <h2 class="text-lg font-bold text-diary-pink">Polaroid Maker</h2>
+            <div class="w-full md:w-80 flex-shrink-0 bg-white/80 backdrop-blur-md rounded-3xl p-6 space-y-5 h-fit border border-white shadow-diary">
+                <h2 class="text-lg font-bold text-diary-pink flex items-center gap-2"><span>📸</span> Polaroid</h2>
                 <div class="w-full">
-                    <label class="block text-xs font-bold text-gray-400 mb-2">1. 사진 넣기</label>
-                    <input type="file" accept="image/*" class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-diary-pink-light file:text-diary-pink hover:file:bg-diary-pink hover:file:text-white transition-all cursor-pointer border border-dashed border-diary-pink p-2 rounded-xl" onchange="handlePolaMakerUpload(this)">
+                    <div class="flex justify-between items-end mb-2">
+                        <label class="block text-xs font-bold text-gray-400">1. 사진 넣기</label>
+                        <button onclick="resetPolaroid()" class="text-[10px] text-diary-pink hover:text-red-400 underline underline-offset-2">사진 지우기</button>
+                    </div>
+                    <input type="file" id="pm-file-input" accept="image/*" class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-diary-pink-light/40 file:text-diary-pink hover:file:bg-diary-pink-light transition-all cursor-pointer border border-dashed border-diary-pink-light p-2 rounded-2xl" onchange="handlePolaMakerUpload(this)">
                 </div>
                 <div class="grid grid-cols-2 gap-3 pt-2">
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1">가로 위치</label>
-                        <input type="range" id="pm-pos-x" min="0" max="100" value="50" class="w-full accent-diary-pink" oninput="updatePolaMaker()">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1">세로 위치</label>
-                        <input type="range" id="pm-pos-y" min="0" max="100" value="50" class="w-full accent-diary-pink" oninput="updatePolaMaker()">
-                    </div>
+                    <div><label class="block text-[10px] font-bold text-gray-400 mb-1">가로 위치</label><input type="range" id="pm-pos-x" min="0" max="100" value="50" class="w-full accent-diary-pink" oninput="updatePolaMaker()"></div>
+                    <div><label class="block text-[10px] font-bold text-gray-400 mb-1">세로 위치</label><input type="range" id="pm-pos-y" min="0" max="100" value="50" class="w-full accent-diary-pink" oninput="updatePolaMaker()"></div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-400 mb-2">2. 낙서 (손글씨 폰트)</label>
-                    <input type="text" id="pm-text" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all font-pen text-xl" placeholder="문구를 적어주세요." oninput="updatePolaMaker()">
+                    <input type="text" id="pm-text" class="w-full p-4 rounded-2xl text-sm focus:outline-none focus:ring-2 transition-all font-pen text-2xl" placeholder="문구를 적어주세요." oninput="updatePolaMaker()">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-400 mb-2">3. 배경색</label>
-                    <input type="color" id="pm-bg" value="#ffffff" class="h-10 w-full cursor-pointer rounded-xl border border-gray-200" oninput="updatePolaMaker()">
+                    <input type="color" id="pm-bg" value="#ffffff" class="h-10 w-full cursor-pointer rounded-2xl border-0 bg-transparent" oninput="updatePolaMaker()">
                 </div>
-                <button onclick="captureSquare('polamaker-canvas', 'Polaroid')" class="w-full btn-minimal mt-4">폴라로이드 저장하기</button>
+                <button onclick="captureSquare('polamaker-canvas', 'Polaroid')" class="w-full btn-minimal mt-4">폴라로이드 저장</button>
             </div>
 
-            <div class="flex-1 flex items-center justify-center bg-gray-50/50 rounded-2xl border border-dashed border-gray-200 p-4 overflow-hidden" id="pola-wrapper">
-                <div id="polamaker-canvas" style="width: 1000px; height: 1200px; padding: 40px; background: transparent; position: relative; margin: 0 auto;">
-                    <div id="pm-frame" style="width: 920px; height: 1120px; background: white; padding: 40px; padding-bottom: 60px; box-shadow: 0 20px 50px rgba(0,0,0,0.08); transform: rotate(-1.5deg); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; margin: 0 auto; border: 1px solid #ededed;">
-                        <div style="width: 840px; height: 840px; position: relative; overflow: hidden; background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px;">
-                            <div id="pm-img" class="hidden absolute inset-0 w-full h-full"></div>
-                            <span id="pm-placeholder" class="absolute inset-0 flex items-center justify-center text-gray-300 text-xl">사진을 넣어주세요</span>
+            <div class="flex-1 flex items-center justify-center bg-white/40 rounded-3xl border border-dashed border-diary-pink-light p-4 overflow-hidden" id="pola-wrapper">
+                <div id="polamaker-canvas" style="width: 500px; height: 600px; padding: 20px; background: transparent; position: relative; margin: 0 auto;">
+                    <div id="pm-frame" style="width: 460px; height: 560px; background: white; padding: 20px; padding-bottom: 30px; box-shadow: 0 10px 30px rgba(255,149,163,0.15); transform: rotate(-1.5deg); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; margin: 0 auto; border: 1px solid #fffdfd;">
+                        <div style="width: 420px; height: 420px; position: relative; overflow: hidden; background-color: #fdfbfb; border: 1px solid #f0f0f0; border-radius: 4px;">
+                            <div id="pm-img" class="hidden absolute inset-0 w-full h-full" style="background-size: cover; background-position: 50% 50%;"></div>
+                            <span id="pm-placeholder" class="absolute inset-0 flex items-center justify-center text-diary-pink-light text-sm font-bold">비어있음</span>
                         </div>
-                        <div id="pm-display" class="font-pen" style="width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 88px; color: #4a4a4a; margin-top: 30px;"></div>
+                        <div id="pm-display" class="font-pen" style="width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 44px; color: #4a4a4a; margin-top: 15px;"></div>
                     </div>
                 </div>
             </div>
         </section>
 
         <section id="view-gallery" class="hidden-view space-y-6">
-            <div class="bg-white rounded-2xl p-6 border border-ededed shadow-sm flex flex-col md:flex-row gap-5 max-w-5xl mx-auto">
+            <div class="bg-white/80 backdrop-blur-md rounded-3xl p-6 border border-white shadow-diary flex flex-col md:flex-row gap-6 max-w-5xl mx-auto">
                 <div class="w-full md:w-1/3">
-                    <label class="block text-xs font-bold text-diary-pink mb-2">이미지 추가</label>
-                    <input type="file" id="g-img-upload" accept="image/*" class="w-full text-xs text-gray-500 file:mr-3 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-diary-pink-light file:text-diary-pink hover:file:bg-diary-pink hover:file:text-white cursor-pointer border border-dashed border-diary-pink p-2 rounded-xl transition-colors">
+                    <label class="block text-xs font-bold text-diary-pink mb-2">새 이미지 추가</label>
+                    <input type="file" id="g-img-upload" accept="image/*" class="w-full text-xs text-gray-500 file:mr-3 file:py-3 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-diary-pink-light/40 file:text-diary-pink hover:file:bg-diary-pink-light cursor-pointer border border-dashed border-diary-pink-light p-2 rounded-2xl transition-colors">
                 </div>
                 <div class="flex-1 flex flex-col gap-3">
-                    <label class="block text-xs font-bold text-diary-pink mb-1">프롬프트 메모 및 태그</label>
-                    <textarea id="g-prompt" class="w-full flex-1 p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all" placeholder="이 이미지에 사용된 프롬프트나 영감을 적어두세요."></textarea>
-                    <input type="text" id="g-tags" class="w-full p-2 bg-gray-50 border border-gray-100 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-diary-pink" placeholder="태그 입력 (쉼표로 구분, 예: 귀여운, 캐릭터)">
-                    <button onclick="addGalleryItem()" class="btn-minimal w-full">갤러리에 추가하기</button>
+                    <label class="block text-xs font-bold text-diary-pink mb-1">메모장</label>
+                    <textarea id="g-prompt" class="w-full flex-1 p-4 rounded-2xl text-xs resize-none focus:outline-none focus:ring-2 transition-all" placeholder="이미지에 대한 짧은 기록을 남겨보세요."></textarea>
+                    <button onclick="addGalleryItem()" class="btn-minimal w-full">갤러리에 걸어두기</button>
                 </div>
             </div>
             
-            <div id="gallery-filter-area" class="max-w-5xl mx-auto hidden flex items-center gap-2">
-                <span class="text-xs font-bold text-diary-pink bg-diary-pink-light/30 px-3 py-1.5 rounded-full flex items-center gap-2">
-                    <span id="gallery-tag-name"></span>
-                    <button onclick="clearGalleryFilter()" class="hover:text-red-400 transition-colors">✕</button>
-                </span>
-                <span class="text-[10px] text-gray-400">태그로 필터링됨</span>
+            <div class="max-w-5xl mx-auto flex justify-between items-center px-2">
+                <h3 class="text-sm font-bold text-diary-pink" id="g-count">총 0장</h3>
+                <div class="flex gap-2" id="g-toolbar-normal">
+                    <button onclick="toggleGalleryEdit(true)" class="text-xs px-4 py-2 bg-white border border-diary-pink-light text-diary-pink rounded-full hover:bg-diary-pink-light hover:text-white font-bold transition-colors">선택 편집</button>
+                </div>
+                <div class="flex gap-2 hidden" id="g-toolbar-edit">
+                    <button onclick="selectAllGallery()" class="text-xs px-4 py-2 bg-white border border-diary-pink-light text-diary-pink rounded-full hover:bg-diary-pink-light hover:text-white font-bold">전체 선택</button>
+                    <button onclick="deleteSelectedGallery()" class="text-xs px-4 py-2 bg-red-50 text-red-400 border border-red-100 rounded-full hover:bg-red-100 font-bold shadow-sm">선택 삭제</button>
+                    <button onclick="toggleGalleryEdit(false)" class="text-xs px-4 py-2 bg-gray-50 border border-gray-200 text-gray-500 rounded-full hover:bg-gray-100 font-bold">취소</button>
+                </div>
             </div>
 
-            <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8 max-w-5xl mx-auto"></div>
+            <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-4 max-w-5xl mx-auto"></div>
         </section>
 
         <section id="view-usernote" class="hidden-view space-y-6">
-            <div class="bg-white rounded-2xl p-6 border border-ededed shadow-sm flex flex-col gap-4 max-w-4xl mx-auto">
+            <div class="bg-white/80 backdrop-blur-md rounded-3xl p-6 border border-white shadow-diary flex flex-col gap-4 max-w-4xl mx-auto">
+                <h2 class="text-lg font-bold text-diary-pink mb-2 flex items-center gap-2"><span>📓</span> User Note</h2>
                 <div class="flex flex-col gap-3">
-                    <input type="text" id="un-title" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-diary-pink font-bold" placeholder="노트 제목을 입력하세요.">
-                    <textarea id="un-content" class="w-full h-32 p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all" placeholder="기억할 설정, 텍스트 백업, 메모 등을 자유롭게 작성해주세요."></textarea>
-                    <button onclick="addUserNote()" class="btn-minimal w-full">노트 추가하기</button>
+                    <input type="text" id="un-title" class="w-full p-4 rounded-2xl text-sm focus:outline-none focus:ring-2 font-bold" placeholder="노트 제목을 입력하세요.">
+                    <textarea id="un-content" class="w-full h-32 p-4 rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 transition-all" placeholder="자유롭게 기록을 남겨주세요."></textarea>
+                    <button onclick="addUserNote()" class="btn-minimal w-full shadow-sm">새 노트 추가</button>
                 </div>
-            </div>
-            <div id="usernote-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 max-w-4xl mx-auto"></div>
-        </section>
-
-        <section id="view-ooc" class="hidden-view max-w-3xl mx-auto space-y-4">
-            <h2 class="text-xl font-bold text-diary-pink mb-5">OOC Note</h2>
-            <div class="flex flex-col gap-2">
-                <div class="flex gap-2">
-                    <input type="text" id="ooc-input" class="wiki-card flex-1 p-4 text-sm focus:outline-none focus:border-diary-pink transition-all shadow-sm rounded-xl border border-gray-100" placeholder="(OOC: 명령어 또는 시스템 메모 입력)">
-                    <button onclick="addOOC()" id="btn-ooc-add" class="btn-minimal px-6">추가</button>
-                </div>
-                <input type="text" id="ooc-tags" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-diary-pink" placeholder="태그 입력 (쉼표로 구분)" onkeypress="if(event.key === 'Enter') addOOC()">
             </div>
             
-            <div id="ooc-filter-area" class="hidden flex items-center gap-2 pt-4">
-                <span class="text-xs font-bold text-diary-pink bg-diary-pink-light/30 px-3 py-1.5 rounded-full flex items-center gap-2">
-                    <span id="ooc-tag-name"></span>
-                    <button onclick="clearOOCFilter()" class="hover:text-red-400 transition-colors">✕</button>
-                </span>
-                <span class="text-[10px] text-gray-400">태그로 필터링됨</span>
+            <div class="max-w-4xl mx-auto flex justify-end px-2">
+                <select id="un-sort" onchange="loadUserNotes()" class="w-32 p-2 rounded-xl text-xs focus:outline-none shadow-sm text-gray-500">
+                    <option value="newest">최신순</option>
+                    <option value="oldest">과거순</option>
+                    <option value="asc">제목 오름차순</option>
+                    <option value="desc">제목 내림차순</option>
+                </select>
             </div>
 
-            <ul id="ooc-list" class="space-y-3 mt-5"></ul>
+            <div id="usernote-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-4 max-w-4xl mx-auto"></div>
+        </section>
+
+        <section id="view-ooc" class="hidden-view max-w-3xl mx-auto space-y-6">
+            <h2 class="text-xl font-bold text-diary-pink flex items-center gap-2 pl-2"><span>💬</span> OOC Memo</h2>
+            <div class="flex gap-2">
+                <input type="text" id="ooc-input" class="flex-1 p-5 rounded-full border border-diary-pink-light/50 text-sm focus:outline-none focus:ring-2 transition-all shadow-diary" placeholder="(명령어, 시스템 메모 등) 엔터로 추가" onkeypress="if(event.key === 'Enter') addOOC()">
+                <button onclick="addOOC()" id="btn-ooc-add" class="btn-minimal px-8 shadow-md">추가</button>
+            </div>
+            
+            <div class="flex justify-end pt-2">
+                <select id="ooc-sort" onchange="loadOOC()" class="w-32 p-2 rounded-xl text-xs focus:outline-none shadow-sm text-gray-500">
+                    <option value="newest">최신순</option>
+                    <option value="oldest">과거순</option>
+                    <option value="asc">오름차순(A-Z)</option>
+                    <option value="desc">내림차순(Z-A)</option>
+                </select>
+            </div>
+
+            <ul id="ooc-list" class="space-y-3"></ul>
         </section>
 
     </main>
 
-    <div id="gallery-modal" class="hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden shadow-2xl relative">
-            <button onclick="closeGalleryModal()" class="absolute top-4 right-4 w-8 h-8 bg-black/10 hover:bg-black/20 rounded-full text-white flex items-center justify-center transition-colors z-10">✕</button>
-            <div class="w-full md:w-1/2 bg-gray-100 flex items-center justify-center">
-                <img id="modal-img" src="" class="max-w-full max-h-[50vh] md:max-h-[90vh] object-contain">
+    <div id="gallery-modal" class="hidden fixed inset-0 z-[60] bg-diary-pink-light/40 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden shadow-2xl relative border-4 border-white">
+            <button onclick="closeGalleryModal()" class="absolute top-4 right-4 w-10 h-10 bg-diary-pink/20 hover:bg-diary-pink text-diary-pink hover:text-white rounded-full flex items-center justify-center transition-colors z-10 font-bold text-lg">✕</button>
+            <div class="w-full md:w-1/2 bg-diary-bg/50 flex items-center justify-center p-4">
+                <img id="modal-img" src="" class="max-w-full max-h-[50vh] md:max-h-[80vh] object-contain rounded-2xl shadow-sm">
             </div>
-            <div class="w-full md:w-1/2 p-8 flex flex-col">
-                <h3 class="text-lg font-bold text-diary-pink mb-4">Prompt Info</h3>
-                <textarea id="modal-prompt" class="flex-1 w-full p-4 bg-gray-50 border border-gray-100 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all"></textarea>
-                <input type="text" id="modal-tags" class="w-full p-3 mt-3 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-diary-pink" placeholder="태그 (쉼표로 구분)">
+            <div class="w-full md:w-1/2 p-8 flex flex-col bg-white">
+                <h3 class="text-lg font-bold text-diary-pink mb-4">메모장</h3>
+                <textarea id="modal-prompt" class="flex-1 w-full p-5 rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 transition-all"></textarea>
                 <div class="flex gap-3 mt-6">
-                    <button onclick="saveModalPrompt()" class="flex-1 btn-minimal">내용 수정 저장</button>
-                    <button onclick="deleteModalItem()" class="px-6 py-3 bg-red-50 text-red-400 rounded-xl font-bold hover:bg-red-100 transition-colors border border-red-100">삭제</button>
+                    <button onclick="saveModalPrompt()" class="flex-1 btn-minimal">수정 저장</button>
+                    <button onclick="deleteModalItem()" class="px-6 py-3 bg-red-50 text-red-400 rounded-full font-bold hover:bg-red-100 transition-colors border border-red-100">삭제</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="usernote-modal" class="hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative p-8">
-            <button onclick="closeUserNoteModal()" class="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-500 flex items-center justify-center transition-colors z-10">✕</button>
-            <h3 class="text-lg font-bold text-diary-pink mb-4">Edit Note</h3>
-            <input type="text" id="modal-un-title" class="w-full p-3 mb-3 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-diary-pink">
-            <textarea id="modal-un-content" class="flex-1 w-full p-4 min-h-[40vh] bg-gray-50 border border-gray-100 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-diary-pink transition-all"></textarea>
+    <div id="usernote-modal" class="hidden fixed inset-0 z-[60] bg-diary-pink-light/40 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative p-8 border-4 border-white">
+            <button onclick="closeUserNoteModal()" class="absolute top-5 right-5 w-10 h-10 bg-diary-pink-light/30 hover:bg-diary-pink-light text-diary-pink rounded-full flex items-center justify-center transition-colors z-10 font-bold">✕</button>
+            <h3 class="text-lg font-bold text-diary-pink mb-4">노트 편집</h3>
+            <input type="text" id="modal-un-title" class="w-full p-4 mb-4 rounded-2xl text-base font-bold focus:outline-none focus:ring-2">
+            <textarea id="modal-un-content" class="flex-1 w-full p-5 min-h-[40vh] rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 transition-all"></textarea>
             <div class="flex gap-3 mt-6">
-                <button onclick="saveUserNoteModal()" class="flex-1 btn-minimal">수정 저장</button>
-                <button onclick="deleteUserNoteModal()" class="px-6 py-3 bg-red-50 text-red-400 rounded-xl font-bold hover:bg-red-100 transition-colors border border-red-100">삭제</button>
+                <button onclick="saveUserNoteModal()" class="flex-1 btn-minimal">수정 내용 저장</button>
+                <button onclick="deleteUserNoteModal()" class="px-6 py-3 bg-red-50 text-red-400 rounded-full font-bold hover:bg-red-100 transition-colors border border-red-100">삭제</button>
             </div>
         </div>
     </div>
 
     <script>
-        /* 기본 로직 */
+        // 정렬 공통 함수
+        function sortDataList(arr, sortType, stringKey = null) {
+            let mapped = arr.map((item, originalIndex) => ({ item, originalIndex }));
+            if (sortType === 'oldest') {
+                return mapped.reverse();
+            } else if (sortType === 'asc') {
+                return mapped.sort((a, b) => {
+                    let valA = stringKey ? (a.item[stringKey] || '') : a.item;
+                    let valB = stringKey ? (b.item[stringKey] || '') : b.item;
+                    return String(valA).localeCompare(String(valB));
+                });
+            } else if (sortType === 'desc') {
+                return mapped.sort((a, b) => {
+                    let valA = stringKey ? (a.item[stringKey] || '') : a.item;
+                    let valB = stringKey ? (b.item[stringKey] || '') : b.item;
+                    return String(valB).localeCompare(String(valA));
+                });
+            }
+            return mapped;
+        }
+
         window.showView = function(viewId) {
             document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden-view'));
             const target = document.getElementById('view-' + viewId);
             if(target) target.classList.remove('hidden-view');
             
-            const btnBack = document.getElementById('btn-back');
-            if(btnBack) {
-                if(viewId === 'home') btnBack.classList.add('hidden');
-                else btnBack.classList.remove('hidden');
-            }
-            
             setTimeout(() => { 
-                applyScale('s-wrapper', 'snippet-canvas', 1600); 
-                applyScale('b-wrapper', 'book-canvas', 1000); 
-                applyScale('pola-wrapper', 'polamaker-canvas', 1000); 
+                applyScale('s-wrapper', 'snippet-canvas', 800); 
+                applyScale('b-wrapper', 'book-canvas', 500); 
+                applyScale('pola-wrapper', 'polamaker-canvas', 500); 
             }, 50);
+            
             if(viewId === 'booklog') setTimeout(triggerProcessBookLog, 100);
-            if(viewId === 'ooc') { currentOOCTag = null; loadOOC(); } 
-            if(viewId === 'persona') loadPersonaList(); 
-            if(viewId === 'gallery') { currentGalleryTag = null; loadGallery(); }
+            if(viewId === 'ooc') loadOOC(); 
+            if(viewId === 'persona') { loadPersonaFolders(); loadPersonaList(); }
+            if(viewId === 'gallery') loadGallery();
             if(viewId === 'usernote') loadUserNotes();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         function applyScale(wrapperId, canvasId, baseWidth) {
-            const wrap = document.getElementById(wrapperId);
+            const wrap = document.getElementById(wrapperId); 
             const can = document.getElementById(canvasId);
             if(wrap && can && !wrap.closest('.hidden-view')) { 
                 const scale = wrap.getBoundingClientRect().width / baseWidth;
@@ -509,9 +455,9 @@
         }
         
         window.addEventListener('resize', () => { 
-            applyScale('s-wrapper', 'snippet-canvas', 1600); 
-            applyScale('b-wrapper', 'book-canvas', 1000); 
-            applyScale('pola-wrapper', 'polamaker-canvas', 1000);
+            applyScale('s-wrapper', 'snippet-canvas', 800); 
+            applyScale('b-wrapper', 'book-canvas', 500); 
+            applyScale('pola-wrapper', 'polamaker-canvas', 500);
         });
 
         function compressImage(file, maxWidth = null) {
@@ -521,12 +467,10 @@
                     const img = new Image();
                     img.onload = () => {
                         const can = document.createElement('canvas');
-                        let w = img.width;
-                        let h = img.height;
+                        let w = img.width; let h = img.height;
                         if (maxWidth && w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
                         can.width = w; can.height = h;
-                        const ctx = can.getContext('2d');
-                        ctx.drawImage(img, 0, 0, w, h);
+                        const ctx = can.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
                         resolve(can.toDataURL('image/png'));
                     };
                     img.src = e.target.result;
@@ -537,25 +481,22 @@
 
         window.captureSquare = async function(id, filename) {
             await document.fonts.ready;
-            const target = document.getElementById(id);
-            const parent = target.parentElement;
-            const origTransform = target.style.transform;
-            target.style.transform = 'none';
-            target.style.position = 'fixed'; target.style.left = '0'; target.style.top = '0'; target.style.zIndex = '9999';
-            if(parent) parent.style.transform = 'none';
-            await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-            const canvas = await html2canvas(target, { scale: 1, useCORS: true, backgroundColor: null });
-            target.style.transform = origTransform;
-            target.style.position = ''; target.style.left = ''; target.style.top = ''; target.style.zIndex = '';
-            if(parent) parent.style.transform = '';
+            const original = document.getElementById(id);
+            const captureRoot = document.getElementById('capture-root');
+            const clone = original.cloneNode(true);
+            clone.style.transform = 'none'; clone.style.position = 'static';
+            clone.style.width = original.offsetWidth + 'px'; clone.style.height = original.offsetHeight + 'px';
+            captureRoot.innerHTML = ''; captureRoot.appendChild(clone);
+            await new Promise(r => setTimeout(r, 50));
+            const canvas = await html2canvas(clone, { scale: 4, useCORS: true, backgroundColor: null });
+            captureRoot.innerHTML = '';
             const link = document.createElement('a');
-            link.download = `${filename}_${Date.now()}.png`;
-            link.href = canvas.toDataURL('image/png'); link.click();
+            link.download = `${filename}_${Date.now()}.png`; link.href = canvas.toDataURL('image/png'); link.click();
         };
 
-        /* 1. 조각글 발췌 */
+        /* 조각글 */
         window.updateSnippet = function() {
-            const can = document.getElementById('snippet-canvas');
+            const can = document.getElementById('snippet-canvas'); 
             const txt = document.getElementById('s-text-display');
             const sub = document.getElementById('s-sub-display');
             txt.innerText = document.getElementById('s-input').value || '내용이 표시됩니다.';
@@ -565,42 +506,27 @@
             const creator = document.getElementById('s-creator').value;
             const character = document.getElementById('s-character').value;
             if(creator || character) { sub.innerHTML = `${creator ? creator : ''} ${creator && character ? ' | ' : ''} <span class="font-bold">${character}</span>`; } else { sub.innerHTML = ''; }
-            const dir = document.getElementById('s-grad-dir').value;
-            const col1 = document.getElementById('s-color1').value; const col2 = document.getElementById('s-color2').value;
-            if(dir === 'circle') { can.style.background = `radial-gradient(circle, ${col1} 0%, ${col2} 100%)`; } else { can.style.background = `linear-gradient(${dir}, ${col1} 0%, ${col2} 100%)`; }
+            const col1 = document.getElementById('s-color1').value;
+            const col2 = document.getElementById('s-color2').value;
+            can.style.background = `linear-gradient(135deg, ${col1} 0%, ${col2} 100%)`;
         };
 
-        /* 2. 책갈피 로그 */
+        /* 책갈피 */
         let pages = []; let currentIdx = 0; let bookLogTimeout;
         window.formatHighlight = function(text) {
             if(!text) return "";
-            const c1 = document.getElementById('b-highlight-color-1').value;
-            const c2 = document.getElementById('b-highlight-color-2').value;
-            const c3 = document.getElementById('b-highlight-color-3').value;
+            const hc = document.getElementById('b-highlight-color').value;
             let escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            escaped = escaped.replace(/\*(.*?)\*/g, `<span style="color: ${c1}; font-weight: bold;">$1</span>`);
-            escaped = escaped.replace(/\^(.*?)\^/g, `<span style="color: ${c2}; font-weight: bold;">$1</span>`);
-            escaped = escaped.replace(/~(.*?)~/g, `<span style="color: ${c3}; font-weight: bold;">$1</span>`);
-            return escaped;
+            return escaped.replace(/\*(.*?)\*/g, `<span style="color: ${hc}; font-weight: bold;">$1</span>`);
         };
         window.triggerProcessBookLog = function() { clearTimeout(bookLogTimeout); bookLogTimeout = setTimeout(processBookLog, 300); };
         window.processBookLog = async function() {
             const text = document.getElementById('b-input').value;
             if(!text) { pages = [""]; currentIdx = 0; renderBookPage(); return; }
-            const font = document.getElementById('b-font').value;
-            const lh = document.getElementById('b-lh').value; const ls = document.getElementById('b-ls').value;
-            const indent = document.getElementById('b-indent').value;
-            const py = parseInt(document.getElementById('b-py').value); const px = parseInt(document.getElementById('b-px').value);
-            document.getElementById('b-lh-val').innerText = lh; document.getElementById('b-ls-val').innerText = ls;
-            document.getElementById('b-py-val').innerText = py; document.getElementById('b-px-val').innerText = px;
-            const exactWidth = 1000 - (px * 2);
-            const firstPageMaxH = 1500 - (py * 2) - 160 - 120;
-            const normalMaxH = 1500 - (py * 2) - 160; 
-            const measureDiv = document.createElement('div');
-            measureDiv.className = `${font} break-all-words`;
-            measureDiv.style.width = exactWidth + 'px'; measureDiv.style.position = 'absolute'; measureDiv.style.left = '-9999px';
-            measureDiv.style.visibility = 'hidden'; measureDiv.style.fontSize = '28px'; measureDiv.style.lineHeight = lh;
-            measureDiv.style.letterSpacing = ls + 'px'; measureDiv.style.textIndent = indent === '0' ? '0' : indent;
+            const font = document.getElementById('b-font').value; const lh = document.getElementById('b-lh').value; const ls = document.getElementById('b-ls').value; const indent = document.getElementById('b-indent').value; const py = parseInt(document.getElementById('b-py').value); const px = parseInt(document.getElementById('b-px').value);
+            document.getElementById('b-lh-val').innerText = lh; document.getElementById('b-ls-val').innerText = ls; document.getElementById('b-py-val').innerText = py; document.getElementById('b-px-val').innerText = px;
+            const exactWidth = 500 - (px * 2); const firstPageMaxH = 750 - (py * 2) - 80 - 60; const normalMaxH = 750 - (py * 2) - 80; 
+            const measureDiv = document.createElement('div'); measureDiv.className = `${font} break-all-words`; measureDiv.style.width = exactWidth + 'px'; measureDiv.style.position = 'absolute'; measureDiv.style.left = '-9999px'; measureDiv.style.top = '0'; measureDiv.style.visibility = 'hidden'; measureDiv.style.lineHeight = lh; measureDiv.style.letterSpacing = ls + 'px'; measureDiv.style.textIndent = indent === '0' ? '0' : indent;
             document.body.appendChild(measureDiv);
             pages = []; let currentPageText = ""; let paragraphs = text.split('\n');
             for (let i = 0; i < paragraphs.length; i++) {
@@ -619,263 +545,249 @@
             if (currentPageText) pages.push(currentPageText.replace(/\n$/, ''));
             if (pages.length === 0) pages.push("");
             document.body.removeChild(measureDiv);
-            if(currentIdx >= pages.length) currentIdx = pages.length - 1;
-            if(currentIdx < 0) currentIdx = 0;
+            if(currentIdx >= pages.length) currentIdx = pages.length - 1; if(currentIdx < 0) currentIdx = 0;
             renderBookPage();
         };
         window.renderBookPage = function() {
-            const title = document.getElementById('b-title').value;
-            const titleColor = document.getElementById('b-title-color').value;
-            const titleFontValue = document.getElementById('b-title-font').value;
-            const headerMain = document.getElementById('b-header-main');
-            const headerSub = document.getElementById('b-header-sub');
-            if (currentIdx === 0) {
-                headerMain.style.display = 'block'; headerMain.innerText = title; headerMain.style.color = titleColor;
-                headerMain.className = `text-center text-[48px] mb-16 font-bold tracking-widest book-header-main ${titleFontValue} ${titleFontValue === 'font-serif' ? 'italic' : ''}`;
-                headerSub.innerText = '';
-            } else {
-                headerMain.style.display = 'none'; headerSub.innerText = title; headerSub.style.color = titleColor;
-                headerSub.className = `text-[24px] tracking-widest ${titleFontValue} ${titleFontValue === 'font-serif' ? 'italic' : ''}`;
-            }
-            const font = document.getElementById('b-font').value;
-            const lh = document.getElementById('b-lh').value; const ls = document.getElementById('b-ls').value;
-            const indent = document.getElementById('b-indent').value;
-            const py = document.getElementById('b-py').value; const px = document.getElementById('b-px').value;
-            const pageContent = document.getElementById('b-page-content');
-            pageContent.className = `flex-1 ${font} text-[28px] whitespace-pre-wrap break-keep text-justify break-all-words`;
-            pageContent.style.lineHeight = lh; pageContent.style.letterSpacing = ls + 'px'; pageContent.style.textIndent = indent === '0' ? '0' : indent;
-            const canvas = document.getElementById('book-canvas');
-            const themeEl = document.getElementById('b-theme');
-            canvas.style.background = themeEl ? themeEl.value : '#fffcf8'; canvas.style.padding = `${py}px ${px}px`;
-            const footer = document.getElementById('b-footer');
-            footer.style.left = `${px}px`; footer.style.width = `calc(100% - ${px * 2}px)`; footer.style.bottom = `${parseInt(py)/2}px`;
-            pageContent.innerHTML = formatHighlight(pages[currentIdx] || '');
-            document.getElementById('b-num').innerText = currentIdx + 1;
-            const total = pages.length; 
-            document.getElementById('page-indicator').innerText = `${currentIdx + 1} / ${total || 1}`;
+            const title = document.getElementById('b-title').value; const titleColor = document.getElementById('b-title-color').value; const titleFontValue = document.getElementById('b-title-font').value;
+            const headerMain = document.getElementById('b-header-main'); const headerSub = document.getElementById('b-header-sub');
+            if (currentIdx === 0) { headerMain.style.display = 'block'; headerMain.innerText = title; headerMain.style.color = titleColor; headerMain.className = `text-center text-[24px] mb-8 font-bold tracking-widest book-header-main ${titleFontValue} ${titleFontValue === 'font-serif' ? 'italic' : ''}`; headerSub.innerText = ''; } else { headerMain.style.display = 'none'; headerSub.innerText = title; headerSub.style.color = titleColor; headerSub.className = `text-xs tracking-widest ${titleFontValue} ${titleFontValue === 'font-serif' ? 'italic' : ''}`; }
+            const font = document.getElementById('b-font').value; const lh = document.getElementById('b-lh').value; const ls = document.getElementById('b-ls').value; const indent = document.getElementById('b-indent').value; const py = document.getElementById('b-py').value; const px = document.getElementById('b-px').value;
+            const pageContent = document.getElementById('b-page-content'); pageContent.className = `flex-1 ${font} text-[14px] whitespace-pre-wrap break-keep text-justify break-all-words`; pageContent.style.lineHeight = lh; pageContent.style.letterSpacing = ls + 'px'; pageContent.style.textIndent = indent === '0' ? '0' : indent;
+            const canvas = document.getElementById('book-canvas'); canvas.style.background = '#fffcf8'; canvas.style.padding = `${py}px ${px}px`;
+            const footer = document.getElementById('b-footer'); footer.style.left = `${px}px`; footer.style.width = `calc(100% - ${px * 2}px)`; footer.style.bottom = `${parseInt(py)/2}px`;
+            pageContent.innerHTML = formatHighlight(pages[currentIdx] || ''); document.getElementById('b-num').innerText = currentIdx + 1;
+            const total = pages.length; document.getElementById('page-indicator').innerText = `${currentIdx + 1} / ${total || 1}`;
             document.getElementById('btn-prev').disabled = currentIdx === 0; document.getElementById('btn-next').disabled = currentIdx >= total - 1;
         };
         window.changePage = function(d) { currentIdx += d; renderBookPage(); };
-        window.downloadAllBookPagesMultiple = async function() {
-            if(!pages.length || (pages.length === 1 && pages[0] === "")) return alert("내용이 없습니다.");
-            const btn = document.getElementById('btn-dl-all'); btn.innerText = "⏳ 순차적으로 다운로드 중..."; btn.disabled = true; 
-            await document.fonts.ready; const origIdx = currentIdx; const total = pages.length;
-            const target = document.getElementById('book-canvas'); const parent = target.parentElement;
-            for(let i=0; i<total; i++) { 
-                currentIdx = i; renderBookPage(); await new Promise(r => setTimeout(r, 200)); 
-                const origTransform = target.style.transform; target.style.transform = 'none';
-                target.style.position = 'fixed'; target.style.left = '0'; target.style.top = '0'; target.style.zIndex = '9999';
-                if(parent) parent.style.transform = 'none';
-                await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-                const c = await html2canvas(target, { scale: 1, useCORS: true, backgroundColor: null }); 
-                target.style.transform = origTransform; target.style.position = ''; target.style.left = ''; target.style.top = ''; target.style.zIndex = '';
-                if(parent) parent.style.transform = '';
-                const link = document.createElement('a'); link.download = `BookLog_Page_${i+1}.png`; link.href = c.toDataURL('image/png'); link.click();
-                await new Promise(r => setTimeout(r, 600));
-            }
-            currentIdx = origIdx; renderBookPage(); btn.innerText = "전체 페이지 분할 PNG로 저장"; btn.disabled = false;
-        };
-        window.downloadAllBookPagesSingle = async function() {
-            if(!pages.length || (pages.length === 1 && pages[0] === "")) return alert("내용이 없습니다.");
-            const btn = document.getElementById('btn-dl-single'); btn.innerText = "⏳ 긴 이미지로 굽는 중..."; btn.disabled = true; 
-            await document.fonts.ready; const origIdx = currentIdx; const total = pages.length; let canvases = [];
-            const target = document.getElementById('book-canvas'); const parent = target.parentElement;
-            for(let i=0; i<total; i++) { 
-                currentIdx = i; renderBookPage(); await new Promise(r => setTimeout(r, 150)); 
-                const origTransform = target.style.transform; target.style.transform = 'none';
-                target.style.position = 'fixed'; target.style.left = '0'; target.style.top = '0'; target.style.zIndex = '9999';
-                if(parent) parent.style.transform = 'none';
-                await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-                const c = await html2canvas(target, { scale: 1, useCORS: true, backgroundColor: null });
-                target.style.transform = origTransform; target.style.position = ''; target.style.left = ''; target.style.top = ''; target.style.zIndex = '';
-                if(parent) parent.style.transform = '';
-                canvases.push(c);
-            }
-            if(canvases.length > 0) {
-                const masterCanvas = document.createElement('canvas'); masterCanvas.width = canvases[0].width;
-                masterCanvas.height = canvases[0].height * canvases.length; const ctx = masterCanvas.getContext('2d');
-                for(let i=0; i<canvases.length; i++) { ctx.drawImage(canvases[i], 0, i * canvases[0].height); }
-                const link = document.createElement('a'); link.download = `BookLog_Long_${Date.now()}.png`; link.href = masterCanvas.toDataURL('image/png'); link.click();
-            }
-            currentIdx = origIdx; renderBookPage(); btn.innerText = "세로로 길게 한 장으로 저장"; btn.disabled = false;
-        };
 
-        /* 3. 캐릭터 보관함 */
+        /* 캐릭터 보관함 */
         let currentPersonaIndex = -1; let currentPImg = null;
         function getPersonas() { return JSON.parse(localStorage.getItem('studio_personas') || '[]'); }
+        
+        window.loadPersonaFolders = function() {
+            const list = getPersonas();
+            const folders = new Set(list.map(p => p.folder || '미분류'));
+            const select = document.getElementById('p-filter-folder');
+            const currentVal = select.value;
+            select.innerHTML = '<option value="all">모든 폴더</option>' + 
+                Array.from(folders).map(f => `<option value="${f}">${f}</option>`).join('');
+            if (Array.from(folders).includes(currentVal) || currentVal === 'all') { select.value = currentVal; }
+        };
+
         window.loadPersonaList = function() {
-            const list = getPersonas(); const container = document.getElementById('persona-list');
-            if(list.length === 0) { container.innerHTML = '<div class="text-center text-xs text-gray-400 mt-10">저장된 캐릭터가 없습니다.</div>'; createNewPersona(); return; }
-            container.innerHTML = list.map((p, i) => `
-                <div onclick="selectPersona(${i})" class="flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-colors border ${currentPersonaIndex === i ? 'border-diary-pink bg-diary-pink-light/20' : 'border-transparent hover:bg-gray-50'}">
-                    <img src="${p.img || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}" class="w-12 h-12 rounded-xl object-cover bg-gray-100">
+            let list = getPersonas(); 
+            const container = document.getElementById('persona-list');
+            
+            const selectedFolder = document.getElementById('p-filter-folder').value;
+            if (selectedFolder !== 'all') { list = list.map((p, i) => ({...p, _originalIdx: i})).filter(p => (p.folder || '미분류') === selectedFolder); } 
+            else { list = list.map((p, i) => ({...p, _originalIdx: i})); }
+
+            const sortType = document.getElementById('p-sort').value;
+            let sortedMapped = sortDataList(list, sortType, 'name');
+
+            if(sortedMapped.length === 0) { container.innerHTML = '<div class="text-center text-xs text-diary-pink-light mt-10">저장된 캐릭터가 없습니다.</div>'; return; }
+
+            container.innerHTML = sortedMapped.map((obj) => {
+                const p = obj.item;
+                const originalIdx = p._originalIdx;
+                const isSelected = currentPersonaIndex === originalIdx;
+                return `
+                <div onclick="selectPersona(${originalIdx})" class="flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all border ${isSelected ? 'border-diary-pink bg-diary-pink-light/20 shadow-sm' : 'border-transparent bg-white/60 hover:bg-diary-pink-light/30'}">
+                    <img src="${p.img || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}" class="w-12 h-12 rounded-xl object-cover bg-white shadow-sm border border-diary-pink-light/50">
                     <div class="flex-1 overflow-hidden">
-                        <h4 class="font-bold text-sm text-diary-text truncate">${p.name || '이름 없음'}</h4>
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="font-bold text-sm text-gray-700 truncate">${p.name || '이름 없음'}</h4>
+                            <span class="text-[9px] bg-white px-2 py-0.5 rounded-full text-diary-pink border border-diary-pink-light">${p.folder || '미분류'}</span>
+                        </div>
                         <p class="text-[10px] text-gray-400 truncate">${p.features || '특징 없음'}</p>
                     </div>
                 </div>
-            `).join('');
-            if(currentPersonaIndex === -1 && list.length > 0) selectPersona(0);
+            `}).join('');
         };
+
         window.createNewPersona = function() {
             currentPersonaIndex = -1; currentPImg = null;
-            document.getElementById('p-name').value = ''; document.getElementById('p-age').value = ''; document.getElementById('p-features').value = ''; document.getElementById('p-appearance').value = ''; document.getElementById('p-personality').value = '';
-            document.getElementById('p-background').value = '';
+            document.getElementById('p-name').value = ''; document.getElementById('p-age').value = ''; document.getElementById('p-folder').value = ''; 
+            document.getElementById('p-features').value = ''; document.getElementById('p-appearance').value = ''; document.getElementById('p-personality').value = ''; document.getElementById('p-background').value = '';
             document.getElementById('p-img-display').classList.add('hidden'); document.getElementById('p-img-placeholder').classList.remove('hidden');
             document.getElementById('btn-delete-persona').classList.add('hidden');
-            document.getElementById('btn-save-persona').innerText = "새 캐릭터 저장"; loadPersonaList(); 
+            document.getElementById('btn-save-persona').innerText = "새 캐릭터 저장";
+            loadPersonaList(); 
         };
+
         window.selectPersona = function(index) {
             currentPersonaIndex = index; const p = getPersonas()[index]; if(!p) return;
-            document.getElementById('p-name').value = p.name || ''; document.getElementById('p-age').value = p.age || ''; document.getElementById('p-features').value = p.features || ''; document.getElementById('p-appearance').value = p.app || ''; document.getElementById('p-personality').value = p.per || ''; document.getElementById('p-background').value = p.bg || '';
-            currentPImg = p.img; const disp = document.getElementById('p-img-display');
+            document.getElementById('p-name').value = p.name || ''; document.getElementById('p-age').value = p.age || ''; document.getElementById('p-folder').value = p.folder || ''; 
+            document.getElementById('p-features').value = p.features || ''; document.getElementById('p-appearance').value = p.app || ''; document.getElementById('p-personality').value = p.per || ''; document.getElementById('p-background').value = p.bg || '';
+            currentPImg = p.img;
+            const disp = document.getElementById('p-img-display');
             if(currentPImg) { disp.src = currentPImg; disp.classList.remove('hidden'); document.getElementById('p-img-placeholder').classList.add('hidden'); } 
             else { disp.classList.add('hidden'); document.getElementById('p-img-placeholder').classList.remove('hidden'); }
             document.getElementById('btn-delete-persona').classList.remove('hidden');
-            document.getElementById('btn-save-persona').innerText = "정보 수정하기"; loadPersonaList();
+            document.getElementById('btn-save-persona').innerText = "수정 내용 저장";
+            loadPersonaList();
         };
+
         window.handlePersonaUpload = async function(input) {
-            if(input.files[0]) { currentPImg = await compressImage(input.files[0], null);
-            document.getElementById('p-img-display').src = currentPImg; document.getElementById('p-img-display').classList.remove('hidden'); document.getElementById('p-img-placeholder').classList.add('hidden'); }
+            if(input.files[0]) { currentPImg = await compressImage(input.files[0], null); document.getElementById('p-img-display').src = currentPImg; document.getElementById('p-img-display').classList.remove('hidden'); document.getElementById('p-img-placeholder').classList.add('hidden'); }
         };
+
         window.savePersona = function() {
-            const p = { name: document.getElementById('p-name').value, age: document.getElementById('p-age').value, features: document.getElementById('p-features').value, app: document.getElementById('p-appearance').value, per: document.getElementById('p-personality').value, bg: document.getElementById('p-background').value, img: currentPImg };
+            const p = { name: document.getElementById('p-name').value, age: document.getElementById('p-age').value, folder: document.getElementById('p-folder').value || '미분류', features: document.getElementById('p-features').value, app: document.getElementById('p-appearance').value, per: document.getElementById('p-personality').value, bg: document.getElementById('p-background').value, img: currentPImg };
             let list = getPersonas();
             try {
                 if(currentPersonaIndex === -1) { list.unshift(p); currentPersonaIndex = 0; } else { list[currentPersonaIndex] = p; }
-                localStorage.setItem('studio_personas', JSON.stringify(list)); alert("저장되었습니다."); loadPersonaList();
-            } catch (e) { alert("저장 공간이 부족합니다!"); }
-        };
-        window.deleteCurrentPersona = function() {
-            if(currentPersonaIndex === -1) return; if(!confirm("이 캐릭터 정보를 삭제할까요?")) return;
-            let list = getPersonas(); list.splice(currentPersonaIndex, 1); localStorage.setItem('studio_personas', JSON.stringify(list)); createNewPersona();
+                localStorage.setItem('studio_personas', JSON.stringify(list)); loadPersonaFolders(); loadPersonaList();
+            } catch (e) { alert("저장 공간이 부족합니다! 🌸"); }
         };
 
-        /* 4. 폴라로이드 메이커 */
+        window.deleteCurrentPersona = function() {
+            if(currentPersonaIndex === -1) return; if(!confirm("이 캐릭터 정보를 삭제할까요?")) return;
+            let list = getPersonas(); list.splice(currentPersonaIndex, 1); localStorage.setItem('studio_personas', JSON.stringify(list)); 
+            loadPersonaFolders(); createNewPersona();
+        };
+
+        /* 폴라로이드 */
         let currentPolaImg = null;
         window.handlePolaMakerUpload = async function(input) {
             if(input.files[0]) {
                 currentPolaImg = await compressImage(input.files[0], null);
                 const pmImg = document.getElementById('pm-img');
                 pmImg.style.backgroundImage = `url(${currentPolaImg})`;
-                pmImg.style.backgroundRepeat = 'no-repeat';
-                pmImg.style.backgroundSize = 'cover';
-                pmImg.style.backgroundPosition = 'center';
-                pmImg.classList.remove('hidden');
-                document.getElementById('pm-placeholder').classList.add('hidden');
+                pmImg.classList.remove('hidden'); document.getElementById('pm-placeholder').classList.add('hidden');
                 updatePolaMaker(); 
             }
+        };
+        window.resetPolaroid = function() {
+            currentPolaImg = null; document.getElementById('pm-file-input').value = '';
+            document.getElementById('pm-img').style.backgroundImage = 'none'; document.getElementById('pm-img').classList.add('hidden');
+            document.getElementById('pm-placeholder').classList.remove('hidden');
+            updatePolaMaker();
         };
         window.updatePolaMaker = function() {
             document.getElementById('pm-display').innerText = document.getElementById('pm-text').value;
             document.getElementById('pm-frame').style.backgroundColor = document.getElementById('pm-bg').value;
             const img = document.getElementById('pm-img');
-            if(currentPolaImg) {
-                const posX = document.getElementById('pm-pos-x').value;
-                const posY = document.getElementById('pm-pos-y').value;
-                img.style.backgroundPosition = `${posX}% ${posY}%`;
-            }
+            if(currentPolaImg) { const posX = document.getElementById('pm-pos-x').value; const posY = document.getElementById('pm-pos-y').value; img.style.backgroundPosition = `${posX}% ${posY}%`; }
         };
 
-        /* 5. 이미지 갤러리 (태그 필터링 포함) */
-        let currentGalleryIndex = -1;
-        let currentGalleryTag = null;
+        /* 이미지 갤러리 */
+        let currentGalleryIndex = -1; let isGalleryEditMode = false; let selectedGalleryItems = new Set();
         function getGallery() { return JSON.parse(localStorage.getItem('studio_gallery') || '[]'); }
         
         window.addGalleryItem = async function() {
-            const input = document.getElementById('g-img-upload');
-            const prompt = document.getElementById('g-prompt').value;
-            const tags = document.getElementById('g-tags').value;
+            const input = document.getElementById('g-img-upload'); const prompt = document.getElementById('g-prompt').value;
             if(!input.files[0]) return alert("이미지를 첨부해주세요.");
-            const base64Img = await compressImage(input.files[0], null); const gallery = getGallery();
-            gallery.unshift({ img: base64Img, prompt: prompt, tags: tags });
-            try { 
-                localStorage.setItem('studio_gallery', JSON.stringify(gallery)); 
-                input.value = ''; document.getElementById('g-prompt').value = ''; document.getElementById('g-tags').value = '';
-                loadGallery();
-            } catch(e) { alert("용량 부족!"); }
+            const base64Img = await compressImage(input.files[0], null); const gallery = getGallery(); gallery.unshift({ img: base64Img, prompt: prompt });
+            try { localStorage.setItem('studio_gallery', JSON.stringify(gallery)); input.value = ''; document.getElementById('g-prompt').value = ''; loadGallery(); } 
+            catch(e) { alert("용량 부족!"); }
+        };
+
+        window.toggleGalleryEdit = function(force) {
+            isGalleryEditMode = force !== undefined ? force : !isGalleryEditMode;
+            selectedGalleryItems.clear();
+            if(isGalleryEditMode) { document.getElementById('g-toolbar-normal').classList.add('hidden'); document.getElementById('g-toolbar-edit').classList.remove('hidden'); } 
+            else { document.getElementById('g-toolbar-normal').classList.remove('hidden'); document.getElementById('g-toolbar-edit').classList.add('hidden'); }
+            loadGallery();
+        };
+
+        window.toggleGalleryItemSelect = function(e, index) {
+            e.stopPropagation(); if (selectedGalleryItems.has(index)) { selectedGalleryItems.delete(index); } else { selectedGalleryItems.add(index); }
+            loadGallery();
+        };
+
+        window.selectAllGallery = function() {
+            const gal = getGallery();
+            if (selectedGalleryItems.size === gal.length) { selectedGalleryItems.clear(); } else { gal.forEach((_, i) => selectedGalleryItems.add(i)); }
+            loadGallery();
+        };
+
+        window.deleteSelectedGallery = function() {
+            if (selectedGalleryItems.size === 0) return alert("삭제할 이미지를 선택해주세요.");
+            if (!confirm(`선택한 ${selectedGalleryItems.size}개의 이미지를 삭제할까요?`)) return;
+            let gal = getGallery();
+            let sortedIndices = Array.from(selectedGalleryItems).sort((a, b) => b - a);
+            sortedIndices.forEach(index => { gal.splice(index, 1); });
+            localStorage.setItem('studio_gallery', JSON.stringify(gal)); toggleGalleryEdit(false); 
         };
 
         window.loadGallery = function() {
-            const gal = getGallery();
-            const grid = document.getElementById('gallery-grid');
-            const filterArea = document.getElementById('gallery-filter-area');
-            const tagNameDisplay = document.getElementById('gallery-tag-name');
+            const gal = getGallery(); const grid = document.getElementById('gallery-grid');
+            document.getElementById('g-count').innerText = `총 ${gal.length}장`;
 
-            let filtered = gal;
-            if(currentGalleryTag) {
-                filtered = gal.filter(item => item.tags && item.tags.split(',').map(t=>t.trim().toLowerCase()).includes(currentGalleryTag.toLowerCase()));
-                filterArea.classList.remove('hidden');
-                tagNameDisplay.innerText = '#' + currentGalleryTag;
-            } else {
-                filterArea.classList.add('hidden');
-            }
-
-            grid.innerHTML = filtered.map((item, i) => {
-                let tagsHtml = '';
-                if(item.tags) {
-                    tagsHtml = `<div class="flex flex-wrap gap-1 mt-1">${item.tags.split(',').map(t => t.trim()).filter(t=>t).map(t => `<button onclick="event.stopPropagation(); filterGalleryByTag('${t}')" class="bg-diary-pink-light/30 text-diary-pink px-1.5 py-0.5 rounded text-[9px] font-bold hover:bg-diary-pink hover:text-white transition-colors">#${t}</button>`).join('')}</div>`;
-                }
-                const originalIndex = gal.indexOf(item);
+            grid.innerHTML = gal.map((item, i) => {
+                const isSelected = selectedGalleryItems.has(i);
+                const clickAction = isGalleryEditMode ? `toggleGalleryItemSelect(event, ${i})` : `openGalleryModal(${i})`;
                 return `
-                <div onclick="openGalleryModal(${originalIndex})" class="bg-white rounded-2xl p-3 flex flex-col gap-2 relative group border border-gray-100 shadow-sm hover:shadow-md hover:border-diary-pink transition-all cursor-pointer">
-                    <img src="${item.img}" class="w-full aspect-square object-cover rounded-xl">
-                    <p class="text-[10px] text-gray-400 whitespace-pre-wrap px-1 truncate flex-1">${item.prompt || '메모 없음'}</p>
-                    ${tagsHtml}
+                <div onclick="${clickAction}" class="bg-white/80 rounded-3xl p-3 flex flex-col gap-2 relative group border ${isSelected ? 'border-diary-pink shadow-md ring-2 ring-diary-pink-light' : 'border-white shadow-sm hover:shadow-diary-hover hover:border-diary-pink-light'} transition-all cursor-pointer">
+                    ${isGalleryEditMode ? `
+                        <div class="absolute top-4 left-4 z-10 w-6 h-6 rounded-full border-2 ${isSelected ? 'bg-diary-pink border-diary-pink' : 'bg-white/90 border-diary-pink-light'} flex items-center justify-center transition-colors shadow-sm">
+                            ${isSelected ? '<span class="text-white text-xs font-bold">✓</span>' : ''}
+                        </div>
+                    ` : ''}
+                    <div class="w-full aspect-square overflow-hidden rounded-2xl relative">
+                        <img src="${item.img}" class="w-full h-full object-cover transition-transform duration-500 ${isGalleryEditMode && !isSelected ? 'opacity-80' : 'group-hover:scale-105'}">
+                    </div>
+                    <p class="text-[11px] text-gray-500 whitespace-pre-wrap px-2 pb-1 truncate">${item.prompt || '메모 없음'}</p>
                 </div>
             `}).join('');
         };
 
-        window.filterGalleryByTag = function(tag) { currentGalleryTag = tag; loadGallery(); window.scrollTo({ top: document.getElementById('gallery-filter-area').offsetTop - 100, behavior: 'smooth' }); };
-        window.clearGalleryFilter = function() { currentGalleryTag = null; loadGallery(); };
         window.openGalleryModal = function(index) {
+            if (isGalleryEditMode) return;
             currentGalleryIndex = index; const item = getGallery()[index]; if(!item) return;
             document.getElementById('modal-img').src = item.img; document.getElementById('modal-prompt').value = item.prompt || '';
-            document.getElementById('modal-tags').value = item.tags || ''; document.getElementById('gallery-modal').classList.remove('hidden');
+            document.getElementById('gallery-modal').classList.remove('hidden');
         };
         window.closeGalleryModal = function() { document.getElementById('gallery-modal').classList.add('hidden'); currentGalleryIndex = -1; };
         window.saveModalPrompt = function() {
-            if(currentGalleryIndex === -1) return;
-            const gal = getGallery(); gal[currentGalleryIndex].prompt = document.getElementById('modal-prompt').value;
-            gal[currentGalleryIndex].tags = document.getElementById('modal-tags').value;
-            try { localStorage.setItem('studio_gallery', JSON.stringify(gal)); alert("수정되었습니다."); loadGallery(); } catch(e){}
+            if(currentGalleryIndex === -1) return; const gal = getGallery(); gal[currentGalleryIndex].prompt = document.getElementById('modal-prompt').value;
+            try { localStorage.setItem('studio_gallery', JSON.stringify(gal)); closeGalleryModal(); loadGallery(); } catch(e){}
         };
         window.deleteModalItem = function() {
-            if(currentGalleryIndex === -1) return; if(!confirm("삭제할까요?")) return;
+            if(currentGalleryIndex === -1) return; if(!confirm("이 이미지를 삭제할까요?")) return;
             const gal = getGallery(); gal.splice(currentGalleryIndex, 1); localStorage.setItem('studio_gallery', JSON.stringify(gal));
             closeGalleryModal(); loadGallery();
         };
 
-        /* 6. 유저 노트 */
+        /* 유저 노트 */
         let currentUserNoteIndex = -1;
         function getUserNotes() { return JSON.parse(localStorage.getItem('studio_usernotes') || '[]'); }
+        
         window.addUserNote = function() {
-            const title = document.getElementById('un-title').value.trim();
-            const content = document.getElementById('un-content').value.trim();
+            const title = document.getElementById('un-title').value.trim(); const content = document.getElementById('un-content').value.trim();
             if(!title && !content) return alert("내용을 입력해주세요.");
             const notes = getUserNotes(); notes.unshift({ title, content, date: new Date().toLocaleDateString() });
-            try { localStorage.setItem('studio_usernotes', JSON.stringify(notes)); document.getElementById('un-title').value = ''; document.getElementById('un-content').value = ''; loadUserNotes(); } catch(e) { alert("저장 공간이 부족합니다."); }
+            try { localStorage.setItem('studio_usernotes', JSON.stringify(notes)); document.getElementById('un-title').value = ''; document.getElementById('un-content').value = ''; loadUserNotes(); } 
+            catch(e) { alert("저장 공간이 부족합니다. 🌸"); }
         };
+
         window.loadUserNotes = function() {
-            const notes = getUserNotes(); const grid = document.getElementById('usernote-grid');
-            grid.innerHTML = notes.map((note, i) => `
-                <div onclick="openUserNoteModal(${i})" class="bg-white rounded-2xl p-5 flex flex-col gap-2 relative group border border-gray-100 shadow-sm hover:shadow-md hover:border-diary-pink transition-all cursor-pointer h-40">
-                    <h3 class="font-bold text-sm text-diary-text truncate">${note.title || '제목 없음'}</h3>
-                    <p class="text-xs text-gray-500 whitespace-pre-wrap flex-1 overflow-hidden opacity-80" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;">${note.content}</p>
-                    <span class="text-[10px] text-gray-300 mt-auto">${note.date || ''}</span>
+            const notes = getUserNotes(); const sortType = document.getElementById('un-sort').value; const sortedMapped = sortDataList(notes, sortType, 'title');
+            const grid = document.getElementById('usernote-grid');
+            grid.innerHTML = sortedMapped.map((obj) => {
+                const note = obj.item; const originalIdx = obj.originalIndex;
+                return `
+                <div onclick="openUserNoteModal(${originalIdx})" class="bg-[#fffdfd] rounded-3xl p-6 flex flex-col gap-3 relative group border border-diary-pink-light/30 shadow-sm hover:shadow-diary-hover hover:-translate-y-1 transition-all cursor-pointer h-44">
+                    <h3 class="font-bold text-base text-diary-pink truncate border-b border-diary-pink-light/30 pb-2">${note.title || '제목 없음'}</h3>
+                    <p class="text-xs text-gray-500 whitespace-pre-wrap flex-1 overflow-hidden leading-relaxed" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;">${note.content}</p>
+                    <span class="text-[10px] text-diary-pink-light mt-auto text-right font-bold tracking-wider">${note.date || ''}</span>
                 </div>
-            `).join('');
+            `}).join('');
         };
+
         window.openUserNoteModal = function(index) {
             currentUserNoteIndex = index; const note = getUserNotes()[index]; if(!note) return;
-            document.getElementById('modal-un-title').value = note.title || ''; document.getElementById('modal-un-content').value = note.content || ''; document.getElementById('usernote-modal').classList.remove('hidden');
+            document.getElementById('modal-un-title').value = note.title || ''; document.getElementById('modal-un-content').value = note.content || '';
+            document.getElementById('usernote-modal').classList.remove('hidden');
         };
         window.closeUserNoteModal = function() { document.getElementById('usernote-modal').classList.add('hidden'); currentUserNoteIndex = -1; };
         window.saveUserNoteModal = function() {
-            if(currentUserNoteIndex === -1) return;
-            const notes = getUserNotes(); notes[currentUserNoteIndex].title = document.getElementById('modal-un-title').value.trim();
-            notes[currentUserNoteIndex].content = document.getElementById('modal-un-content').value.trim();
-            localStorage.setItem('studio_usernotes', JSON.stringify(notes)); alert("수정되었습니다."); loadUserNotes(); closeUserNoteModal();
+            if(currentUserNoteIndex === -1) return; const notes = getUserNotes();
+            notes[currentUserNoteIndex].title = document.getElementById('modal-un-title').value.trim(); notes[currentUserNoteIndex].content = document.getElementById('modal-un-content').value.trim();
+            localStorage.setItem('studio_usernotes', JSON.stringify(notes)); loadUserNotes(); closeUserNoteModal();
         };
         window.deleteUserNoteModal = function() {
             if(currentUserNoteIndex === -1) return; if(!confirm("이 노트를 삭제할까요?")) return;
@@ -883,92 +795,57 @@
             closeUserNoteModal(); loadUserNotes();
         };
 
-        /* 7. OOC 메모장 (태그 필터링 포함) */
+        /* OOC 메모 */
         let editOocIndex = -1;
-        let currentOOCTag = null;
         function getOOC() { return JSON.parse(localStorage.getItem('studio_ooc') || '[]'); }
         
         window.loadOOC = function() {
+            const listData = getOOC(); const sortType = document.getElementById('ooc-sort').value; const sortedMapped = sortDataList(listData, sortType);
             const list = document.getElementById('ooc-list');
-            const oocs = getOOC();
-            const filterArea = document.getElementById('ooc-filter-area');
-            const tagNameDisplay = document.getElementById('ooc-tag-name');
-
-            let filtered = oocs;
-            if(currentOOCTag) {
-                filtered = oocs.filter(item => {
-                    const tags = typeof item === 'string' ? '' : (item.tags || '');
-                    return tags.split(',').map(t=>t.trim().toLowerCase()).includes(currentOOCTag.toLowerCase());
-                });
-                filterArea.classList.remove('hidden');
-                tagNameDisplay.innerText = '#' + currentOOCTag;
-            } else {
-                filterArea.classList.add('hidden');
-            }
-
-            list.innerHTML = filtered.map((item, i) => {
-                let text = typeof item === 'string' ? item : item.text;
-                let tags = typeof item === 'string' ? '' : (item.tags || '');
-                let tagsHtml = '';
-                if(tags) {
-                    tagsHtml = `<div class="flex flex-wrap gap-1 mt-1 pl-1">${tags.split(',').map(t => t.trim()).filter(t=>t).map(t => `<button onclick="event.stopPropagation(); filterOOCByTag('${t}')" class="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded text-[10px] font-bold hover:bg-diary-pink hover:text-white transition-colors">#${t}</button>`).join('')}</div>`;
-                }
-                const originalIndex = oocs.indexOf(item);
+            list.innerHTML = sortedMapped.map((obj) => {
+                const o = obj.item; const originalIdx = obj.originalIndex;
                 return `
-                <li class="bg-white border border-gray-100 rounded-2xl flex flex-col p-4 text-sm shadow-sm hover:border-diary-pink transition-colors group">
-                    <div class="flex justify-between items-center w-full">
-                        <span class="cursor-pointer text-gray-600 hover:text-diary-pink hover:font-bold transition-all flex-1 pr-4" onclick="navigator.clipboard.writeText('${text.replace(/'/g, "\\'")}')">${text}</span>
-                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="editOOC(${originalIndex})" class="text-gray-300 hover:text-blue-400 font-bold text-xs">수정</button>
-                            <button onclick="deleteOOC(${originalIndex})" class="text-gray-300 hover:text-red-400 font-bold ml-2 text-xs">삭제</button>
-                        </div>
+                <li class="bg-white/90 border border-white rounded-3xl flex justify-between items-center p-5 text-sm shadow-sm hover:border-diary-pink-light hover:shadow-diary-hover transition-all group">
+                    <span class="cursor-pointer text-gray-600 hover:text-diary-pink font-medium flex-1 pr-4" onclick="navigator.clipboard.writeText('${o.replace(/'/g, "\\'")}')">${o}</span>
+                    <div class="flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="editOOC(${originalIdx})" class="text-xs bg-diary-pink-light/30 px-4 py-2 rounded-full text-diary-pink hover:bg-diary-pink hover:text-white font-bold transition-colors">수정</button>
+                        <button onclick="deleteOOC(${originalIdx})" class="text-xs bg-red-50 px-4 py-2 rounded-full text-red-400 hover:bg-red-400 hover:text-white font-bold transition-colors">삭제</button>
                     </div>
-                    ${tagsHtml}
                 </li>
             `}).join('');
         };
 
-        window.filterOOCByTag = function(tag) { currentOOCTag = tag; loadOOC(); };
-        window.clearOOCFilter = function() { currentOOCTag = null; loadOOC(); };
         window.addOOC = function() { 
-            const inEl = document.getElementById('ooc-input'); const tagEl = document.getElementById('ooc-tags');
-            const val = inEl.value.trim(); const tagsVal = tagEl.value.trim();
-            if(!val) return; 
+            const inEl = document.getElementById('ooc-input'); const val = inEl.value.trim(); if(!val) return; 
             const o = getOOC(); 
-            if(editOocIndex > -1) { 
-                if (typeof o[editOocIndex] === 'string') { o[editOocIndex] = { text: val, tags: tagsVal }; } 
-                else { o[editOocIndex].text = val; o[editOocIndex].tags = tagsVal; }
-                editOocIndex = -1; document.getElementById('btn-ooc-add').innerText = '추가'; 
-            } else { o.unshift({ text: val, tags: tagsVal }); }
-            localStorage.setItem('studio_ooc', JSON.stringify(o)); inEl.value = ''; tagEl.value = ''; loadOOC(); 
+            if(editOocIndex > -1) { o[editOocIndex] = val; editOocIndex = -1; document.getElementById('btn-ooc-add').innerText = '추가'; } 
+            else { o.unshift(val); }
+            localStorage.setItem('studio_ooc', JSON.stringify(o)); inEl.value = ''; loadOOC(); 
         };
         window.editOOC = function(i) {
-            const item = getOOC()[i]; const text = typeof item === 'string' ? item : item.text; const tags = typeof item === 'string' ? '' : (item.tags || '');
-            document.getElementById('ooc-input').value = text; document.getElementById('ooc-tags').value = tags;
-            editOocIndex = i; document.getElementById('btn-ooc-add').innerText = '수정 완료'; document.getElementById('ooc-input').focus();
+            document.getElementById('ooc-input').value = getOOC()[i]; editOocIndex = i;
+            document.getElementById('btn-ooc-add').innerText = '수정 완료'; document.getElementById('ooc-input').focus();
         };
         window.deleteOOC = function(i) { const o = getOOC(); o.splice(i, 1); localStorage.setItem('studio_ooc', JSON.stringify(o)); loadOOC(); };
 
-        /* 백업/복구 */
+        /* 백업 및 업로드 */
         window.exportAllData = function() { 
-            const data = JSON.stringify(localStorage);
-            const blob = new Blob([data], { type: "application/json" }); 
-            const lnk = document.createElement("a"); lnk.href = URL.createObjectURL(blob); 
-            lnk.download = `Studio_Backup_${new Date().toISOString().slice(0,10)}.json`; lnk.click(); 
+            const data = JSON.stringify(localStorage); const blob = new Blob([data], { type: "application/json" }); 
+            const lnk = document.createElement("a"); lnk.href = URL.createObjectURL(blob); lnk.download = `Studio_Backup_${new Date().toISOString().slice(0,10)}.json`; lnk.click(); 
         };
+        
         window.importAllData = function(input) {
-            if (!input.files[0]) return;
-            const reader = new FileReader();
+            if (!input.files[0]) return; const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const data = JSON.parse(e.target.result);
-                    for (let key in data) { localStorage.setItem(key, data[key]); }
-                    alert("복원되었습니다!"); location.reload();
-                } catch(err) { alert("잘못된 파일입니다."); }
+                    const data = JSON.parse(e.target.result); for (let key in data) { localStorage.setItem(key, data[key]); }
+                    alert("데이터가 성공적으로 복원되었습니다! 🌸"); location.reload();
+                } catch(err) { alert("잘못된 백업 파일입니다."); }
             };
             reader.readAsText(input.files[0]);
         };
-        window.onload = function() { try { showView('home'); } catch(e){} };
+
+        window.onload = function() { try { showView('home'); setTimeout(triggerProcessBookLog, 100); } catch(e){} };
     </script>
 </body>
 </html>
