@@ -93,6 +93,9 @@
         .tag-chip { display:inline-flex; align-items:center; background:#FFF0F4; color:#FF7B8D; border:1px solid #FFD6E0; font-size:10px; font-weight:700; padding:2px 8px; border-radius:9999px; }
         .swatch { width: 100%; height: 28px; border-radius: 8px; cursor: pointer; border: 1px solid rgba(0,0,0,0.05); transition: transform 0.15s; }
         .swatch:hover { transform: scale(1.06); }
+        .seg-btn { padding: 8px 4px; border-radius: 10px; font-size: 12px; font-weight: 700; border: 1px solid #FFD6E0; background: #fff; color: #c99; cursor: pointer; transition: all 0.15s; }
+        .seg-btn:hover { border-color: #FF95A3; color: #FF7B8D; }
+        .seg-btn.active { background: #FF95A3; color: #fff; border-color: #FF95A3; }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -103,21 +106,31 @@
     <div id="auth-gate" class="fixed inset-0 z-[100] flex items-center justify-center p-5 bg-diary-bg">
         <div class="w-full max-w-sm bg-white/85 backdrop-blur-md rounded-3xl p-8 border border-white shadow-diary">
             <h1 class="font-serif italic font-semibold text-3xl text-diary-pink text-center mb-1">Studio. Archive</h1>
-            <p class="text-xs text-gray-400 text-center mb-6" id="auth-subtitle">계정에 로그인하세요.</p>
 
-            <div id="auth-setup-warning" class="hidden text-xs text-red-500 bg-red-50 border border-red-100 rounded-2xl p-4 mb-4 leading-relaxed">
-                Firebase 설정이 입력되지 않았습니다. 파일 상단의 <b>firebaseConfig</b> 값을 본인 프로젝트 정보로 교체하세요.
+            <!-- 인증 상태 확인 중 로딩 -->
+            <div id="auth-loading" class="flex flex-col items-center justify-center py-8 gap-3">
+                <div class="w-7 h-7 rounded-full animate-spin" style="border:3px solid #FFD6E0; border-top-color:#FF95A3;"></div>
+                <p class="text-xs text-gray-400">불러오는 중...</p>
             </div>
 
-            <div class="space-y-3">
-                <input type="email" id="auth-email" class="w-full p-4 rounded-2xl text-sm focus:outline-none focus:ring-2" placeholder="이메일" autocomplete="username">
-                <input type="password" id="auth-password" class="w-full p-4 rounded-2xl text-sm focus:outline-none focus:ring-2" placeholder="비밀번호 (6자 이상)" autocomplete="current-password" onkeypress="if(event.key==='Enter') submitAuth()">
-                <p id="auth-error" class="text-xs text-red-500 min-h-[16px] px-1"></p>
-                <button onclick="submitAuth()" id="auth-submit" class="w-full btn-minimal">로그인</button>
-            </div>
+            <!-- 로그인/회원가입 폼 -->
+            <div id="auth-form" class="hidden">
+                <p class="text-xs text-gray-400 text-center mb-6" id="auth-subtitle">계정에 로그인하세요.</p>
 
-            <div class="text-center mt-5">
-                <button onclick="toggleAuthMode()" id="auth-toggle" class="text-xs text-diary-pink font-semibold underline underline-offset-2">계정이 없으신가요? 회원가입</button>
+                <div id="auth-setup-warning" class="hidden text-xs text-red-500 bg-red-50 border border-red-100 rounded-2xl p-4 mb-4 leading-relaxed">
+                    Firebase 설정이 입력되지 않았습니다. 파일 상단의 <b>firebaseConfig</b> 값을 본인 프로젝트 정보로 교체하세요.
+                </div>
+
+                <div class="space-y-3">
+                    <input type="email" id="auth-email" class="w-full p-4 rounded-2xl text-sm focus:outline-none focus:ring-2" placeholder="이메일" autocomplete="username">
+                    <input type="password" id="auth-password" class="w-full p-4 rounded-2xl text-sm focus:outline-none focus:ring-2" placeholder="비밀번호 (6자 이상)" autocomplete="current-password" onkeypress="if(event.key==='Enter') submitAuth()">
+                    <p id="auth-error" class="text-xs text-red-500 min-h-[16px] px-1"></p>
+                    <button onclick="submitAuth()" id="auth-submit" class="w-full btn-minimal">로그인</button>
+                </div>
+
+                <div class="text-center mt-5">
+                    <button onclick="toggleAuthMode()" id="auth-toggle" class="text-xs text-diary-pink font-semibold underline underline-offset-2">계정이 없으신가요? 회원가입</button>
+                </div>
             </div>
         </div>
     </div>
@@ -125,15 +138,13 @@
     <!-- ===== 앱 ===== -->
     <header class="bg-white/70 backdrop-blur-md border-b border-white sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-            <h1 class="font-serif italic font-semibold text-2xl md:text-3xl text-diary-pink cursor-pointer select-none drop-shadow-sm transition-transform hover:scale-105" onclick="showView('home')">Studio. Archive</h1>
+            <div class="flex items-center gap-3">
+                <button id="nav-back" onclick="goBack()" class="hidden px-3 py-2 text-xs font-bold text-diary-pink bg-white border border-diary-pink-light rounded-full hover:bg-diary-pink-light hover:text-white transition shadow-sm">← 뒤로</button>
+                <h1 class="font-serif italic font-semibold text-2xl md:text-3xl text-diary-pink cursor-pointer select-none drop-shadow-sm transition-transform hover:scale-105" onclick="showView('home')">Studio. Archive</h1>
+            </div>
             <div class="flex gap-2 items-center">
                 <span id="user-email" class="hidden md:inline text-xs text-gray-400 mr-1"></span>
                 <button onclick="showView('home')" class="px-4 py-2 text-xs font-bold text-diary-pink bg-white border border-diary-pink-light rounded-full hover:bg-diary-pink-light hover:text-white transition shadow-sm">홈</button>
-                <label class="px-4 py-2 text-xs font-bold text-white bg-diary-pink rounded-full hover:bg-[#FF7B8D] transition cursor-pointer shadow-md">
-                    가져오기
-                    <input type="file" accept=".json" class="hidden" onchange="importAllData(this)">
-                </label>
-                <button onclick="exportAllData()" class="px-4 py-2 text-xs font-bold text-diary-pink bg-white border border-diary-pink-light rounded-full hover:bg-diary-pink-light hover:text-white transition shadow-md">백업</button>
                 <button onclick="logout()" class="px-4 py-2 text-xs font-bold text-gray-400 bg-white border border-gray-200 rounded-full hover:bg-gray-100 transition shadow-sm">로그아웃</button>
             </div>
         </div>
@@ -176,25 +187,58 @@
                     <div class="w-14 h-14 bg-diary-pink-light/40 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 group-hover:bg-diary-pink-light transition-all duration-300">🖥️</div>
                     <h2 class="text-base font-bold text-gray-500 group-hover:text-diary-pink transition-colors">HTML 뷰어</h2>
                 </div>
+                <div onclick="showView('search')" class="home-card group bg-white/80 backdrop-blur-md rounded-3xl p-6 border-2 border-white shadow-diary hover:shadow-diary-hover hover:border-diary-pink-light hover:-translate-y-2 transition-all duration-300 cursor-pointer text-center flex flex-col items-center justify-center gap-4">
+                    <div class="w-14 h-14 bg-diary-pink-light/40 rounded-full flex items-center justify-center text-2xl group-hover:scale-110 group-hover:bg-diary-pink-light transition-all duration-300">🔎</div>
+                    <h2 class="text-base font-bold text-gray-500 group-hover:text-diary-pink transition-colors">통합 검색</h2>
+                </div>
             </div>
+        </section>
+
+        <!-- 통합 검색 -->
+        <section id="view-search" class="hidden-view max-w-3xl mx-auto space-y-6">
+            <h2 class="text-xl font-bold text-diary-pink flex items-center gap-2 pl-2"><span>🔎</span> 통합 검색</h2>
+            <input type="text" id="search-input" class="w-full p-5 rounded-full border border-diary-pink-light/50 text-sm focus:outline-none focus:ring-2 transition-all shadow-diary" placeholder="모든 기록에서 검색 (캐릭터, 페어, 프롬프트, 노트, OOC, 코드)" oninput="runSearch()">
+            <p id="search-count" class="text-xs text-gray-400 pl-2"></p>
+            <div id="search-results" class="space-y-3"></div>
         </section>
 
         <!-- 조각글 -->
         <section id="view-snippet" class="hidden-view flex flex-col md:flex-row gap-8">
             <div class="w-full md:w-80 flex-shrink-0 bg-white/80 backdrop-blur-md rounded-3xl p-6 space-y-5 h-fit border border-white shadow-diary">
                 <h2 class="text-lg font-bold text-diary-pink flex items-center gap-2"><span>📝</span> 조각글 발췌</h2>
-                <textarea id="s-input" class="w-full h-28 p-4 rounded-2xl text-sm resize-none focus:outline-none focus:ring-2" placeholder="발췌 내용" oninput="updateSnippet()"></textarea>
+                <div>
+                    <div class="flex justify-between items-center mb-1"><label class="text-[11px] font-bold text-gray-400 pl-1">발췌 내용</label><button onclick="toggleQuotes('s-input', updateSnippet)" class="text-[11px] font-bold text-diary-pink bg-diary-pink-light/30 px-3 py-1 rounded-full hover:bg-diary-pink hover:text-white transition">" " ⇄ “ ”</button></div>
+                    <textarea id="s-input" class="w-full h-28 p-4 rounded-2xl text-sm resize-none focus:outline-none focus:ring-2" placeholder="발췌 내용" oninput="updateSnippet()"></textarea>
+                </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="block text-[11px] font-bold text-gray-400 mb-1 pl-1">제작자</label><input type="text" id="s-creator" class="w-full p-3 rounded-2xl text-xs focus:outline-none focus:ring-2" oninput="updateSnippet()"></div>
                     <div><label class="block text-[11px] font-bold text-gray-400 mb-1 pl-1">캐릭터명</label><input type="text" id="s-character" class="w-full p-3 rounded-2xl text-xs focus:outline-none focus:ring-2" oninput="updateSnippet()"></div>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <select id="s-font" class="w-full p-3 rounded-2xl text-xs focus:outline-none focus:ring-2" onchange="updateSnippet()"><option value="font-sans">본문 고딕</option><option value="font-gothic">나눔고딕</option><option value="font-myeongjo">나눔명조</option><option value="font-gowun">고운바탕</option><option value="font-hahmlet">함렛</option></select>
-                    <select id="s-align" class="w-full p-3 rounded-2xl text-xs focus:outline-none focus:ring-2" onchange="updateSnippet()"><option value="text-center">가운데 정렬</option><option value="text-left">왼쪽 정렬</option></select>
-                </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-gray-400 mb-1 pl-1">글자 크기 (<span id="s-fs-val">26</span>px)</label>
-                    <input type="range" id="s-fs" min="16" max="44" step="1" value="26" class="w-full accent-diary-pink" oninput="updateSnippet()">
+                    <label class="block text-[11px] font-bold text-gray-400 mb-1 pl-1">폰트</label>
+                    <select id="s-font" class="w-full p-3 rounded-2xl text-xs focus:outline-none focus:ring-2" onchange="updateSnippet()"><option value="font-sans">본문 고딕</option><option value="font-gothic">나눔고딕</option><option value="font-myeongjo">나눔명조</option><option value="font-gowun">고운바탕</option><option value="font-hahmlet">함렛</option><option value="font-serif">세리프(Lora)</option></select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-400 mb-1 pl-1">정렬</label>
+                        <div class="grid grid-cols-3 gap-1" id="s-align-group">
+                            <button data-v="text-left" onclick="setSnippetAlign(this)" class="seg-btn">좌</button>
+                            <button data-v="text-center" onclick="setSnippetAlign(this)" class="seg-btn active">중</button>
+                            <button data-v="text-right" onclick="setSnippetAlign(this)" class="seg-btn">우</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-400 mb-1 pl-1">줄바꿈</label>
+                        <div class="grid grid-cols-2 gap-1" id="s-wrap-group">
+                            <button data-v="break-keep" onclick="setSnippetWrap(this)" class="seg-btn active">단어</button>
+                            <button data-v="break-all" onclick="setSnippetWrap(this)" class="seg-btn">글자</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 bg-white/50 rounded-2xl border border-diary-pink-light/50 space-y-3">
+                    <div><label class="block text-[11px] font-bold text-diary-pink mb-1">글자 크기 (<span id="s-fs-val">26</span>px)</label><input type="range" id="s-fs" min="16" max="60" step="1" value="26" class="w-full accent-diary-pink" oninput="updateSnippet()"></div>
+                    <div><label class="block text-[11px] font-bold text-diary-pink mb-1">줄 간격 (<span id="s-lh-val">1.8</span>)</label><input type="range" id="s-lh" min="1.0" max="3.0" step="0.1" value="1.8" class="w-full accent-diary-pink" oninput="updateSnippet()"></div>
+                    <div><label class="block text-[11px] font-bold text-diary-pink mb-1">자간 (<span id="s-ls-val">0</span>px)</label><input type="range" id="s-ls" min="-2" max="6" step="0.5" value="0" class="w-full accent-diary-pink" oninput="updateSnippet()"></div>
                 </div>
                 <div class="p-4 bg-white/50 rounded-2xl border border-diary-pink-light/50 space-y-3">
                     <label class="block text-[11px] font-bold text-diary-pink">색상 프리셋</label>
@@ -203,7 +247,10 @@
                     <label class="block text-[11px] font-bold text-diary-pink">글자색</label>
                     <input type="color" id="s-text-color" value="#4A4A4A" class="h-8 w-full cursor-pointer rounded-lg border-0 bg-transparent" oninput="updateSnippet()">
                 </div>
-                <button onclick="captureSquare('snippet-canvas', 'Snippet')" class="w-full btn-minimal mt-2">이미지로 저장</button>
+                <div class="flex gap-2">
+                    <button onclick="copyImageOf('snippet-canvas', this)" class="flex-1 btn-secondary">이미지 복사</button>
+                    <button onclick="captureSquare('snippet-canvas', 'Snippet')" class="flex-1 btn-minimal">저장</button>
+                </div>
             </div>
             <div class="flex-1 flex items-center justify-center"><div class="canvas-container shadow-diary" id="s-wrapper"><div class="canvas-area p-[80px]" id="snippet-canvas"><div id="s-text-display" class="w-full font-sans text-center leading-[1.8] break-keep flex-1 flex flex-col justify-center" style="font-size: 26px; color: #4A4A4A;">내용 미리보기</div><div id="s-sub-display" class="w-full text-center mt-6 text-lg" style="color: #4A4A4A; opacity: 0.8;"></div></div></div></div>
         </section>
@@ -214,6 +261,7 @@
                 <h2 class="text-lg font-bold text-diary-pink flex items-center gap-2 mb-2"><span>📖</span> 책갈피 로그</h2>
                 <div class="flex flex-col md:flex-row gap-6">
                     <div class="flex-1 flex flex-col gap-2">
+                        <div class="flex justify-end"><button onclick="toggleQuotes('b-input', triggerProcessBookLog)" class="text-[11px] font-bold text-diary-pink bg-diary-pink-light/30 px-3 py-1 rounded-full hover:bg-diary-pink hover:text-white transition">" " ⇄ “ ”</button></div>
                         <textarea id="b-input" class="w-full h-full min-h-[300px] p-5 rounded-3xl text-sm resize-none focus:outline-none focus:ring-2 transition-all" placeholder="대화 로그를 붙여넣으면 자동으로 페이지가 나뉩니다. *별표*로 감싸면 강조됩니다." oninput="triggerProcessBookLog()"></textarea>
                     </div>
                     <div class="w-full md:w-80 space-y-4">
@@ -239,6 +287,23 @@
                                 <div class="flex items-end gap-2"><div class="flex-1"><label class="block text-[10px] font-bold text-diary-pink mb-1">강조색</label><input type="color" id="b-highlight-color" value="#FF95A3" class="h-8 w-full cursor-pointer rounded-xl border-0 bg-transparent" oninput="renderBookPage()"></div></div>
                             </div>
                             <select id="b-indent" class="w-full p-2 bg-white rounded-xl text-xs focus:outline-none border-diary-pink-light" onchange="triggerProcessBookLog()"><option value="0">들여쓰기 없음</option><option value="15px">들여쓰기 작게</option><option value="25px" selected>들여쓰기 보통</option></select>
+                            <div class="grid grid-cols-2 gap-3 pt-1">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">정렬</label>
+                                    <div class="grid grid-cols-3 gap-1" id="b-align-group">
+                                        <button data-v="text-left" onclick="setBookAlign(this)" class="seg-btn">좌</button>
+                                        <button data-v="text-justify" onclick="setBookAlign(this)" class="seg-btn active">양끝</button>
+                                        <button data-v="text-center" onclick="setBookAlign(this)" class="seg-btn">중</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-diary-pink mb-1">줄바꿈</label>
+                                    <div class="grid grid-cols-2 gap-1" id="b-wrap-group">
+                                        <button data-v="break-keep" onclick="setBookWrap(this)" class="seg-btn active">단어</button>
+                                        <button data-v="break-all" onclick="setBookWrap(this)" class="seg-btn">글자</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -247,7 +312,7 @@
                     <span class="font-bold text-diary-pink bg-diary-pink-light/30 px-5 py-2 rounded-full text-xs" id="page-indicator">1 / 1</span>
                     <button onclick="changePage(1)" class="btn-secondary text-xs" id="btn-next">다음 장</button>
                 </div>
-                <div class="flex justify-center"><button onclick="captureBook()" class="btn-minimal">현재 페이지 이미지로 저장</button></div>
+                <div class="flex justify-center gap-2"><button onclick="copyImageOf('book-canvas', this)" class="btn-secondary">이미지 복사</button><button onclick="captureBook()" class="btn-minimal">현재 페이지 저장</button></div>
             </div>
             <div class="flex justify-center w-full"><div class="book-canvas-container shadow-diary" id="b-wrapper"><div class="book-canvas text-diary-text flex flex-col" id="book-canvas"><div class="absolute inset-0 shadow-[inset_0_0_40px_rgba(255,149,163,0.05)] pointer-events-none"></div><div class="text-center text-[26px] mb-8 font-bold tracking-widest book-header-main" id="b-header-main"></div><div class="flex-1 whitespace-pre-wrap break-keep text-justify break-all-words" id="b-page-content" style="font-size:14px;"></div><div id="b-footer" class="absolute flex justify-between items-end w-full" style="box-sizing: border-box;"><span id="b-header-sub" class="text-xs opacity-60 tracking-widest font-bold"></span><span id="b-num" class="text-xs text-[#a1a1a1]">1</span></div></div></div></div>
         </section>
@@ -551,6 +616,8 @@
             auth = getAuth(app);
             db = getFirestore(app);
         } else {
+            document.getElementById('auth-loading').classList.add('hidden');
+            document.getElementById('auth-form').classList.remove('hidden');
             document.getElementById('auth-setup-warning').classList.remove('hidden');
         }
 
@@ -646,6 +713,8 @@
                 } else {
                     currentUser = null;
                     COLLECTIONS.forEach(c => STATE[c] = []);
+                    document.getElementById('auth-loading').classList.add('hidden');
+                    document.getElementById('auth-form').classList.remove('hidden');
                     document.getElementById('auth-gate').style.display = 'flex';
                     document.getElementById('auth-password').value = '';
                 }
@@ -690,12 +759,17 @@
             return `D${diff}`;
         };
 
-        window.showView = function (viewId) {
+        let viewHistory = []; let currentViewId = 'home';
+        window.showView = function (viewId, isBack) {
+            if (!isBack && currentViewId && currentViewId !== viewId) viewHistory.push(currentViewId);
+            currentViewId = viewId;
             document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden-view'));
             const target = document.getElementById('view-' + viewId);
             if (target) target.classList.remove('hidden-view');
+            const back = document.getElementById('nav-back');
+            if (back) back.classList.toggle('hidden', viewId === 'home');
             setTimeout(() => { applyScale('s-wrapper', 'snippet-canvas', 800); applyScale('b-wrapper', 'book-canvas', 500); }, 50);
-            if (viewId === 'home') animateHomeCards();
+            if (viewId === 'home') { animateHomeCards(); viewHistory = []; }
             if (viewId === 'snippet') updateSnippet();
             if (viewId === 'booklog') setTimeout(triggerProcessBookLog, 100);
             if (viewId === 'persona') { loadPersonaFolders(); loadPersonaList(); }
@@ -704,7 +778,12 @@
             if (viewId === 'usernote') loadUserNotes();
             if (viewId === 'ooc') loadOOC();
             if (viewId === 'htmlview') { updateHtmlPreview(); loadHtmlSnippets(); }
+            if (viewId === 'search') { const si = document.getElementById('search-input'); if (si && !isBack) { si.value = ''; document.getElementById('search-results').innerHTML = ''; document.getElementById('search-count').innerText = ''; } setTimeout(() => si && si.focus(), 100); }
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+        window.goBack = function () {
+            const prev = viewHistory.length ? viewHistory.pop() : 'home';
+            showView(prev, true);
         };
 
         function animateHomeCards() {
@@ -760,6 +839,48 @@
         };
         window.captureBook = function () { captureSquare('book-canvas', 'Booklog'); };
 
+        // 이미지 클립보드 복사
+        window.copyImageOf = async function (id, btn) {
+            const orig = btn ? btn.textContent : '';
+            if (btn) { btn.textContent = '복사 중...'; btn.disabled = true; }
+            try {
+                await document.fonts.ready;
+                const original = document.getElementById(id);
+                const root = document.getElementById('capture-root');
+                const clone = original.cloneNode(true);
+                clone.style.transform = 'none'; clone.style.position = 'static';
+                clone.style.width = original.offsetWidth + 'px'; clone.style.height = original.offsetHeight + 'px';
+                root.innerHTML = ''; root.appendChild(clone);
+                await new Promise(r => setTimeout(r, 50));
+                const canvas = await html2canvas(clone, { scale: 4, useCORS: true, backgroundColor: null });
+                root.innerHTML = '';
+                const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+                await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                toast('이미지를 복사했습니다.');
+            } catch (e) {
+                toast('이 환경에선 복사가 안 됩니다. 저장을 이용하세요.');
+            } finally {
+                if (btn) { btn.textContent = orig; btn.disabled = false; }
+            }
+        };
+
+        // 따옴표 스마트 변환 (직선 ↔ 곡선)
+        window.toggleQuotes = function (inputId, after) {
+            const ta = document.getElementById(inputId);
+            let text = ta.value;
+            const hasStraight = /['"]/.test(text);
+            const hasCurved = /[“”‘’]/.test(text);
+            if (hasStraight && !hasCurved) {
+                text = text.replace(/'([\s\S]*?)'/g, '‘$1’').replace(/"([\s\S]*?)"/g, '“$1”');
+            } else if (hasCurved) {
+                text = text.replace(/‘([\s\S]*?)’/g, "'$1'").replace(/“([\s\S]*?)”/g, '"$1"');
+            } else if (text.trim() !== '') {
+                text = `“${text.trim()}”`;
+            }
+            ta.value = text;
+            if (typeof after === 'function') after();
+        };
+
         /* ===== 조각글 ===== */
         const SNIPPET_PRESETS = [
             ['#ffffff', '#FFE4E1', '#4A4A4A'],
@@ -775,16 +896,31 @@
             document.getElementById('s-text-color').value = p[2];
             updateSnippet();
         };
+        let snippetAlign = 'text-center'; let snippetWrap = 'break-keep';
+        window.setSnippetAlign = function (btn) {
+            snippetAlign = btn.dataset.v;
+            document.querySelectorAll('#s-align-group .seg-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active'); updateSnippet();
+        };
+        window.setSnippetWrap = function (btn) {
+            snippetWrap = btn.dataset.v;
+            document.querySelectorAll('#s-wrap-group .seg-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active'); updateSnippet();
+        };
         window.updateSnippet = function () {
             const can = document.getElementById('snippet-canvas');
             const txt = document.getElementById('s-text-display');
             const sub = document.getElementById('s-sub-display');
             txt.innerText = document.getElementById('s-input').value || '내용 미리보기';
-            txt.className = `w-full ${document.getElementById('s-font').value} ${document.getElementById('s-align').value} leading-[1.8] break-keep flex-1 flex flex-col justify-center`;
+            txt.className = `w-full ${document.getElementById('s-font').value} ${snippetAlign} ${snippetWrap} flex-1 flex flex-col justify-center`;
             const fs = document.getElementById('s-fs').value; document.getElementById('s-fs-val').innerText = fs;
-            txt.style.fontSize = fs + 'px';
+            const lh = document.getElementById('s-lh').value; document.getElementById('s-lh-val').innerText = lh;
+            const ls = document.getElementById('s-ls').value; document.getElementById('s-ls-val').innerText = ls;
+            txt.style.fontSize = fs + 'px'; txt.style.lineHeight = lh; txt.style.letterSpacing = ls + 'px';
             const tColor = document.getElementById('s-text-color').value;
             txt.style.color = tColor; sub.style.color = tColor;
+            sub.style.textAlign = snippetAlign.replace('text-', '');
+            sub.style.letterSpacing = ls + 'px';
             const creator = document.getElementById('s-creator').value;
             const character = document.getElementById('s-character').value;
             sub.innerHTML = (creator || character) ? `${escapeHtml(creator)} ${creator && character ? ' | ' : ''} <span class="font-bold">${escapeHtml(character)}</span>` : '';
@@ -793,6 +929,17 @@
 
         /* ===== 책갈피 ===== */
         let pages = []; let currentIdx = 0; let bookLogTimeout;
+        let bookAlign = 'text-justify'; let bookWrap = 'break-keep';
+        window.setBookAlign = function (btn) {
+            bookAlign = btn.dataset.v;
+            document.querySelectorAll('#b-align-group .seg-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active'); renderBookPage();
+        };
+        window.setBookWrap = function (btn) {
+            bookWrap = btn.dataset.v;
+            document.querySelectorAll('#b-wrap-group .seg-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active'); triggerProcessBookLog();
+        };
         const BOOK_PAPERS = ['#fffcf8', '#ffffff', '#FFF6F2', '#F6F8F4', '#F4F1EA'];
         window.applyBookPaper = function (i) { document.getElementById('book-canvas').dataset.paper = BOOK_PAPERS[i]; renderBookPage(); };
         window.formatHighlight = function (text) {
@@ -803,30 +950,54 @@
         };
         window.triggerProcessBookLog = function () { clearTimeout(bookLogTimeout); bookLogTimeout = setTimeout(processBookLog, 300); };
         window.processBookLog = async function () {
-            const text = document.getElementById('b-input').value;
-            if (!text) { pages = [""]; currentIdx = 0; renderBookPage(); return; }
             const font = document.getElementById('b-font').value, lh = document.getElementById('b-lh').value, ls = document.getElementById('b-ls').value, indent = document.getElementById('b-indent').value;
             const py = parseInt(document.getElementById('b-py').value), px = parseInt(document.getElementById('b-px').value), fs = parseInt(document.getElementById('b-fs').value);
+            const tf = document.getElementById('b-title-font').value;
+            const title = document.getElementById('b-title').value;
+            // 측정 전에 실제로 쓸 글꼴을 강제로 로드 (로딩 전 측정 시 높이 오차 방지)
+            const FAMILY = { 'font-myeongjo': '"Nanum Myeongjo"', 'font-gowun': '"Gowun Batang"', 'font-hahmlet': '"Hahmlet"', 'font-sans': 'Pretendard', 'font-serif': '"Lora"', 'font-gothic': '"Nanum Gothic"' };
+            try { await document.fonts.load(`${fs}px ${FAMILY[font] || 'Pretendard'}`); await document.fonts.load(`24px ${FAMILY[tf] || 'Pretendard'}`); await document.fonts.ready; } catch (e) {}
+            const text = document.getElementById('b-input').value;
+            const breakAll = bookWrap === 'break-all';
             document.getElementById('b-lh-val').innerText = lh; document.getElementById('b-ls-val').innerText = ls; document.getElementById('b-py-val').innerText = py; document.getElementById('b-px-val').innerText = px; document.getElementById('b-fs-val').innerText = fs;
-            const exactWidth = 500 - (px * 2), firstPageMaxH = 750 - (py * 2) - 80 - 60, normalMaxH = 750 - (py * 2) - 80;
-            const m = document.createElement('div'); m.className = `${font} break-all-words`; m.style.cssText = `width:${exactWidth}px;position:absolute;left:-9999px;top:0;visibility:hidden;line-height:${lh};letter-spacing:${ls}px;font-size:${fs}px;text-indent:${indent === '0' ? '0' : indent}`;
-            document.body.appendChild(m);
-            pages = []; let cur = ""; let paras = text.split('\n');
+
+            document.getElementById('book-canvas').style.padding = `${py}px ${px}px`;
+
+            if (!text) { pages = [""]; currentIdx = 0; renderBookPage(); return; }
+
+            // 실제 책 페이지와 100% 동일한 구조의 측정용 틀
+            const rig = document.createElement('div');
+            rig.style.cssText = `position:absolute;left:-9999px;top:0;width:500px;height:750px;box-sizing:border-box;display:flex;flex-direction:column;padding:${py}px ${px}px;visibility:hidden;`;
+            const rigHeader = document.createElement('div');
+            rigHeader.className = `${tf} ${tf === 'font-serif' ? 'italic' : ''}`;
+            rigHeader.style.cssText = 'font-size:24px;font-weight:700;letter-spacing:0.1em;text-align:center;margin-bottom:2rem;';
+            rigHeader.textContent = title;
+            const rigContent = document.createElement('div');
+            rigContent.className = font;
+            rigContent.style.cssText = `flex:1 1 0%;min-height:0;overflow:hidden;white-space:pre-wrap;font-size:${fs}px;line-height:${lh};letter-spacing:${ls}px;text-indent:${indent === '0' ? '0' : indent};${breakAll ? 'word-break:break-all;' : 'word-break:keep-all;overflow-wrap:break-word;'}`;
+            rig.appendChild(rigHeader); rig.appendChild(rigContent);
+            document.body.appendChild(rig);
+
+            const setHeaderFor = (isFirst) => { rigHeader.style.display = isFirst ? 'block' : 'none'; };
+            const fits = (s) => { rigContent.textContent = s.length ? s : '\u200b'; return rigContent.scrollHeight <= rigContent.clientHeight; };
+
+            pages = []; let cur = "";
+            setHeaderFor(true);
+            const paras = text.split('\n');
             for (let i = 0; i < paras.length; i++) {
-                let p = paras[i] + (i < paras.length - 1 ? '\n' : '');
-                m.innerText = cur + p;
-                let maxH = (pages.length === 0) ? firstPageMaxH : normalMaxH;
-                if (m.clientHeight > maxH) {
-                    if (cur !== "") { pages.push(cur.replace(/\n$/, '')); cur = ""; maxH = (pages.length === 0) ? firstPageMaxH : normalMaxH; }
-                    for (let ch of Array.from(p)) {
-                        m.innerText = cur + ch;
-                        if (m.clientHeight > maxH && cur !== "") { pages.push(cur); cur = ch; maxH = normalMaxH; } else { cur += ch; }
-                    }
-                } else { cur += p; }
+                const p = paras[i] + (i < paras.length - 1 ? '\n' : '');
+                if (fits(cur + p)) { cur += p; continue; }
+                if (cur !== "") { pages.push(cur.replace(/\n$/, '')); cur = ""; setHeaderFor(false); if (fits(p)) { cur = p; continue; } }
+                // 한 문단이 한 페이지보다 길면 글자 단위로 분할
+                for (const ch of Array.from(p)) {
+                    if (fits(cur + ch)) { cur += ch; }
+                    else if (cur !== "") { pages.push(cur); setHeaderFor(false); cur = ch; }
+                    else { cur += ch; }
+                }
             }
-            if (cur) pages.push(cur.replace(/\n$/, ''));
+            if (cur !== "") pages.push(cur.replace(/\n$/, ''));
             if (pages.length === 0) pages.push("");
-            document.body.removeChild(m);
+            document.body.removeChild(rig);
             if (currentIdx >= pages.length) currentIdx = pages.length - 1; if (currentIdx < 0) currentIdx = 0;
             renderBookPage();
         };
@@ -836,7 +1007,9 @@
             if (currentIdx === 0) { hm.style.display = 'block'; hm.innerText = title; hm.style.color = titleColor; hm.className = `text-center text-[24px] mb-8 font-bold tracking-widest book-header-main ${tf} ${tf === 'font-serif' ? 'italic' : ''}`; hs.innerText = ''; }
             else { hm.style.display = 'none'; hs.innerText = title; hs.style.color = titleColor; hs.className = `text-xs tracking-widest ${tf} ${tf === 'font-serif' ? 'italic' : ''}`; }
             const font = document.getElementById('b-font').value, lh = document.getElementById('b-lh').value, ls = document.getElementById('b-ls').value, indent = document.getElementById('b-indent').value, py = document.getElementById('b-py').value, px = document.getElementById('b-px').value, fs = document.getElementById('b-fs').value;
-            const pc = document.getElementById('b-page-content'); pc.className = `flex-1 ${font} whitespace-pre-wrap break-keep text-justify break-all-words`;
+            const pc = document.getElementById('b-page-content'); pc.className = `flex-1 ${font} whitespace-pre-wrap ${bookAlign}`;
+            pc.style.wordBreak = bookWrap === 'break-all' ? 'break-all' : 'keep-all';
+            pc.style.overflowWrap = bookWrap === 'break-all' ? 'normal' : 'break-word';
             pc.style.lineHeight = lh; pc.style.letterSpacing = ls + 'px'; pc.style.fontSize = fs + 'px'; pc.style.textIndent = indent === '0' ? '0' : indent;
             const canvas = document.getElementById('book-canvas'); canvas.style.background = canvas.dataset.paper || '#fffcf8'; canvas.style.padding = `${py}px ${px}px`;
             const footer = document.getElementById('b-footer'); footer.style.left = `${px}px`; footer.style.width = `calc(100% - ${px * 2}px)`; footer.style.bottom = `${parseInt(py) / 2}px`;
@@ -1216,29 +1389,33 @@
         };
         window.deleteHtmlSnippet = async function (i) { if (!confirm('삭제하시겠습니까?')) return; STATE.htmlsnips.splice(i, 1); await persist('htmlsnips'); loadHtmlSnippets(); };
 
-        /* ===== 백업 / 가져오기 ===== */
-        window.exportAllData = function () {
-            const out = {}; COLLECTIONS.forEach(c => out[c] = STATE[c]);
-            const url = URL.createObjectURL(new Blob([JSON.stringify(out)], { type: 'application/json' }));
-            const a = document.createElement('a'); a.href = url; a.download = `Studio_Backup_${new Date().toISOString().slice(0, 10)}.json`; a.click();
-            toast('백업 파일을 내보냈습니다.');
-        };
-        window.importAllData = function (input) {
-            if (!input.files[0]) return; const reader = new FileReader();
-            reader.onload = async function (e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    COLLECTIONS.forEach(c => {
-                        if (Array.isArray(data[c])) STATE[c] = (c === 'ooc') ? normalizeOOC(data[c]) : data[c];
-                        else if (data['studio_' + (c === 'prompts' ? 'gallery' : c)]) {
-                            try { let arr = JSON.parse(data['studio_' + (c === 'prompts' ? 'gallery' : c)]); STATE[c] = (c === 'ooc') ? normalizeOOC(arr) : arr; } catch (x) { }
-                        }
-                    });
-                    for (const c of COLLECTIONS) await persist(c);
-                    alert('데이터를 가져왔습니다.'); showView('home');
-                } catch (err) { alert('잘못된 파일입니다.'); }
-            };
-            reader.readAsText(input.files[0]);
+        /* ===== 통합 검색 ===== */
+        window.runSearch = function () {
+            const q = document.getElementById('search-input').value.trim().toLowerCase();
+            const box = document.getElementById('search-results');
+            const countEl = document.getElementById('search-count');
+            if (!q) { box.innerHTML = ''; countEl.innerText = ''; return; }
+            const results = [];
+            const add = (type, emoji, title, snippet, action) => results.push({ type, emoji, title, snippet, action });
+            const hit = (...parts) => parts.filter(Boolean).join(' ').toLowerCase().includes(q);
+
+            STATE.personas.forEach((p, i) => { if (hit(p.name, p.folder, p.features, p.app, p.per, p.bg)) add('캐릭터', '🎭', p.name || '이름 없음', p.features || '', () => { showView('persona', true); setTimeout(() => selectPersona(i), 60); }); });
+            STATE.pairs.forEach((p, i) => { if (hit(p.title, p.names, p.intro, (p.tags || []).join(' '), p.folder)) add('페어', '💕', p.title || p.names || '제목 없음', p.intro || '', () => { showView('pair', true); setTimeout(() => openPairModal(i), 60); }); });
+            STATE.prompts.forEach((p, i) => { if (hit(p.prompt, p.folder, (p.tags || []).join(' '))) add('프롬프트', '🗂️', (p.prompt || '').slice(0, 20) || '내용 없음', p.prompt || '', () => { showView('prompt', true); setTimeout(() => openPromptModal(i), 60); }); });
+            STATE.usernotes.forEach((n, i) => { if (hit(n.title, n.content)) add('노트', '📓', n.title || '제목 없음', n.content || '', () => { showView('usernote', true); setTimeout(() => openUserNoteModal(i), 60); }); });
+            STATE.ooc.forEach((o, i) => { if (hit(o.text, o.folder, (o.tags || []).join(' '))) add('OOC', '💬', (o.text || '').slice(0, 20), o.text || '', () => { showView('ooc', true); }); });
+            STATE.htmlsnips.forEach((s, i) => { if (hit(s.name, s.code)) add('HTML', '🖥️', s.name || '이름 없음', '저장된 코드', () => { showView('htmlview', true); setTimeout(() => loadHtmlSnippet(i), 60); }); });
+
+            countEl.innerText = `${results.length}개 결과`;
+            if (!results.length) { box.innerHTML = '<p class="text-center text-sm text-diary-pink-light py-10">검색 결과가 없습니다.</p>'; return; }
+            box.innerHTML = '';
+            results.forEach(r => {
+                const el = document.createElement('div');
+                el.className = 'bg-white/90 border border-white rounded-3xl p-5 shadow-sm hover:border-diary-pink-light hover:shadow-diary-hover transition-all cursor-pointer';
+                el.innerHTML = `<div class="flex items-center gap-2 mb-1"><span>${r.emoji}</span><span class="text-[10px] font-bold text-diary-pink bg-diary-pink-light/40 px-2 py-0.5 rounded-full">${r.type}</span><h4 class="font-bold text-sm text-gray-700 truncate">${escapeHtml(r.title)}</h4></div><p class="text-xs text-gray-400 truncate">${escapeHtml(r.snippet)}</p>`;
+                el.onclick = r.action;
+                box.appendChild(el);
+            });
         };
 
         /* ===== 초기화 ===== */
