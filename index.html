@@ -283,12 +283,9 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div><label class="block text-[10px] font-bold text-diary-pink mb-1">글자 크기 (<span id="b-fs-val">14</span>)</label><input type="range" id="b-fs" min="12" max="20" step="1" value="14" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()"></div>
                                 <div><label class="block text-[10px] font-bold text-diary-pink mb-1">줄간격 (<span id="b-lh-val">2.0</span>)</label><input type="range" id="b-lh" min="1.5" max="3.0" step="0.1" value="2.0" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()"></div>
-                                <div><label class="block text-[10px] font-bold text-diary-pink mb-1">상하 여백 (<span id="b-py-val">60</span>)</label><input type="range" id="b-py" min="30" max="120" step="5" value="60" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()"></div>
-                                <div><label class="block text-[10px] font-bold text-diary-pink mb-1">좌우 여백 (<span id="b-px-val">75</span>)</label><input type="range" id="b-px" min="30" max="100" step="5" value="75" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()"></div>
                                 <div><label class="block text-[10px] font-bold text-diary-pink mb-1">자간 (<span id="b-ls-val">-0.5</span>)</label><input type="range" id="b-ls" min="-2" max="5" step="0.5" value="-0.5" class="w-full accent-diary-pink" oninput="triggerProcessBookLog()"></div>
                                 <div class="flex items-end gap-2"><div class="flex-1"><label class="block text-[10px] font-bold text-diary-pink mb-1">강조색</label><input type="color" id="b-highlight-color" value="#FF95A3" class="h-8 w-full cursor-pointer rounded-xl border-0 bg-transparent" oninput="renderBookPage()"></div></div>
                             </div>
-                            <select id="b-indent" class="w-full p-2 bg-white rounded-xl text-xs focus:outline-none border-diary-pink-light" onchange="triggerProcessBookLog()"><option value="0">들여쓰기 없음</option><option value="15px">들여쓰기 작게</option><option value="25px" selected>들여쓰기 보통</option></select>
                             <div class="grid grid-cols-2 gap-3 pt-1">
                                 <div>
                                     <label class="block text-[10px] font-bold text-diary-pink mb-1">정렬</label>
@@ -952,8 +949,8 @@
         };
         window.triggerProcessBookLog = function () { clearTimeout(bookLogTimeout); bookLogTimeout = setTimeout(processBookLog, 300); };
         window.processBookLog = async function () {
-            const font = document.getElementById('b-font').value, lh = document.getElementById('b-lh').value, ls = document.getElementById('b-ls').value, indent = document.getElementById('b-indent').value;
-            const py = parseInt(document.getElementById('b-py').value), px = parseInt(document.getElementById('b-px').value), fs = parseInt(document.getElementById('b-fs').value);
+            const font = document.getElementById('b-font').value, lh = document.getElementById('b-lh').value, ls = document.getElementById('b-ls').value, indent = '0';
+            const py = 60, px = 75, fs = parseInt(document.getElementById('b-fs').value);
             const tf = document.getElementById('b-title-font').value;
             const title = document.getElementById('b-title').value;
             // 측정 전에 실제로 쓸 글꼴을 강제로 로드 (로딩 전 측정 시 높이 오차 방지)
@@ -961,7 +958,7 @@
             try { await document.fonts.load(`${fs}px ${FAMILY[font] || 'Pretendard'}`); await document.fonts.load(`24px ${FAMILY[tf] || 'Pretendard'}`); await document.fonts.ready; } catch (e) {}
             const text = document.getElementById('b-input').value;
             const breakAll = bookWrap === 'break-all';
-            document.getElementById('b-lh-val').innerText = lh; document.getElementById('b-ls-val').innerText = ls; document.getElementById('b-py-val').innerText = py; document.getElementById('b-px-val').innerText = px; document.getElementById('b-fs-val').innerText = fs;
+            document.getElementById('b-lh-val').innerText = lh; document.getElementById('b-ls-val').innerText = ls; document.getElementById('b-fs-val').innerText = fs;
 
             document.getElementById('book-canvas').style.padding = `${py}px ${px}px`;
 
@@ -1027,7 +1024,7 @@
             const hm = document.getElementById('b-header-main'), hs = document.getElementById('b-header-sub');
             if (currentIdx === 0) { hm.style.display = 'block'; hm.innerText = title; hm.style.color = titleColor; hm.className = `text-center text-[24px] mb-8 font-bold tracking-widest book-header-main ${tf} ${tf === 'font-serif' ? 'italic' : ''}`; hs.innerText = ''; }
             else { hm.style.display = 'none'; hs.innerText = title; hs.style.color = titleColor; hs.className = `text-xs tracking-widest ${tf} ${tf === 'font-serif' ? 'italic' : ''}`; }
-            const font = document.getElementById('b-font').value, lh = document.getElementById('b-lh').value, ls = document.getElementById('b-ls').value, indent = document.getElementById('b-indent').value, py = document.getElementById('b-py').value, px = document.getElementById('b-px').value, fs = document.getElementById('b-fs').value;
+            const font = document.getElementById('b-font').value, lh = document.getElementById('b-lh').value, ls = document.getElementById('b-ls').value, indent = '0', py = 60, px = 75, fs = document.getElementById('b-fs').value;
             const pc = document.getElementById('b-page-content'); pc.className = `flex-1 ${font} whitespace-pre-wrap ${bookAlign}`;
             pc.style.wordBreak = bookWrap === 'break-all' ? 'break-all' : 'keep-all';
             pc.style.overflowWrap = bookWrap === 'break-all' ? 'normal' : 'break-word';
