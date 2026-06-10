@@ -87,7 +87,9 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
         main > section:not(.hidden-view) { animation: fadeIn 0.35s ease; }
         .pop-card { opacity: 0; animation: popIn 0.45s ease forwards; }
-        @media (prefers-reduced-motion: reduce) { *, main > section:not(.hidden-view), .pop-card { animation: none !important; opacity: 1 !important; } }
+        @keyframes twinkle { 0%, 100% { opacity: 0.45; transform: scale(0.85) rotate(0deg); } 50% { opacity: 1; transform: scale(1.18) rotate(18deg); } }
+        .logo-sparkle { display: inline-block; animation: twinkle 2.4s ease-in-out infinite; transform-origin: center; }
+        @media (prefers-reduced-motion: reduce) { *, main > section:not(.hidden-view), .pop-card, .logo-sparkle { animation: none !important; opacity: 1 !important; } }
 
         #toast { transition: opacity 0.3s ease, transform 0.3s ease; }
         .tag-chip { display:inline-flex; align-items:center; background:#FFF0F4; color:#FF7B8D; border:1px solid #FFD6E0; font-size:10px; font-weight:700; padding:2px 8px; border-radius:9999px; }
@@ -105,7 +107,7 @@
     <!-- ===== 로그인 / 회원가입 게이트 ===== -->
     <div id="auth-gate" class="fixed inset-0 z-[100] flex items-center justify-center p-5 bg-diary-bg">
         <div class="w-full max-w-sm bg-white/85 backdrop-blur-md rounded-3xl p-8 border border-white shadow-diary">
-            <h1 class="font-serif italic font-semibold text-3xl text-diary-pink text-center mb-1">Studio. Archive</h1>
+            <h1 class="font-serif italic font-semibold text-3xl text-diary-pink text-center mb-1"><span class="logo-sparkle">✿</span> Studio. Archive</h1>
 
             <!-- 인증 상태 확인 중 로딩 -->
             <div id="auth-loading" class="flex flex-col items-center justify-center py-8 gap-3">
@@ -140,7 +142,7 @@
         <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <button id="nav-back" onclick="goBack()" class="hidden px-3 py-2 text-xs font-bold text-diary-pink bg-white border border-diary-pink-light rounded-full hover:bg-diary-pink-light hover:text-white transition shadow-sm">← 뒤로</button>
-                <h1 class="font-serif italic font-semibold text-2xl md:text-3xl text-diary-pink cursor-pointer select-none drop-shadow-sm transition-transform hover:scale-105" onclick="showView('home')">Studio. Archive</h1>
+                <h1 class="font-serif italic font-semibold text-2xl md:text-3xl text-diary-pink cursor-pointer select-none drop-shadow-sm transition-transform hover:scale-105" onclick="showView('home')"><span class="logo-sparkle">✿</span> Studio. Archive</h1>
             </div>
             <div class="flex gap-2 items-center">
                 <span id="user-email" class="hidden md:inline text-xs text-gray-400 mr-1"></span>
@@ -980,22 +982,41 @@
 
             const setHeaderFor = (isFirst) => { rigHeader.style.display = isFirst ? 'block' : 'none'; };
             const fits = (s) => { rigContent.textContent = s.length ? s : '\u200b'; return rigContent.scrollHeight <= rigContent.clientHeight; };
+            const trimEnd = (s) => s.replace(/[ \t\n]+$/, '');
+
+            // 문장 단위 토큰화 (문단 줄바꿈은 \n 토큰으로 보존)
+            const atoms = [];
+            const paras = text.split('\n');
+            for (let pi = 0; pi < paras.length; pi++) {
+                const chars = Array.from(paras[pi]); let buf = '';
+                for (let i = 0; i < chars.length; i++) {
+                    buf += chars[i];
+                    if (chars[i] === '.' || chars[i] === '!' || chars[i] === '?' || chars[i] === '…') {
+                        while (i + 1 < chars.length && /["'”’」』）)\]》]/.test(chars[i + 1])) { buf += chars[i + 1]; i++; }
+                        while (i + 1 < chars.length && chars[i + 1] === ' ') { buf += chars[i + 1]; i++; }
+                        atoms.push(buf); buf = '';
+                    }
+                }
+                if (buf) atoms.push(buf);
+                if (pi < paras.length - 1) atoms.push('\n');
+            }
 
             pages = []; let cur = "";
             setHeaderFor(true);
-            const paras = text.split('\n');
-            for (let i = 0; i < paras.length; i++) {
-                const p = paras[i] + (i < paras.length - 1 ? '\n' : '');
-                if (fits(cur + p)) { cur += p; continue; }
-                if (cur !== "") { pages.push(cur.replace(/\n$/, '')); cur = ""; setHeaderFor(false); if (fits(p)) { cur = p; continue; } }
-                // 한 문단이 한 페이지보다 길면 글자 단위로 분할
-                for (const ch of Array.from(p)) {
+            for (const atom of atoms) {
+                if (fits(cur + atom)) { cur += atom; continue; }
+                // 현재 페이지가 꽉 찼으면 마감하고 다음 페이지에서 이어서
+                if (cur !== "") { pages.push(trimEnd(cur)); cur = ""; setHeaderFor(false); }
+                if (/^[ \t\n]*$/.test(atom)) continue;           // 페이지 첫 줄을 빈 줄로 시작하지 않음
+                if (fits(atom)) { cur = atom; continue; }
+                // 한 문장이 한 페이지보다 길면 글자 단위로 분할
+                for (const ch of Array.from(atom)) {
                     if (fits(cur + ch)) { cur += ch; }
                     else if (cur !== "") { pages.push(cur); setHeaderFor(false); cur = ch; }
                     else { cur += ch; }
                 }
             }
-            if (cur !== "") pages.push(cur.replace(/\n$/, ''));
+            if (trimEnd(cur) !== "") pages.push(trimEnd(cur));
             if (pages.length === 0) pages.push("");
             document.body.removeChild(rig);
             if (currentIdx >= pages.length) currentIdx = pages.length - 1; if (currentIdx < 0) currentIdx = 0;
