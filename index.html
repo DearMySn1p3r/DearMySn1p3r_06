@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Studio. Archive</title>
-    <link rel="icon" type="image/png" href="MOMO.png">
-    <link rel="apple-touch-icon" href="MOMO.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -598,7 +596,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyABJRS1b-zlk1uD7j93veHvPoZl0vj_Z_E",
@@ -630,24 +628,45 @@
         function normalizeOOC(arr) {
             return (arr || []).map(x => typeof x === 'string' ? { text: x, tags: [], folder: '', date: '' } : x);
         }
+        function newId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 
+        // 각 항목을 개별 문서로 저장 → 1MB 한도가 항목별로 적용됨
         async function loadAllData(uid) {
+            const baseTime = Date.now();
             for (const c of COLLECTIONS) {
+                let list = [];
                 try {
-                    const snap = await getDoc(doc(db, 'users', uid, 'data', c));
-                    let list = (snap.exists() && Array.isArray(snap.data().list)) ? snap.data().list : [];
+                    const snap = await getDocs(collection(db, 'users', uid, c));
+                    if (!snap.empty) {
+                        list = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+                    } else {
+                        // 구버전(한 덩어리) 데이터가 있으면 새 구조로 자동 이전
+                        const old = await getDoc(doc(db, 'users', uid, 'data', c));
+                        if (old.exists() && Array.isArray(old.data().list)) {
+                            list = old.data().list.map((raw, idx) => {
+                                const it = (typeof raw === 'string') ? { text: raw, tags: [], folder: '' } : raw;
+                                return { ...it, id: it.id || newId(), createdAt: it.createdAt || (baseTime - idx * 1000) };
+                            });
+                            for (const it of list) { try { await setDoc(doc(db, 'users', uid, c, it.id), it); } catch (e) {} }
+                        }
+                    }
+                    list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
                     if (c === 'ooc') list = normalizeOOC(list);
                     STATE[c] = list;
                 } catch (e) { STATE[c] = []; }
             }
         }
 
-        async function persist(c) {
-            if (!currentUser || !db) return;
-            try { await setDoc(doc(db, 'users', currentUser.uid, 'data', c), { list: STATE[c] }); }
-            catch (e) { toast('저장 실패: 네트워크를 확인하세요.'); }
+        async function saveItem(coll, item) {
+            if (!currentUser || !db || !item || !item.id) return;
+            try { await setDoc(doc(db, 'users', currentUser.uid, coll, item.id), item); }
+            catch (e) { toast('저장 실패: 이미지 용량 또는 네트워크를 확인하세요.'); }
         }
-        window._persist = persist;
+        async function removeItem(coll, id) {
+            if (!currentUser || !db || !id) return;
+            try { await deleteDoc(doc(db, 'users', currentUser.uid, coll, id)); }
+            catch (e) { toast('삭제 실패: 네트워크를 확인하세요.'); }
+        }
         window._STATE = STATE;
 
         /* ===== 인증 ===== */
@@ -1085,14 +1104,17 @@
         window.handlePersonaUpload = async function (input) {
             if (input.files[0]) { currentPImg = await compressImage(input.files[0], 720); document.getElementById('p-img-display').src = currentPImg; document.getElementById('p-img-display').classList.remove('hidden'); document.getElementById('p-img-placeholder').classList.add('hidden'); }
         };
-        window.savePersona = async function () {
-            const p = { name: document.getElementById('p-name').value, age: document.getElementById('p-age').value, folder: document.getElementById('p-folder').value || '미분류', features: document.getElementById('p-features').value, app: document.getElementById('p-appearance').value, per: document.getElementById('p-personality').value, bg: document.getElementById('p-background').value, img: currentPImg };
-            if (currentPersonaIndex === -1) { STATE.personas.unshift(p); currentPersonaIndex = 0; } else { STATE.personas[currentPersonaIndex] = p; }
-            await persist('personas'); loadPersonaFolders(); loadPersonaList(); toast('저장되었습니다.');
+        window.savePersona = function () {
+            const data = { name: document.getElementById('p-name').value, age: document.getElementById('p-age').value, folder: document.getElementById('p-folder').value || '미분류', features: document.getElementById('p-features').value, app: document.getElementById('p-appearance').value, per: document.getElementById('p-personality').value, bg: document.getElementById('p-background').value, img: currentPImg };
+            let item;
+            if (currentPersonaIndex === -1) { item = { ...data, id: newId(), createdAt: Date.now() }; STATE.personas.unshift(item); currentPersonaIndex = 0; }
+            else { item = { ...STATE.personas[currentPersonaIndex], ...data }; STATE.personas[currentPersonaIndex] = item; }
+            saveItem('personas', item); loadPersonaFolders(); loadPersonaList(); toast('저장되었습니다.');
         };
-        window.deleteCurrentPersona = async function () {
+        window.deleteCurrentPersona = function () {
             if (currentPersonaIndex === -1) return; if (!confirm('삭제하시겠습니까?')) return;
-            STATE.personas.splice(currentPersonaIndex, 1); await persist('personas'); loadPersonaFolders(); createNewPersona();
+            const item = STATE.personas[currentPersonaIndex];
+            STATE.personas.splice(currentPersonaIndex, 1); removeItem('personas', item && item.id); loadPersonaFolders(); createNewPersona();
         };
 
         /* ===== 페어 (디데이) ===== */
@@ -1117,8 +1139,9 @@
             const tags = parseTags(document.getElementById('pair-tags').value);
             const intro = document.getElementById('pair-intro').value.trim();
             if (!title && !names && !intro && !currentPairImg) return alert('내용을 입력하세요.');
-            STATE.pairs.unshift({ title, names, date, tags, intro, img: currentPairImg, created: new Date().toLocaleDateString() });
-            await persist('pairs'); resetPairForm(); loadPairs(); toast('추가되었습니다.');
+            const item = { id: newId(), createdAt: Date.now(), title, names, date, tags, intro, img: currentPairImg, created: new Date().toLocaleDateString() };
+            STATE.pairs.unshift(item);
+            saveItem('pairs', item); resetPairForm(); loadPairs(); toast('추가되었습니다.');
         };
         window.loadPairs = function () {
             const pairs = getPairs();
@@ -1167,9 +1190,9 @@
             document.getElementById('pair-modal').classList.remove('hidden');
         };
         window.closePairModal = function () { document.getElementById('pair-modal').classList.add('hidden'); currentPairIndex = -1; };
-        window.savePairModal = async function () {
+        window.savePairModal = function () {
             if (currentPairIndex === -1) return;
-            STATE.pairs[currentPairIndex] = {
+            const item = {
                 ...STATE.pairs[currentPairIndex],
                 title: document.getElementById('modal-pair-title').value.trim(),
                 names: document.getElementById('modal-pair-names').value.trim(),
@@ -1178,11 +1201,13 @@
                 intro: document.getElementById('modal-pair-intro').value.trim(),
                 img: currentModalPairImg
             };
-            await persist('pairs'); loadPairs(); closePairModal(); toast('수정되었습니다.');
+            STATE.pairs[currentPairIndex] = item;
+            saveItem('pairs', item); loadPairs(); closePairModal(); toast('수정되었습니다.');
         };
-        window.deletePairModal = async function () {
+        window.deletePairModal = function () {
             if (currentPairIndex === -1) return; if (!confirm('삭제하시겠습니까?')) return;
-            STATE.pairs.splice(currentPairIndex, 1); await persist('pairs'); closePairModal(); loadPairs();
+            const item = STATE.pairs[currentPairIndex];
+            STATE.pairs.splice(currentPairIndex, 1); removeItem('pairs', item && item.id); closePairModal(); loadPairs();
         };
 
         /* ===== 프롬프트 갤러리 ===== */
@@ -1199,8 +1224,9 @@
             const folder = document.getElementById('prompt-folder').value.trim();
             const tags = parseTags(document.getElementById('prompt-tags').value);
             if (!text && !currentPromptImg) return alert('프롬프트 내용을 입력하세요.');
-            STATE.prompts.unshift({ prompt: text, folder, tags, img: currentPromptImg, date: new Date().toLocaleDateString() });
-            await persist('prompts');
+            const item = { id: newId(), createdAt: Date.now(), prompt: text, folder, tags, img: currentPromptImg, date: new Date().toLocaleDateString() };
+            STATE.prompts.unshift(item);
+            saveItem('prompts', item);
             document.getElementById('prompt-text').value = ''; document.getElementById('prompt-folder').value = ''; document.getElementById('prompt-tags').value = '';
             currentPromptImg = null; document.getElementById('prompt-img-preview').classList.add('hidden'); document.getElementById('prompt-img-preview').style.backgroundImage = 'none'; document.getElementById('prompt-img-ph').classList.remove('hidden');
             loadPrompts(); toast('등록되었습니다.');
@@ -1252,30 +1278,33 @@
             const v = document.getElementById('modal-prompt-text').value;
             if (!v) return; navigator.clipboard.writeText(v).then(() => toast('복사되었습니다.')).catch(() => { });
         };
-        window.savePromptModal = async function () {
+        window.savePromptModal = function () {
             if (currentPromptIndex === -1) return;
-            STATE.prompts[currentPromptIndex] = {
+            const item = {
                 ...STATE.prompts[currentPromptIndex],
                 prompt: document.getElementById('modal-prompt-text').value.trim(),
                 folder: document.getElementById('modal-prompt-folder').value.trim(),
                 tags: parseTags(document.getElementById('modal-prompt-tags').value),
                 img: currentModalPromptImg
             };
-            await persist('prompts'); loadPrompts(); closePromptModal(); toast('수정되었습니다.');
+            STATE.prompts[currentPromptIndex] = item;
+            saveItem('prompts', item); loadPrompts(); closePromptModal(); toast('수정되었습니다.');
         };
-        window.deletePromptModal = async function () {
+        window.deletePromptModal = function () {
             if (currentPromptIndex === -1) return; if (!confirm('삭제하시겠습니까?')) return;
-            STATE.prompts.splice(currentPromptIndex, 1); await persist('prompts'); closePromptModal(); loadPrompts();
+            const item = STATE.prompts[currentPromptIndex];
+            STATE.prompts.splice(currentPromptIndex, 1); removeItem('prompts', item && item.id); closePromptModal(); loadPrompts();
         };
 
         /* ===== 유저 노트 ===== */
         let currentUserNoteIndex = -1;
         window.getUserNotes = () => STATE.usernotes;
-        window.addUserNote = async function () {
+        window.addUserNote = function () {
             const title = document.getElementById('un-title').value.trim(), content = document.getElementById('un-content').value.trim();
             if (!title && !content) return alert('내용을 입력하세요.');
-            STATE.usernotes.unshift({ title, content, date: new Date().toLocaleDateString() });
-            await persist('usernotes'); document.getElementById('un-title').value = ''; document.getElementById('un-content').value = ''; loadUserNotes(); toast('추가되었습니다.');
+            const item = { id: newId(), createdAt: Date.now(), title, content, date: new Date().toLocaleDateString() };
+            STATE.usernotes.unshift(item);
+            saveItem('usernotes', item); document.getElementById('un-title').value = ''; document.getElementById('un-content').value = ''; loadUserNotes(); toast('추가되었습니다.');
         };
         window.loadUserNotes = function () {
             const sorted = sortDataList(getUserNotes(), document.getElementById('un-sort').value, 'title');
@@ -1293,31 +1322,35 @@
             document.getElementById('usernote-modal').classList.remove('hidden');
         };
         window.closeUserNoteModal = function () { document.getElementById('usernote-modal').classList.add('hidden'); currentUserNoteIndex = -1; };
-        window.saveUserNoteModal = async function () {
+        window.saveUserNoteModal = function () {
             if (currentUserNoteIndex === -1) return;
             STATE.usernotes[currentUserNoteIndex].title = document.getElementById('modal-un-title').value.trim();
             STATE.usernotes[currentUserNoteIndex].content = document.getElementById('modal-un-content').value.trim();
-            await persist('usernotes'); loadUserNotes(); closeUserNoteModal(); toast('수정되었습니다.');
+            saveItem('usernotes', STATE.usernotes[currentUserNoteIndex]); loadUserNotes(); closeUserNoteModal(); toast('수정되었습니다.');
         };
-        window.deleteUserNoteModal = async function () {
+        window.deleteUserNoteModal = function () {
             if (currentUserNoteIndex === -1) return; if (!confirm('삭제하시겠습니까?')) return;
-            STATE.usernotes.splice(currentUserNoteIndex, 1); await persist('usernotes'); closeUserNoteModal(); loadUserNotes();
+            const item = STATE.usernotes[currentUserNoteIndex];
+            STATE.usernotes.splice(currentUserNoteIndex, 1); removeItem('usernotes', item && item.id); closeUserNoteModal(); loadUserNotes();
         };
 
         /* ===== OOC (태그/폴더) ===== */
         let editOocIndex = -1;
         window.getOOC = () => STATE.ooc;
-        window.addOOC = async function () {
+        window.addOOC = function () {
             const inEl = document.getElementById('ooc-input'); const text = inEl.value.trim(); if (!text) return;
             const folder = document.getElementById('ooc-folder').value.trim();
             const tags = parseTags(document.getElementById('ooc-tags').value);
+            let item;
             if (editOocIndex > -1) {
-                STATE.ooc[editOocIndex] = { ...STATE.ooc[editOocIndex], text, folder, tags };
+                item = { ...STATE.ooc[editOocIndex], text, folder, tags };
+                STATE.ooc[editOocIndex] = item;
                 editOocIndex = -1; document.getElementById('btn-ooc-add').innerText = '추가';
             } else {
-                STATE.ooc.unshift({ text, folder, tags, date: new Date().toLocaleDateString() });
+                item = { id: newId(), createdAt: Date.now(), text, folder, tags, date: new Date().toLocaleDateString() };
+                STATE.ooc.unshift(item);
             }
-            await persist('ooc');
+            saveItem('ooc', item);
             inEl.value = ''; document.getElementById('ooc-folder').value = ''; document.getElementById('ooc-tags').value = '';
             loadOOC();
         };
@@ -1360,7 +1393,7 @@
             document.getElementById('ooc-tags').value = (o.tags || []).join(', ');
             editOocIndex = i; document.getElementById('btn-ooc-add').innerText = '수정 완료'; document.getElementById('ooc-input').focus();
         };
-        window.deleteOOC = async function (i) { STATE.ooc.splice(i, 1); await persist('ooc'); loadOOC(); };
+        window.deleteOOC = function (i) { const item = STATE.ooc[i]; STATE.ooc.splice(i, 1); removeItem('ooc', item && item.id); loadOOC(); };
 
         /* ===== HTML 뷰어 ===== */
         let htmlPreviewTimeout;
@@ -1385,13 +1418,14 @@
             if (!w) toast('팝업이 차단되었습니다.');
             setTimeout(() => URL.revokeObjectURL(url), 10000);
         };
-        window.saveHtmlSnippet = async function () {
+        window.saveHtmlSnippet = function () {
             const name = document.getElementById('html-snip-name').value.trim();
             const code = document.getElementById('html-code').value;
             if (!name) return alert('저장할 이름을 입력하세요.');
             if (!code) return alert('저장할 코드가 없습니다.');
-            STATE.htmlsnips.unshift({ name, code, date: new Date().toLocaleDateString() });
-            await persist('htmlsnips'); document.getElementById('html-snip-name').value = ''; loadHtmlSnippets(); toast('저장되었습니다.');
+            const item = { id: newId(), createdAt: Date.now(), name, code, date: new Date().toLocaleDateString() };
+            STATE.htmlsnips.unshift(item);
+            saveItem('htmlsnips', item); document.getElementById('html-snip-name').value = ''; loadHtmlSnippets(); toast('저장되었습니다.');
         };
         window.loadHtmlSnippets = function () {
             const snips = getHtmlSnips(); const list = document.getElementById('html-snip-list');
@@ -1407,7 +1441,7 @@
             const s = getHtmlSnips()[i]; if (!s) return;
             document.getElementById('html-code').value = s.code; updateHtmlPreview(); toast('불러왔습니다.'); window.scrollTo({ top: 0, behavior: 'smooth' });
         };
-        window.deleteHtmlSnippet = async function (i) { if (!confirm('삭제하시겠습니까?')) return; STATE.htmlsnips.splice(i, 1); await persist('htmlsnips'); loadHtmlSnippets(); };
+        window.deleteHtmlSnippet = function (i) { if (!confirm('삭제하시겠습니까?')) return; const item = STATE.htmlsnips[i]; STATE.htmlsnips.splice(i, 1); removeItem('htmlsnips', item && item.id); loadHtmlSnippets(); };
 
         /* ===== 통합 검색 ===== */
         window.runSearch = function () {
