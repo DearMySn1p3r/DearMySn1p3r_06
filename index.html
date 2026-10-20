@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#FFF7F9">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Studio. Archive</title>
 <link rel="icon" type="image/png" href="MOMO.png">
 <link rel="apple-touch-icon" href="MOMO.png">
@@ -147,7 +148,7 @@ select.field{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .w-link:hover{color:var(--ink)}
 .w-empty{flex:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:10px;font-size:13px;color:var(--faint)}
 .dd{display:flex;flex-wrap:wrap;gap:18px;flex:1}
-.dd-img{flex:1 1 180px;min-height:150px;border-radius:16px;background-size:cover;background-position:center}
+.dd-img{flex:1 1 180px;min-height:150px;border-radius:16px;background-size:cover;background-position:center;overflow:hidden}
 .dd-info{flex:1 1 200px;display:flex;flex-direction:column;justify-content:space-between;gap:10px;min-width:0}
 .dd-num{font-family:'DM Sans',sans-serif;font-size:56px;font-weight:700;letter-spacing:-.05em;line-height:1;color:var(--pk-strong)}
 .dd-num small{font-size:17px;color:var(--ink);letter-spacing:0;margin-left:5px;font-weight:600}
@@ -219,6 +220,7 @@ select.field{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .sheet-side{padding:24px 0 24px 24px;display:flex;flex-direction:column;gap:12px}
 .sheet-main{padding:24px;display:flex;flex-direction:column;gap:14px;min-width:0}
 .sheet-foot{display:flex;align-items:center;gap:8px;margin-top:auto;padding:12px 0 2px;position:sticky;bottom:-24px;background:#fff;z-index:2}
+.sheet-foot .del[hidden]+*,.sheet-foot .del[hidden]+[hidden]+*{margin-left:auto}
 .sheet-foot .del{margin-right:auto;border:none;background:none;color:#B8423C;font-size:13px;font-weight:600;padding:8px 4px}
 .title-in{width:100%;border:none;outline:none;background:transparent;font-size:24px;font-weight:700;letter-spacing:-.035em;padding:2px 0;color:var(--ink)}
 .title-in::placeholder,.sub-in::placeholder{color:var(--faint)}
@@ -227,6 +229,11 @@ select.field{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .soft:focus{background:#fff}
 .mini-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .banner{aspect-ratio:16/7;border-radius:0;border:none;border-bottom:1px solid var(--line)}
+.duo-pick{display:grid;grid-template-columns:1fr 1fr;aspect-ratio:16/7;border-bottom:1px solid var(--line)}
+.duo-pick .imgpick{border-radius:0;border:none;height:100%}
+.duo-pick .imgpick+.imgpick{border-left:2px solid #fff}
+.duo{display:grid!important;grid-template-columns:1fr 1fr;gap:2px;background:#fff!important;padding:0}
+.duo > i{background:var(--pk-soft) center/cover no-repeat;display:block}
 .dpill{display:inline-flex;align-items:center;height:42px;padding:0 14px;border-radius:12px;background:var(--pk-soft);color:var(--pk-strong);font-family:'DM Sans',sans-serif;font-weight:700;white-space:nowrap}
 .f-lbl{font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin:0 0 6px 2px;display:block}
 .imgx{position:absolute;top:8px;right:8px;z-index:3;width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,.92);color:var(--muted);font-size:12px}
@@ -252,7 +259,11 @@ select.field{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .pcard .pimg{aspect-ratio:16/9;background:var(--pk-soft) center/cover no-repeat}
 .pcard .pb{padding:16px 16px 12px;display:flex;flex-direction:column;gap:10px;flex:1}
 .pcard .pfold{font-size:11px;font-weight:700;color:var(--pk-strong);letter-spacing:-.01em}
-.pcard .ptx{margin:0;font-size:13.5px;line-height:1.7;color:var(--ink);white-space:pre-wrap;word-break:break-word;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.pcard .psec{display:flex;flex-direction:column;gap:3px}
+.pcard .plbl{font-size:10.5px;font-weight:700;color:var(--faint)}
+.cbtn{flex:none;height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:11.5px;font-weight:600;color:var(--muted)}
+.cbtn:hover{color:var(--ink);border-color:var(--faint)}
+.pcard .ptx{margin:0;font-size:13.5px;line-height:1.7;color:var(--ink);white-space:pre-wrap;word-break:break-word;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .pcard .pf{display:flex;align-items:center;gap:6px;margin-top:2px;padding-top:10px;border-top:1px solid #F6F0F2}
 .pcard .pf .tags{flex:1;min-width:0;overflow:hidden;flex-wrap:nowrap}
 .icon-btn.sm{width:32px;height:32px}
@@ -415,6 +426,13 @@ select.field{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .tog input{display:none}
 .tog:has(input:checked){background:var(--pk-soft);border-color:transparent;color:var(--pk-strong);font-weight:600}
 .linkbox{display:flex;gap:6px;align-items:center;background:var(--bg);border-radius:14px;padding:6px 6px 6px 14px}
+.linkbox.busy input{color:var(--faint)}
+.sh-status{font-size:12.5px;line-height:1.6;color:#8A5A10;background:#FFF6E5;border-radius:12px;padding:10px 12px}
+.sh-opts{border-top:1px solid var(--line);padding-top:12px}
+.sh-opts summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);list-style:none;display:flex;align-items:center;gap:6px}
+.sh-opts summary::-webkit-details-marker{display:none}
+.sh-opts summary::after{content:'›';transform:rotate(90deg);transition:transform .15s;color:var(--faint)}
+.sh-opts[open] summary::after{transform:rotate(-90deg)}
 .linkbox input{flex:1;min-width:0;border:none;background:transparent;outline:none;font-size:12.5px;color:var(--muted)}
 
 /* 공유 페이지 (링크로 들어온 사람에게 보이는 화면) */
@@ -544,7 +562,7 @@ body.sharing .content{max-width:860px;padding-top:40px}
       <!-- 위젯 -->
       <section class="view" id="view-widgets" hidden>
         <div class="page-head">
-          <div><h1 class="h1">위젯</h1><p class="sub">홈에 띄울 위젯을 고르고 순서를 바꿔요. 이 기기에 바로 저장돼요.</p></div>
+          <div><h1 class="h1">홈 위젯 편집</h1><p class="sub">홈에 띄울 위젯을 고르고 순서를 바꿔요. 이 기기에 바로 저장돼요.</p></div>
           <button class="btn btn-sm" onclick="resetWidgets()">기본값으로</button>
         </div>
         <div class="wm">
@@ -591,6 +609,7 @@ body.sharing .content{max-width:860px;padding-top:40px}
           <div class="toolbar"><button class="btn" onclick="openShareModal('prompts')">공유</button><button class="btn btn-pk" onclick="openPromptModal(-1)">+ 프롬프트 등록</button></div></div>
         <div class="filters">
           <div class="chips" id="prompt-chips"></div>
+          <div class="seg" id="prompt-age" style="flex:none"><button data-a="all" class="on" onclick="setPromptAge('all')">전체</button><button data-a="safe" onclick="setPromptAge('safe')">일반</button><button data-a="adult" onclick="setPromptAge('adult')" aria-label="19금만">🔞</button></div>
           <select id="prompt-filter-tag" class="field sel" onchange="loadPrompts()" aria-label="태그"><option value="all">모든 태그</option></select>
           <select id="prompt-sort" class="field sel" onchange="loadPrompts()" aria-label="정렬"><option value="newest">최신순</option><option value="oldest">과거순</option></select>
         </div>
@@ -678,7 +697,7 @@ body.sharing .content{max-width:860px;padding-top:40px}
             <label><span>NPC</span><input type="text" id="ooc-npc" class="mini-in" placeholder="NPC 이름" oninput="saveOocNames()"></label>
           </div>
           <label class="sr" for="ooc-input">메모 내용</label>
-          <textarea id="ooc-input" class="composer-in" rows="2" placeholder="OOC 메모를 적어 주세요. (Enter로 추가 · Shift+Enter 줄바꿈)" oninput="autoGrow(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();addOOC()}"></textarea>
+          <textarea id="ooc-input" class="composer-in" rows="2" placeholder="OOC 메모를 적어 주세요. (Enter로 추가 · Shift+Enter 줄바꿈)" oninput="autoGrow(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing&&!matchMedia('(pointer:coarse)').matches){event.preventDefault();addOOC()}"></textarea>
           <div class="compose-row">
             <label class="sr" for="ooc-folder">폴더</label><input type="text" id="ooc-folder" class="mini-in" placeholder="폴더" list="ooc-folder-list"><datalist id="ooc-folder-list"></datalist>
             <label class="sr" for="ooc-tags">태그</label><input type="text" id="ooc-tags" class="mini-in" placeholder="태그 (쉼표)">
@@ -798,33 +817,36 @@ body.sharing .content{max-width:860px;padding-top:40px}
   </div>
 </div>
 
-<!-- 공유 (캐릭터 · 프롬프트 · OOC) -->
+<!-- 공유 (캐릭터 · 프롬프트 · OOC) : 누르면 바로 링크가 만들어져 복사된다 -->
 <div class="modal" id="share-modal" hidden onclick="if(event.target===this)closeShareModal()">
-  <div class="modal-box" style="max-width:560px;padding:26px 24px 22px" role="dialog" aria-modal="true" aria-labelledby="sh-h">
+  <div class="modal-box" style="max-width:540px;padding:26px 24px 22px" role="dialog" aria-modal="true" aria-labelledby="sh-h">
     <button class="x-btn" onclick="closeShareModal()" aria-label="닫기">✕</button>
     <h2 class="modal-title" id="sh-h">공유</h2>
-    <p class="sub" style="margin:0 0 18px" id="sh-desc">고른 항목을 한 페이지로 묶어 링크나 파일로 보여줄 수 있어요.</p>
-    <div class="stack" style="gap:16px">
-      <label><span class="lbl">페이지 제목</span><input type="text" id="sh-title" class="field soft"></label>
-      <pre class="sp-prompt" id="sh-single" hidden style="max-height:160px"></pre>
-      <div id="sh-listwrap">
-        <div class="row" style="justify-content:space-between;margin-bottom:6px"><span class="lbl" style="margin:0 0 0 2px" id="sh-list-lbl">담을 항목</span><button class="w-link" onclick="shareSelectAll()" id="sh-all">전체 해제</button></div>
-        <div class="sh-list" id="sh-list"></div>
+    <p class="sub" style="margin:0 0 16px" id="sh-desc"></p>
+    <div class="stack" style="gap:14px">
+      <pre class="sp-prompt" id="sh-single" hidden style="max-height:140px"></pre>
+      <div class="linkbox" id="sh-linkbox"><input type="text" id="sh-link" readonly aria-label="공유 링크" placeholder="링크 만드는 중…"><button class="btn btn-sm btn-pk" onclick="copyShareLink()">복사</button><button class="btn btn-sm" id="sh-send" onclick="sendShareLink()" hidden>보내기</button><a class="btn btn-sm" id="sh-open" target="_blank" rel="noopener">열기</a></div>
+      <div class="sh-status" id="sh-status" hidden></div>
+      <div class="row" style="flex-wrap:wrap;gap:4px 14px">
+        <button class="w-link" onclick="exportShareHtml()">HTML 파일로 저장</button>
+        <button class="w-link" id="sh-stop" onclick="stopShare()" style="color:#B8423C" hidden>공유 중지</button>
       </div>
-      <div id="sh-fieldwrap">
-        <span class="lbl">보여줄 항목</span>
-        <div class="togs" id="sh-fields"></div>
-      </div>
-      <div id="sh-linkwrap" hidden>
-        <span class="lbl">공유 링크</span>
-        <div class="linkbox"><input type="text" id="sh-link" readonly aria-label="공유 링크"><button class="btn btn-sm" onclick="copyText($v('sh-link'))">복사</button><a class="btn btn-sm" id="sh-open" target="_blank" rel="noopener">열기</a></div>
-        <button class="w-link" style="margin-top:6px;color:#B8423C" onclick="stopShare()">공유 중지</button>
-      </div>
-      <p class="meta" style="margin:0;line-height:1.6">링크는 로그인 없이 만들 수 있어요. 받은 사람도 로그인 없이 보고, 복사하고, 자기 아카이브에 추가할 수 있어요. 고친 내용은 ‘링크 업데이트’를 눌러야 반영돼요.</p>
-      <div class="row" style="flex-wrap:wrap">
-        <button class="btn" style="flex:1" onclick="exportShareHtml()">HTML 파일로 저장</button>
-        <button class="btn btn-pk" style="flex:1" id="sh-make" onclick="makeShareLink()">링크 만들기</button>
-      </div>
+      <details class="sh-opts" id="sh-opts">
+        <summary>담을 항목 · 제목 바꾸기</summary>
+        <div class="stack" style="gap:14px;padding-top:12px">
+          <label><span class="lbl">페이지 제목</span><input type="text" id="sh-title" class="field soft"></label>
+          <div id="sh-listwrap">
+            <div class="row" style="justify-content:space-between;margin-bottom:6px"><span class="lbl" style="margin:0 0 0 2px" id="sh-list-lbl">담을 항목</span><button class="w-link" onclick="shareSelectAll()" id="sh-all">전체 해제</button></div>
+            <div class="sh-list" id="sh-list"></div>
+          </div>
+          <div id="sh-fieldwrap">
+            <span class="lbl">보여줄 항목</span>
+            <div class="togs" id="sh-fields"></div>
+          </div>
+          <button class="btn btn-pk btn-block" id="sh-make" onclick="makeShareLink()">바꾼 내용으로 링크 업데이트</button>
+        </div>
+      </details>
+      <p class="meta" style="margin:0;line-height:1.6">받은 사람은 로그인 없이 보고, 복사하고, 자기 아카이브에 추가할 수 있어요. 공유 버튼을 누를 때마다 최신 내용으로 바뀌어요.</p>
     </div>
   </div>
 </div>
@@ -843,8 +865,14 @@ body.sharing .content{max-width:860px;padding-top:40px}
 <div class="modal" id="pair-modal" hidden onclick="if(event.target===this)closePairModal()">
   <div class="modal-box sheet" style="max-width:620px" role="dialog" aria-modal="true" aria-label="페어 편집">
     <button class="x-btn" onclick="closePairModal()" aria-label="닫기">✕</button>
-    <label class="imgpick banner"><input type="file" accept="image/*" onchange="handleModalPairUpload(this)"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M20 16l-5-5-8 8"/></svg><span>대표 이미지</span><img id="modal-pair-img" alt="" hidden><span class="chg" id="pair-img-chg" hidden>바꾸기</span></label>
+    <div id="pair-one"><label class="imgpick banner"><input type="file" accept="image/*" onchange="handleModalPairUpload(this)"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M20 16l-5-5-8 8"/></svg><span>대표 이미지</span><img id="modal-pair-img" alt="" hidden><span class="chg" id="pair-img-chg" hidden>바꾸기</span></label></div>
+    <div class="duo-pick" id="pair-two" hidden>
+      <label class="imgpick"><input type="file" accept="image/*" onchange="handlePairSide(this,'a')"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="3.5"/><path d="M5 20c1.2-3.6 4-5.5 7-5.5s5.8 1.9 7 5.5"/></svg><span>왼쪽 사람</span><img id="modal-pair-imga" alt="" hidden></label>
+      <label class="imgpick"><input type="file" accept="image/*" onchange="handlePairSide(this,'b')"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="3.5"/><path d="M5 20c1.2-3.6 4-5.5 7-5.5s5.8 1.9 7 5.5"/></svg><span>오른쪽 사람</span><img id="modal-pair-imgb" alt="" hidden></label>
+    </div>
     <div class="sheet-main">
+      <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px"><span class="lbl" style="margin:0 0 0 2px">이미지</span>
+        <div class="seg" id="pair-imgmode" style="padding-right:3px"><button data-m="one" class="on" onclick="setPairImgMode('one')">대표 이미지 하나</button><button data-m="two" onclick="setPairImgMode('two')">두 사람 나란히</button></div></div>
       <div>
         <label class="sr" for="modal-pair-title">제목</label><input type="text" id="modal-pair-title" class="title-in" placeholder="제목">
         <label class="sr" for="modal-pair-names">페어명</label><input type="text" id="modal-pair-names" class="sub-in" placeholder="페어명 (A × B)" style="margin-top:2px">
@@ -853,7 +881,7 @@ body.sharing .content{max-width:860px;padding-top:40px}
         <label style="flex:1"><span class="lbl">기준일 (디데이)</span><input type="date" id="modal-pair-date" class="field soft" onchange="updateModalDday()"></label>
         <span class="dpill" id="modal-pair-dday"></span>
       </div>
-      <label><span class="lbl">태그</span><input type="text" id="modal-pair-tags" class="field soft" placeholder="달달, 비극 (쉼표로 구분)"></label>
+      <label><span class="lbl">태그</span><input type="text" id="modal-pair-tags" class="field soft" placeholder="쉼표로 구분"></label>
       <label><span class="lbl">소개</span><textarea id="modal-pair-intro" class="field soft" rows="6"></textarea></label>
       <div class="sheet-foot">
         <button class="del" id="pair-del" onclick="deletePairModal()">삭제</button>
@@ -875,15 +903,22 @@ body.sharing .content{max-width:860px;padding-top:40px}
         <label><span class="lbl">폴더</span><input type="text" id="modal-prompt-folder" class="field soft" list="prompt-folder-list"></label>
         <datalist id="prompt-folder-list"></datalist>
         <label><span class="lbl">태그</span><input type="text" id="modal-prompt-tags" class="field soft" placeholder="쉼표로 구분"></label>
+        <label class="adult-tog" style="align-self:flex-start"><input type="checkbox" id="modal-prompt-adult"><span>🔞</span></label>
       </div>
       <div class="sheet-main">
         <h2 class="modal-title" id="prompt-m-title" style="padding-right:40px">프롬프트</h2>
-        <label class="sr" for="modal-prompt-text">프롬프트 내용</label>
-        <textarea id="modal-prompt-text" class="field soft" style="flex:1;min-height:320px" placeholder="프롬프트 내용" oninput="$('prompt-len').textContent=this.value.length+'자'"></textarea>
+        <div>
+          <div class="row" style="justify-content:space-between;margin-bottom:6px"><label class="lbl" for="modal-prompt-text" style="margin:0 0 0 2px">외형</label><button class="btn btn-sm btn-soft" onclick="copyText($v('modal-prompt-text'))">외형 복사</button></div>
+          <textarea id="modal-prompt-text" class="field soft" style="min-height:170px" placeholder="외형 프롬프트" oninput="updatePromptLen()"></textarea>
+        </div>
+        <div>
+          <div class="row" style="justify-content:space-between;margin-bottom:6px"><label class="lbl" for="modal-prompt-outfit" style="margin:0 0 0 2px">의상</label><button class="btn btn-sm btn-soft" onclick="copyText($v('modal-prompt-outfit'))">의상 복사</button></div>
+          <textarea id="modal-prompt-outfit" class="field soft" style="min-height:120px" placeholder="의상 프롬프트" oninput="updatePromptLen()"></textarea>
+        </div>
         <div class="sheet-foot">
           <button class="del" id="prompt-del" onclick="deletePromptModal()">삭제</button>
           <span class="meta" id="prompt-len" style="margin-right:auto"></span>
-          <button class="btn" onclick="copyPromptText()">복사</button>
+          <button class="btn" onclick="copyPromptText()">함께 복사</button>
           <button class="btn btn-pk" onclick="savePromptModal()">저장</button>
         </div>
       </div>
@@ -7819,13 +7854,7 @@ import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs } fro
 /* ============================================================
    Firebase 설정 (기존과 동일)
    공유 링크: Firebase 콘솔 → Authentication → 로그인 방법에서 ‘익명’을 켜 주세요 (로그인 없이 링크를 만들 때 씀).
-   Firestore 규칙 (공유 링크를 쓰려면 shares 부분까지 넣어 주세요):
-     match /users/{uid}/{document=**} { allow read, write: if request.auth != null && request.auth.uid == uid; }
-     match /shares/{shareId} {
-       allow read: if true;
-       allow create: if request.auth != null && request.resource.data.owner == request.auth.uid;
-       allow update, delete: if request.auth != null && resource.data.owner == request.auth.uid;
-     }
+   Firestore 규칙은 함께 드린 안내(firestore.rules)를 그대로 붙여넣어 주세요.
 ============================================================ */
 const firebaseConfig = {
   apiKey: "AIzaSyABJRS1b-zlk1uD7j93veHvPoZl0vj_Z_E",
@@ -7856,6 +7885,15 @@ let authReady = false;
 W._STATE = STATE;
 
 function newId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+function randomId(n = 20) {
+  const a = 'abcdefghijklmnopqrstuvwxyz0123456789', b = new Uint8Array(n);
+  (window.crypto || window.msCrypto).getRandomValues(b);
+  return Array.from(b, x => a[x % 36]).join('');
+}
+const IMG_OK = /^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+/=]+$/;
+const safeImg = W.safeImg = v => (typeof v === 'string' && v.length < 4e6 && IMG_OK.test(v)) ? v : '';
+const str = (v, max = 20000) => (v == null ? '' : String(v)).slice(0, max);
+const strList = (v, n = 30, max = 60) => Array.isArray(v) ? v.slice(0, n).map(x => str(x, max).trim()).filter(Boolean) : [];
 function normalizeOOC(arr) { return (arr || []).map(x => typeof x === 'string' ? { text: x, tags: [], folder: '', date: '' } : x); }
 
 async function loadAllData(uid) {
@@ -7943,7 +7981,7 @@ const THEMES = [
 const WIDGETS = {
   dday:      { name: '페어 디데이', desc: '기준일부터 며칠째인지, 다음 기념일까지', mono: '디', wide: true, en: 'D-Day' },
   shortcuts: { name: '바로가기', desc: '자주 쓰는 메뉴로 한 번에', mono: '바', en: 'Shortcuts' },
-  ooc:       { name: '빠른 OOC 메모', desc: '떠오른 메모를 홈에서 바로', mono: '메', en: 'Memo' },
+  ooc:       { name: '빠른 OOC 메모', desc: '떠오른 메모를 홈에서 바로', mono: '메', en: 'OOC' },
   persona:   { name: '최근 캐릭터', desc: '최근에 만든 캐릭터 4명', mono: '캐', en: 'Characters' },
   prompt:    { name: '랜덤 프롬프트', desc: '저장한 프롬프트를 하나 뽑아 복사', mono: '프', en: 'Prompt' },
   calendar:  { name: '이번 달 기록', desc: '기록한 날을 달력에 표시', mono: '달', en: 'This month' },
@@ -7971,7 +8009,7 @@ async function loadRemotePrefs(uid) {
       const p = s.data();
       if (typeof p.theme === 'number') PREFS.theme = p.theme;
       if (Array.isArray(p.widgets)) PREFS.widgets = p.widgets.filter(k => WIDGETS[k]);
-      if (p.shares) PREFS.shares = p.shares; else if (p.share) PREFS.shares = { personas: p.share };
+      const remoteShares = p.shares || (p.share ? { personas: p.share } : {}); PREFS.shares = { ...(PREFS.shares || {}), ...remoteShares };
       if (p.oocNames) PREFS.oocNames = p.oocNames;
       try { localStorage.setItem('sa.prefs.v1', JSON.stringify(PREFS)); } catch (e) {}
     } else { savePrefs(); }
@@ -8046,16 +8084,33 @@ W.compressImage = function (file, maxWidth) {
         can.width = w; can.height = h; can.getContext('2d').drawImage(img, 0, 0, w, h);
         resolve(can.toDataURL('image/jpeg', 0.85));
       };
+      img.onerror = () => { toast('이미지 파일만 올릴 수 있어요.'); resolve(null); };
       img.src = e.target.result;
     };
+    r.onerror = () => { toast('파일을 읽지 못했어요.'); resolve(null); };
+    if (!file || !/^image\//.test(file.type || '')) { toast('이미지 파일만 올릴 수 있어요.'); resolve(null); return; }
+    if (file.size > 25 * 1024 * 1024) { toast('25MB보다 작은 이미지를 골라 주세요.'); resolve(null); return; }
     r.readAsDataURL(file);
   });
 };
 function showImg(imgId, src) {
   const el = $(imgId); if (!el) return;
+  src = safeImg(src);
   if (src) { el.src = src; el.hidden = false; } else { el.removeAttribute('src'); el.hidden = true; }
 }
-function copyText(t) { if (!t) return; navigator.clipboard.writeText(t).then(() => toast('복사했어요.')).catch(() => toast('복사하지 못했어요.')); }
+function copyFallback(t) {
+  const ta = document.createElement('textarea'); ta.value = t; ta.setAttribute('readonly', '');
+  ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0'; document.body.appendChild(ta);
+  ta.select(); ta.setSelectionRange(0, t.length);
+  let ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+  ta.remove(); return ok;
+}
+function copyText(t) {
+  if (!t) { toast('복사할 내용이 없어요.'); return; }
+  const done = ok => toast(ok ? '복사했어요.' : '복사하지 못했어요. 길게 눌러 직접 복사해 주세요.');
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(t).then(() => done(true)).catch(() => done(copyFallback(t)));
+  else done(copyFallback(t));
+}
 W.copyText = copyText;
 
 /* ===== 인증 ===== */
@@ -8200,7 +8255,7 @@ const WRENDER = {
     const i = ((ddayIdx % list.length) + list.length) % list.length, p = list[i], idx = STATE.pairs.indexOf(p);
     const diff = dayDiff(p.date);
     const num = diff >= 0 ? `<small style="margin:0 4px 0 0">D+</small>${diff + 1}` : `<small style="margin:0 4px 0 0">D</small>${diff}`;
-    const img = p.img ? `<div class="dd-img" style="background-image:url('${p.img}')"></div>` : `<div class="dd-img ph">${HEART_ICON}</div>`;
+    const img = pairPicHtml(p, 'dd-img', '');
     const nav = list.length > 1 ? `<div class="row"><button class="arrow" onclick="ddayStep(-1)" aria-label="이전 페어">‹</button><span class="meta">${i + 1} / ${list.length}</span><button class="arrow" onclick="ddayStep(1)" aria-label="다음 페어">›</button></div>` : '';
     return wbox('dday', `<div class="dd">${img}<div class="dd-info">
       <div><div style="font-weight:700;font-size:17px">${esc(p.names || p.title || '이름 없는 페어')}</div><div class="meta" style="margin-top:4px">기준일 ${esc(p.date)}${p.title && p.names ? ' · ' + esc(p.title) : ''}</div></div>
@@ -8227,15 +8282,15 @@ const WRENDER = {
   },
   persona() {
     const items = STATE.personas.slice(0, 4);
-    return wbox('persona', items.length ? `<div class="mini-list">${items.map(p => { const i = STATE.personas.indexOf(p); return `<button onclick="openPersona(${i})"><span class="thumb" style="${p.img ? `background-image:url('${p.img}')` : ''}"></span><span style="min-width:0"><span class="t" style="display:block">${esc(p.name) || '이름 없음'}</span><span class="s" style="display:block">${esc(p.features) || esc(p.folder) || ''}</span></span></button>`; }).join('')}</div>`
+    return wbox('persona', items.length ? `<div class="mini-list">${items.map(p => { const i = STATE.personas.indexOf(p); return `<button onclick="openPersona(${i})"><span class="thumb" style="${p.img ? `background-image:url('${safeImg(p.img)}')` : ''}"></span><span style="min-width:0"><span class="t" style="display:block">${esc(p.name) || '이름 없음'}</span><span class="s" style="display:block">${esc(p.features) || esc(p.folder) || ''}</span></span></button>`; }).join('')}</div>`
       : wempty('아직 캐릭터가 없어요.', `<button class="btn btn-sm" onclick="go('persona');setTimeout(createNewPersona,30)">첫 캐릭터 만들기</button>`), `<button class="w-link" onclick="go('persona')">전체</button>`);
   },
   prompt() {
-    const list = STATE.prompts.filter(p => p.prompt);
+    const list = STATE.prompts.filter(p => p.prompt || p.outfit);
     if (!list.length) return wbox('prompt', wempty('저장한 프롬프트가 여기서 무작위로 떠요.', `<button class="btn btn-sm" onclick="go('prompt')">프롬프트로 가기</button>`));
     if (promptPick < 0 || promptPick >= list.length) promptPick = Math.floor(Math.random() * list.length);
     const p = list[promptPick];
-    return wbox('prompt', `<p class="quote-txt clamp4">${esc(p.prompt)}</p><div class="row"><button class="btn btn-sm" onclick="shufflePrompt()">다른 거</button><button class="btn btn-sm btn-soft" onclick="copyText(_STATE.prompts.filter(p=>p.prompt)[${promptPick}].prompt)">복사</button>${p.folder ? `<span class="tag gray" style="margin-left:auto">${esc(p.folder)}</span>` : ''}</div>`);
+    return wbox('prompt', `<p class="quote-txt clamp4">${p.adult ? '<span class="adult" aria-label="19금">🔞</span> ' : ''}${esc(promptBoth(p))}</p><div class="row"><button class="btn btn-sm" onclick="shufflePrompt()">다른 거</button><button class="btn btn-sm btn-soft" onclick="copyPromptPart(_STATE.prompts.indexOf(_STATE.prompts.filter(p=>p.prompt||p.outfit)[${promptPick}]),'both')">복사</button>${p.folder ? `<span class="tag gray" style="margin-left:auto">${esc(p.folder)}</span>` : ''}</div>`);
   },
   calendar() {
     const now = new Date(), y = now.getFullYear(), m = now.getMonth();
@@ -8273,7 +8328,7 @@ const WRENDER = {
   }
 };
 W.ddayStep = d => { ddayIdx += d; renderHome(); };
-W.shufflePrompt = () => { const n = STATE.prompts.filter(p => p.prompt).length; if (n > 1) { let k; do { k = Math.floor(Math.random() * n); } while (k === promptPick); promptPick = k; } renderHome(); };
+W.shufflePrompt = () => { const n = STATE.prompts.filter(p => p.prompt || p.outfit).length; if (n > 1) { let k; do { k = Math.floor(Math.random() * n); } while (k === promptPick); promptPick = k; } renderHome(); };
 W.quickOOC = function () {
   const el = $('wOoc'); const text = (el.value || '').trim(); if (!text) return;
   if (needLogin()) return;
@@ -8286,10 +8341,10 @@ W.openPersona = i => { go('persona'); setTimeout(() => openPersonaModal(i), 30);
 function renderWidgetManager() {
   const on = PREFS.widgets, off = Object.keys(WIDGETS).filter(k => !on.includes(k));
   $('wmCount').textContent = `${on.length}개 사용 중`;
-  $('wmOn').innerHTML = on.length ? on.map((k, i) => { const w = WIDGETS[k]; return `<div class="wm-row"><span class="mono">${w.mono}</span><div class="grow"><div class="nm">${w.name}${w.wide ? ' <span class="tag gray" style="margin-left:4px">넓게</span>' : ''}</div><div class="ds">${w.desc}</div></div>
+  $('wmOn').innerHTML = on.length ? on.map((k, i) => { const w = WIDGETS[k]; return `<div class="wm-row"><span class="mono" aria-hidden="true"></span><div class="grow"><div class="nm">${w.name}${w.wide ? ' <span class="tag gray" style="margin-left:4px">넓게</span>' : ''}</div><div class="ds">${w.desc}</div></div>
     <button class="arrow" onclick="moveWidget(${i},-1)" ${i === 0 ? 'disabled' : ''} aria-label="${w.name} 위로">↑</button><button class="arrow" onclick="moveWidget(${i},1)" ${i === on.length - 1 ? 'disabled' : ''} aria-label="${w.name} 아래로">↓</button><button class="arrow" onclick="toggleWidget('${k}')" aria-label="${w.name} 빼기">✕</button></div>`; }).join('')
     : `<div class="empty">아직 고른 위젯이 없어요.</div>`;
-  $('wmOff').innerHTML = off.length ? off.map(k => { const w = WIDGETS[k]; return `<div class="wm-row"><span class="mono">${w.mono}</span><div class="grow"><div class="nm">${w.name}</div><div class="ds">${w.desc}</div></div><button class="btn btn-sm btn-ink" onclick="toggleWidget('${k}')">추가</button></div>`; }).join('')
+  $('wmOff').innerHTML = off.length ? off.map(k => { const w = WIDGETS[k]; return `<div class="wm-row"><span class="mono" aria-hidden="true"></span><div class="grow"><div class="nm">${w.name}</div><div class="ds">${w.desc}</div></div><button class="btn btn-sm btn-ink" onclick="toggleWidget('${k}')">추가</button></div>`; }).join('')
     : `<div class="empty" style="padding:24px">모든 위젯을 쓰고 있어요.</div>`;
 }
 W.moveWidget = (i, d) => { const a = PREFS.widgets, j = i + d; if (j < 0 || j >= a.length) return; [a[i], a[j]] = [a[j], a[i]]; savePrefs(); renderWidgetManager(); };
@@ -8324,9 +8379,12 @@ function skinTools() {
 let currentPersonaIndex = -1, currentPImg = null, personaFolder = 'all';
 W.$v = id => ($(id) || {}).value || '';
 const initialOf = s => (String(s || '').trim()[0] || '?').toUpperCase();
+const CHIP_VALUES = {};
 function chipRow(boxId, items, cur, fn) {
-  $(boxId).innerHTML = items.map(([v, label, n]) => `<button class="fchip ${v === cur ? 'on' : ''}" onclick="${fn}(${JSON.stringify(v).replace(/"/g, '&quot;')})">${esc(label)}${n != null ? `<span class="n">${n}</span>` : ''}</button>`).join('');
+  CHIP_VALUES[boxId] = { fn, values: items.map(x => x[0]) };
+  $(boxId).innerHTML = items.map(([v, label, n], i) => `<button class="fchip ${v === cur ? 'on' : ''}" onclick="pickChip('${boxId}',${i})" aria-pressed="${v === cur}">${esc(label)}${n != null ? `<span class="n">${n}</span>` : ''}</button>`).join('');
 }
+W.pickChip = (boxId, i) => { const c = CHIP_VALUES[boxId]; if (c && W[c.fn]) W[c.fn](c.values[i]); };
 W.loadPersonaFolders = function () {
   const counts = {};
   STATE.personas.forEach(p => { const f = p.folder || '미분류'; counts[f] = (counts[f] || 0) + 1; });
@@ -8347,7 +8405,7 @@ W.loadPersonaList = function () {
   g.innerHTML = sorted.map(o => {
     const p = o.item;
     return `<button class="card2" onclick="openPersonaModal(${p._i})">
-      <div class="pic" style="aspect-ratio:3/4;${p.img ? `background-image:url('${p.img}')` : ''}">${p.img ? '' : `<span class="ini">${esc(initialOf(p.name))}</span>`}${p.folder && p.folder !== '미분류' ? `<span class="fold">${esc(p.folder)}</span>` : ''}</div>
+      <div class="pic" style="aspect-ratio:3/4;${p.img ? `background-image:url('${safeImg(p.img)}')` : ''}">${p.img ? '' : `<span class="ini">${esc(initialOf(p.name))}</span>`}${p.folder && p.folder !== '미분류' ? `<span class="fold">${esc(p.folder)}</span>` : ''}</div>
       <div class="cap"><span class="nm">${esc(p.name) || '이름 없음'}</span><span class="ds">${esc(p.features || p.age) || '&nbsp;'}</span></div></button>`;
   }).join('') + `<button class="add-card" onclick="openPersonaModal(-1)"><b>+</b>새 캐릭터</button>`;
 };
@@ -8365,7 +8423,7 @@ W.openPersonaModal = function (i) {
 W.createNewPersona = () => openPersonaModal(-1);
 W.selectPersona = i => openPersonaModal(i);
 W.closePersonaModal = () => { $('persona-modal').hidden = true; currentPersonaIndex = -1; };
-W.handlePersonaUpload = async input => { if (input.files[0]) setPersonaImg(await compressImage(input.files[0], 720)); input.value = ''; };
+W.handlePersonaUpload = async input => { const f = input.files[0]; input.value = ''; if (!f) return; const d = await compressImage(f, 720); if (d) setPersonaImg(d); };
 W.savePersona = function () {
   const data = {}; P_FIELDS.forEach(([id, k]) => data[k] = $(id).value);
   data.folder = data.folder.trim() || '미분류'; data.img = currentPImg;
@@ -8420,28 +8478,44 @@ W.loadPairs = function () {
     const p = o.item, diff = dayDiff(p.date);
     const dd = diff === null ? '' : (diff >= 0 ? `D+${diff + 1}` : `D${diff}`);
     return `<button class="card2" onclick="openPairModal(${p._i})">
-      <div class="pic" style="aspect-ratio:4/3;${p.img ? `background-image:url('${p.img}')` : ''}">${p.img ? '' : HEART_ICON}${dd ? `<span class="badge">${dd}</span>` : ''}</div>
+      ${pairPicHtml(p, 'pic', 'aspect-ratio:4/3', dd ? `<span class="badge">${dd}</span>` : '')}
       <div class="cap"><span class="nm">${esc(p.title || p.names) || '제목 없음'}</span>${p.title && p.names ? `<span class="pn">${esc(p.names)}</span>` : ''}
       ${(p.tags || []).length ? `<div class="tags">${p.tags.slice(0, 4).map(t => `<span class="tag">#${esc(t)}</span>`).join('')}</div>` : ''}</div></button>`;
   }).join('');
 };
-function setPairImg(src) { currentModalPairImg = src || null; showImg('modal-pair-img', currentModalPairImg); $('pair-img-chg').hidden = !currentModalPairImg; $('pair-img-del').hidden = !currentModalPairImg; }
-W.clearPairImg = () => setPairImg(null);
-W.handleModalPairUpload = async input => { if (input.files[0]) setPairImg(await compressImage(input.files[0], 1000)); input.value = ''; };
+let pairImgMode = 'one', pairImgA = null, pairImgB = null;
+function setPairImg(src) { currentModalPairImg = src || null; showImg('modal-pair-img', currentModalPairImg); $('pair-img-chg').hidden = !currentModalPairImg; syncPairImgDel(); }
+function syncPairImgDel() { $('pair-img-del').hidden = pairImgMode === 'one' ? !currentModalPairImg : !(pairImgA || pairImgB); }
+W.setPairImgMode = function (m) {
+  pairImgMode = m; document.querySelectorAll('#pair-imgmode button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  $('pair-one').hidden = m !== 'one'; $('pair-two').hidden = m !== 'two'; syncPairImgDel();
+};
+function setPairSide(k, src) { if (k === 'a') pairImgA = src || null; else pairImgB = src || null; showImg(k === 'a' ? 'modal-pair-imga' : 'modal-pair-imgb', src); syncPairImgDel(); }
+W.handlePairSide = async (input, k) => { const f = input.files[0]; input.value = ''; if (!f) return; const d = await compressImage(f, 700); if (d) setPairSide(k, d); };
+W.clearPairImg = () => { if (pairImgMode === 'one') setPairImg(null); else { setPairSide('a', null); setPairSide('b', null); } };
+W.handleModalPairUpload = async input => { const f = input.files[0]; input.value = ''; if (!f) return; const d = await compressImage(f, 1000); if (d) setPairImg(d); };
+/* 카드·위젯에 쓰는 페어 그림 */
+function pairPicHtml(p, cls, style, inner) {
+  if (p.imgMode === 'two' && (safeImg(p.imgA) || safeImg(p.imgB)))
+    return `<div class="${cls} duo" style="${style}"><i style="${safeImg(p.imgA) ? `background-image:url('${safeImg(p.imgA)}')` : ''}"></i><i style="${safeImg(p.imgB) ? `background-image:url('${safeImg(p.imgB)}')` : ''}"></i>${inner || ''}</div>`;
+  if (safeImg(p.img)) return `<div class="${cls}" style="${style};background-image:url('${safeImg(p.img)}')">${inner || ''}</div>`;
+  return `<div class="${cls} ph" style="${style}">${HEART_ICON}${inner || ''}</div>`;
+}
 W.updateModalDday = () => { const t = ddayText($('modal-pair-date').value); $('modal-pair-dday').textContent = t ? (dayDiff($('modal-pair-date').value) >= 0 ? 'D+' + (dayDiff($('modal-pair-date').value) + 1) : t) : 'D-Day'; };
 W.openPairModal = function (i) {
   const p = i >= 0 ? STATE.pairs[i] : {}; if (i >= 0 && !p) return;
   currentPairIndex = i;
   $('modal-pair-title').value = p.title || ''; $('modal-pair-names').value = p.names || ''; $('modal-pair-date').value = p.date || '';
   $('modal-pair-tags').value = (p.tags || []).join(', '); $('modal-pair-intro').value = p.intro || '';
-  setPairImg(p.img); updateModalDday(); $('pair-del').hidden = i < 0;
+  setPairImg(p.img); setPairSide('a', p.imgA); setPairSide('b', p.imgB); setPairImgMode(p.imgMode === 'two' ? 'two' : 'one');
+  updateModalDday(); $('pair-del').hidden = i < 0;
   $('pair-modal').hidden = false;
   if (i < 0) setTimeout(() => $('modal-pair-title').focus(), 60);
 };
 W.closePairModal = () => { $('pair-modal').hidden = true; currentPairIndex = -1; };
 W.savePairModal = function () {
-  const data = { title: $('modal-pair-title').value.trim(), names: $('modal-pair-names').value.trim(), date: $('modal-pair-date').value, tags: parseTags($('modal-pair-tags').value), intro: $('modal-pair-intro').value.trim(), img: currentModalPairImg };
-  if (currentPairIndex < 0 && !data.title && !data.names && !data.intro && !data.img) { toast('내용을 입력해 주세요.'); return; }
+  const data = { title: $('modal-pair-title').value.trim(), names: $('modal-pair-names').value.trim(), date: $('modal-pair-date').value, tags: parseTags($('modal-pair-tags').value), intro: $('modal-pair-intro').value.trim(), img: currentModalPairImg, imgA: pairImgA, imgB: pairImgB, imgMode: pairImgMode };
+  if (currentPairIndex < 0 && !data.title && !data.names && !data.intro && !data.img && !data.imgA && !data.imgB) { toast('내용을 입력해 주세요.'); return; }
   let item;
   if (currentPairIndex < 0) { item = { ...data, id: newId(), createdAt: Date.now(), created: new Date().toLocaleDateString() }; STATE.pairs.unshift(item); }
   else { item = { ...STATE.pairs[currentPairIndex], ...data }; STATE.pairs[currentPairIndex] = item; }
@@ -8453,7 +8527,12 @@ W.deletePairModal = function () {
 };
 
 /* ===== 프롬프트 ===== */
-let currentPromptIndex = -1, currentModalPromptImg = null, promptFolder = 'all';
+let currentPromptIndex = -1, currentModalPromptImg = null, promptFolder = 'all', promptAge = 'all';
+const tidyPrompt = t => String(t || '').trim().replace(/[,\s]+$/, '');
+const promptBoth = p => [tidyPrompt(p.prompt), tidyPrompt(p.outfit)].filter(Boolean).join(', ');
+W.copyPromptPart = (i, k) => { const p = STATE.prompts[i]; if (!p) return; copyText(k === 'a' ? p.prompt : k === 'o' ? p.outfit : promptBoth(p)); };
+W.setPromptAge = a => { promptAge = a; document.querySelectorAll('#prompt-age button').forEach(b => b.classList.toggle('on', b.dataset.a === a)); loadPrompts(); };
+W.updatePromptLen = () => { $('prompt-len').textContent = `외형 ${$('modal-prompt-text').value.length}자 · 의상 ${$('modal-prompt-outfit').value.length}자`; };
 const COPY_ICON = '<svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="11" rx="2.5"/><path d="M5 15V7a2 2 0 012-2h8"/></svg>';
 W.setPromptFolder = f => { promptFolder = f; loadPrompts(); };
 W.loadPrompts = function () {
@@ -8470,6 +8549,7 @@ W.loadPrompts = function () {
   let list = all.map((p, i) => ({ ...p, _i: i }));
   if (promptFolder !== 'all') list = list.filter(p => (p.folder || '').trim() === promptFolder);
   if (fT !== 'all') list = list.filter(p => (p.tags || []).includes(fT));
+  if (promptAge === 'adult') list = list.filter(p => p.adult); else if (promptAge === 'safe') list = list.filter(p => !p.adult);
   const sorted = sortDataList(list, $('prompt-sort').value);
   $('prompt-count').textContent = `총 ${all.length}개`;
   const grid = $('prompt-grid');
@@ -8478,30 +8558,34 @@ W.loadPrompts = function () {
   grid.innerHTML = sorted.map(o => {
     const p = o.item, i = p._i;
     return `<div class="pcard" tabindex="0" role="button" aria-label="프롬프트 열기" onclick="openPromptModal(${i})" onkeydown="if(event.key==='Enter')openPromptModal(${i})">
-      ${p.img ? `<div class="pimg" style="background-image:url('${p.img}')"></div>` : ''}
-      <div class="pb">${p.folder ? `<span class="pfold">${esc(p.folder)}</span>` : ''}<p class="ptx">${esc(p.prompt) || '내용 없음'}</p>
-        <div class="pf"><div class="tags">${(p.tags || []).map(t => `<span class="tag">#${esc(t)}</span>`).join('')}</div><span class="meta">${esc(p.date || '')}</span>
-        <button class="icon-btn sm" onclick="event.stopPropagation();copyText(_STATE.prompts[${i}].prompt)" aria-label="프롬프트 복사" title="복사">${COPY_ICON}</button></div></div></div>`;
+      ${p.img ? `<div class="pimg" style="background-image:url('${safeImg(p.img)}')"></div>` : ''}
+      <div class="pb">${p.folder || p.adult ? `<span class="pfold">${p.adult ? '<span class="adult" aria-label="19금">🔞</span> ' : ''}${esc(p.folder || '')}</span>` : ''}
+        ${p.prompt ? `<div class="psec"><span class="plbl">외형</span><p class="ptx">${esc(p.prompt)}</p></div>` : ''}
+        ${p.outfit ? `<div class="psec"><span class="plbl">의상</span><p class="ptx" style="-webkit-line-clamp:3">${esc(p.outfit)}</p></div>` : ''}
+        ${!p.prompt && !p.outfit ? '<p class="ptx" style="color:var(--faint)">내용 없음</p>' : ''}
+        <div class="pf"><div class="tags">${(p.tags || []).map(t => `<span class="tag">#${esc(t)}</span>`).join('')}</div>
+        ${p.prompt ? `<button class="cbtn" onclick="event.stopPropagation();copyPromptPart(${i},'a')" title="외형만 복사">외형</button>` : ''}${p.outfit ? `<button class="cbtn" onclick="event.stopPropagation();copyPromptPart(${i},'o')" title="의상만 복사">의상</button>` : ''}
+        <button class="icon-btn sm" onclick="event.stopPropagation();copyPromptPart(${i},'both')" aria-label="외형과 의상 함께 복사" title="함께 복사">${COPY_ICON}</button></div></div></div>`;
   }).join('');
 };
 function setPromptImg(src) { currentModalPromptImg = src || null; showImg('modal-prompt-img', currentModalPromptImg); $('prompt-img-del').hidden = !currentModalPromptImg; $('prompt-img-chg').hidden = !currentModalPromptImg; }
-W.handleModalPromptUpload = async input => { if (input.files[0]) setPromptImg(await compressImage(input.files[0], 900)); input.value = ''; };
+W.handleModalPromptUpload = async input => { const f = input.files[0]; input.value = ''; if (!f) return; const d = await compressImage(f, 900); if (d) setPromptImg(d); };
 W.clearModalPromptImg = () => setPromptImg(null);
 W.openPromptModal = function (i) {
   const p = i >= 0 ? STATE.prompts[i] : {}; if (i >= 0 && !p) return;
   currentPromptIndex = i;
   $('prompt-m-title').textContent = i >= 0 ? '프롬프트 편집' : '프롬프트 등록';
-  $('modal-prompt-text').value = p.prompt || ''; $('modal-prompt-folder').value = p.folder || ''; $('modal-prompt-tags').value = (p.tags || []).join(', ');
-  $('prompt-len').textContent = (p.prompt || '').length + '자';
+  $('modal-prompt-text').value = p.prompt || ''; $('modal-prompt-outfit').value = p.outfit || ''; $('modal-prompt-folder').value = p.folder || ''; $('modal-prompt-tags').value = (p.tags || []).join(', ');
+  $('modal-prompt-adult').checked = !!p.adult; updatePromptLen();
   setPromptImg(p.img); $('prompt-del').hidden = i < 0;
   $('prompt-modal').hidden = false;
   if (i < 0) setTimeout(() => $('modal-prompt-text').focus(), 60);
 };
 W.closePromptModal = () => { $('prompt-modal').hidden = true; currentPromptIndex = -1; };
-W.copyPromptText = () => copyText($('modal-prompt-text').value);
+W.copyPromptText = () => copyText(promptBoth({ prompt: $('modal-prompt-text').value, outfit: $('modal-prompt-outfit').value }));
 W.savePromptModal = function () {
-  const data = { prompt: $('modal-prompt-text').value.trim(), folder: $('modal-prompt-folder').value.trim(), tags: parseTags($('modal-prompt-tags').value), img: currentModalPromptImg };
-  if (!data.prompt && !data.img) { toast('프롬프트 내용을 입력해 주세요.'); return; }
+  const data = { prompt: $('modal-prompt-text').value.trim(), outfit: $('modal-prompt-outfit').value.trim(), folder: $('modal-prompt-folder').value.trim(), tags: parseTags($('modal-prompt-tags').value), img: currentModalPromptImg, adult: $('modal-prompt-adult').checked };
+  if (!data.prompt && !data.outfit && !data.img) { toast('프롬프트 내용을 입력해 주세요.'); return; }
   let item;
   if (currentPromptIndex < 0) { item = { ...data, id: newId(), createdAt: Date.now(), date: new Date().toLocaleDateString() }; STATE.prompts.unshift(item); }
   else { item = { ...STATE.prompts[currentPromptIndex], ...data }; STATE.prompts[currentPromptIndex] = item; }
@@ -8890,6 +8974,7 @@ W.setHvMode = function (m) {
   document.querySelectorAll('#hv-seg button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
   if (m !== 'code') updateHtmlPreview();
 };
+window.addEventListener('resize', () => { if (hvMode === 'split' && window.innerWidth <= 900) setHvMode('code'); });
 W.hvTab = function (e) {
   if (e.key !== 'Tab' || e.shiftKey) return;
   e.preventDefault();
@@ -8937,9 +9022,16 @@ W.saveHtmlImage = async function (btn) {
 };
 W.copyHtmlCode = () => { const c = $('html-code').value; if (!c) return toast('복사할 코드가 없어요.'); copyText(c); };
 W.openHtmlFullscreen = function () {
-  const url = URL.createObjectURL(new Blob([$('html-code').value], { type: 'text/html' }));
-  const w = window.open(url, '_blank'); if (!w) toast('팝업이 막혔어요.');
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  const code = $('html-code').value;
+  if (!code.trim()) { toast('볼 코드가 없어요.'); return; }
+  const w = window.open('', '_blank');
+  if (!w) { toast('팝업이 막혔어요.'); return; }
+  try { w.opener = null; } catch (e) {}
+  const d = w.document;
+  d.open();
+  d.write('<!DOCTYPE html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HTML 미리보기</title><style>html,body{margin:0;height:100%}iframe{border:0;width:100%;height:100%;display:block}</style><iframe sandbox="allow-scripts allow-popups allow-modals allow-forms"></iframe>');
+  d.close();
+  d.querySelector('iframe').srcdoc = code;
 };
 W.saveHtmlSnippet = function () {
   const code = $('html-code').value;
@@ -8995,7 +9087,7 @@ W.askConfirm = function ({ title, body, yes = '확인', no = '취소', badge = f
 
 function itemLabel(type, p) {
   if (type === 'personas') return { thumb: p.img, text: p.name || '이름 없음', sub: p.prompt ? '' : '프롬프트 없음' };
-  if (type === 'prompts') return { thumb: p.img, text: (p.prompt || '내용 없음').slice(0, 60), sub: p.folder || '' };
+  if (type === 'prompts') return { thumb: p.img, text: (promptBoth(p) || '내용 없음').slice(0, 60), sub: p.folder || '', adult: p.adult };
   return { thumb: null, text: (p.text || '').slice(0, 60), sub: p.folder || '', adult: p.adult };
 }
 W.openShareModal = function (type, opt = {}) {
@@ -9005,10 +9097,10 @@ W.openShareModal = function (type, opt = {}) {
   if (!list.length) { toast(`먼저 ${T.name}를 만들어 주세요.`); return; }
   const sh = shPref();
   shareSel = new Set((opt.ids || sh.ids || []).filter(id => list.some(p => p.id === id)));
-  if (!shareSel.size) shareSel = new Set(list.filter(p => shareType !== 'ooc' || !p.adult).map(p => p.id));
+  if (!shareSel.size) shareSel = new Set(list.filter(p => !p.adult).map(p => p.id));
   if (!shareSel.size) shareSel = new Set(list.map(p => p.id));
   $('sh-h').textContent = shareSingle ? '이 메모 공유' : `${T.name} 공유`;
-  $('sh-desc').textContent = shareSingle ? '이 메모 하나만 링크나 파일로 보여줄 수 있어요.' : '고른 항목을 한 페이지로 묶어 링크나 파일로 보여줄 수 있어요.';
+  $('sh-desc').textContent = shareSingle ? '이 메모 하나만 담은 링크예요.' : `${T.name}를 한 페이지로 묶은 링크예요.`.replace('메모를', '메모를');
   $('sh-listwrap').hidden = shareSingle; $('sh-single').hidden = !shareSingle;
   if (shareSingle) { const o = list.find(p => shareSel.has(p.id)) || {}; $('sh-single').innerHTML = (o.adult ? '<span class="adult" aria-label="19금">🔞</span> ' : '') + esc(o.text || ''); }
   $('sh-list-lbl').textContent = T.listLbl;
@@ -9017,13 +9109,15 @@ W.openShareModal = function (type, opt = {}) {
   $('sh-fieldwrap').hidden = !T.fields.length;
   $('sh-fields').innerHTML = T.fields.map(([k, l]) => `<label class="tog"><input type="checkbox" data-f="${k}" ${fields[k] ? 'checked' : ''}>${l}</label>`).join('');
   renderShareList(); renderShareLink();
+  $('sh-opts').open = false; $('sh-send').hidden = !navigator.share;
   $('share-modal').hidden = false;
+  makeShareLink(true);
 };
 W.closeShareModal = () => { $('share-modal').hidden = true; };
 function renderShareList() {
   const list = STATE[SHARE_TYPES[shareType].coll];
   $('sh-list').innerHTML = list.map(p => { const L = itemLabel(shareType, p); return `<label class="sh-row"><input type="checkbox" ${shareSel.has(p.id) ? 'checked' : ''} onchange="shareToggle('${p.id}', this.checked)">
-    ${shareType !== 'ooc' ? `<span class="thumb" style="${L.thumb ? `background-image:url('${L.thumb}')` : ''}"></span>` : ''}${L.adult ? '<span class="adult" title="19금" aria-label="19금">🔞</span>' : ''}
+    ${shareType !== 'ooc' ? `<span class="thumb" style="${L.thumb ? `background-image:url('${safeImg(L.thumb)}')` : ''}"></span>` : ''}${L.adult ? '<span class="adult" title="19금" aria-label="19금">🔞</span>' : ''}
     <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:${shareType === 'personas' ? 600 : 400}">${esc(L.text)}</span>${L.sub ? `<span class="meta">${esc(L.sub)}</span>` : ''}</label>`; }).join('');
   $('sh-all').textContent = shareSel.size === list.length ? '전체 해제' : '전체 선택';
 }
@@ -9032,10 +9126,13 @@ W.shareSelectAll = () => { const list = STATE[SHARE_TYPES[shareType].coll]; shar
 function shareLinkOf(id) { return location.origin + location.pathname + '?share=' + encodeURIComponent(id); }
 function renderShareLink() {
   const id = shPref().id;
-  $('sh-linkwrap').hidden = !id;
-  $('sh-make').textContent = id ? '링크 업데이트' : '링크 만들기';
-  if (id) { $('sh-link').value = shareLinkOf(id); $('sh-open').href = shareLinkOf(id); }
+  $('sh-stop').hidden = !id;
+  $('sh-link').value = id ? shareLinkOf(id) : '';
+  $('sh-open').hidden = !id; if (id) $('sh-open').href = shareLinkOf(id);
 }
+function shStatus(msg) { $('sh-status').hidden = !msg; $('sh-status').textContent = msg || ''; }
+W.copyShareLink = () => { const v = $('sh-link').value; if (v) copyText(v); };
+W.sendShareLink = async () => { const v = $('sh-link').value; if (!v) return; try { await navigator.share({ title: $('sh-title').value || $('sh-title').placeholder, url: v }); } catch (e) {} };
 function readShareOptions() {
   const fields = {}; document.querySelectorAll('#sh-fields input').forEach(i => fields[i.dataset.f] = i.checked ? 1 : 0);
   const title = $('sh-title').value.trim();
@@ -9063,7 +9160,7 @@ async function buildShareData(maxImg) {
       it = { name: p.name || '', age: p.age || '', folder: p.folder && p.folder !== '미분류' ? p.folder : '' };
       ['features', 'prompt', 'app', 'per', 'bg'].forEach(k => { if (fields[k] && p[k]) it[k] = p[k]; });
     } else if (shareType === 'prompts') {
-      it = { prompt: p.prompt || '' };
+      it = { prompt: p.prompt || '' }; if (p.outfit) it.outfit = p.outfit; if (p.adult) it.adult = true;
       if (fields.meta) { if (p.folder) it.folder = p.folder; if ((p.tags || []).length) it.tags = p.tags; }
     } else {
       it = { text: p.text || '' }; if (p.folder) it.folder = p.folder; if ((p.tags || []).length) it.tags = p.tags; if (p.adult) it.adult = true;
@@ -9074,10 +9171,11 @@ async function buildShareData(maxImg) {
   return { type: shareType, title: title || (shareSingle ? 'OOC 메모' : T.title), items, adult: items.some(x => x.adult), updatedAt: Date.now() };
 }
 async function confirmAdultShare() {
-  if (shareType !== 'ooc') return true;
-  const n = STATE.ooc.filter(o => shareSel.has(o.id) && o.adult).length;
+  if (shareType === 'personas') return true;
+  const n = STATE[SHARE_TYPES[shareType].coll].filter(o => shareSel.has(o.id) && o.adult).length;
   if (!n) return true;
-  return askConfirm({ badge: true, title: '성인용 메모가 포함돼 있어요', body: `고른 메모 중 ${n}개가 🔞 메모예요. 공유 페이지를 여는 사람에게는 성인 확인 창이 먼저 뜨지만, 링크를 받은 누구나 볼 수 있어요. 그래도 공유할까요?`, yes: '공유하기' });
+  const what = shareType === 'prompts' ? '프롬프트' : '메모';
+  return askConfirm({ badge: true, title: `성인용 ${what}가 포함돼 있어요`, body: `고른 ${what} 중 ${n}개가 🔞 ${what}예요. 공유 페이지를 여는 사람에게는 성인 확인 창이 먼저 뜨지만, 링크를 받은 누구나 볼 수 있어요. 그래도 공유할까요?`, yes: '공유하기' });
 }
 /* 링크를 쓰는 주체: 로그인했으면 내 계정, 아니면 이 기기의 익명 공유 계정 */
 async function shareWriter(by) {
@@ -9089,28 +9187,31 @@ async function shareWriter(by) {
   if (!u) u = (await signInAnonymously(shareAuth)).user;
   return { db: shareDb, uid: u.uid, by: 'anon' };
 }
-W.makeShareLink = async function () {
-  if (!db) { toast('지금은 링크를 만들 수 없어요. HTML 파일로 저장을 이용해 주세요.'); return; }
-  if (!(await confirmAdultShare())) return;
-  const btn = $('sh-make'); btn.disabled = true; btn.textContent = '만드는 중…';
+W.makeShareLink = async function (auto) {
+  shStatus('');
+  if (!db) { shStatus('지금은 링크를 만들 수 없어요. ‘HTML 파일로 저장’을 이용해 주세요.'); return; }
+  if (!(await confirmAdultShare())) { shStatus('🔞 메모가 있어서 아직 링크를 만들지 않았어요. 아래에서 항목을 바꾸거나 다시 시도해 주세요.'); $('sh-opts').open = true; return; }
+  const btn = $('sh-make'), box = $('sh-linkbox');
+  btn.disabled = true; box.classList.add('busy'); if (!shPref().id) $('sh-link').value = '';
+  $('sh-link').placeholder = '링크 만드는 중…';
   try {
     let data = await buildShareData(360); if (!data) return;
     if (JSON.stringify(data).length > 900000) data = await buildShareData(180);
     if (JSON.stringify(data).length > 900000) { data = await buildShareData(0); toast('용량이 커서 이미지는 빼고 공유했어요.'); }
-    if (JSON.stringify(data).length > 1000000) { toast('내용이 너무 많아요. 항목을 나눠서 공유해 주세요.'); return; }
+    if (JSON.stringify(data).length > 1000000) { shStatus('내용이 너무 많아요. 아래에서 항목을 나눠 담아 주세요.'); $('sh-opts').open = true; return; }
     const prev = shPref();
     const w = await shareWriter(prev.id ? prev.by : null);
-    const id = prev.id || (newId() + Math.random().toString(36).slice(2, 8));
+    const id = prev.id || randomId(20);
     await setDoc(doc(w.db, 'shares', id), { ...data, owner: w.uid });
     PREFS.shares[shareKey] = { ...shPref(), id, by: w.by }; savePrefs(); renderShareLink();
-    try { await navigator.clipboard.writeText(shareLinkOf(id)); } catch (e) {}
-    toast(prev.id ? '링크 내용을 새로 고쳤어요.' : '링크를 만들고 복사했어요.');
+    let copied = false; try { await navigator.clipboard.writeText(shareLinkOf(id)); copied = true; } catch (e) {}
+    toast(auto ? (copied ? '링크를 복사했어요. 바로 붙여넣어 보내면 돼요.' : '링크가 준비됐어요.') : '바꾼 내용으로 링크를 고쳤어요.');
   } catch (e) {
-    if (e.code === 'need-login') toast('이 링크는 로그인한 계정으로 만들어서, 로그인해야 고칠 수 있어요.');
-    else if (/admin-restricted|operation-not-allowed/.test(e.code || '')) toast('Firebase에서 ‘익명’ 로그인을 켜야 링크를 만들 수 있어요.');
-    else if (/permission/.test(e.code || '')) toast('이 링크를 만든 기기나 계정에서만 고칠 수 있어요.');
-    else toast('링크를 만들지 못했어요. 네트워크나 Firestore 규칙을 확인해 주세요.');
-  } finally { btn.disabled = false; renderShareLink(); }
+    if (e.code === 'need-login') shStatus('이 링크는 로그인한 계정으로 만들어서, 로그인해야 고칠 수 있어요.');
+    else if (/admin-restricted|operation-not-allowed/.test(e.code || '')) shStatus('Firebase 콘솔 → Authentication → 로그인 방법에서 ‘익명’을 켜야 링크를 만들 수 있어요. 그동안은 ‘HTML 파일로 저장’을 이용해 주세요.');
+    else if (/permission/.test(e.code || '')) shStatus('이 링크는 다른 기기에서 만들어서 여기서는 고칠 수 없어요. 링크는 그대로 쓸 수 있어요.');
+    else shStatus('링크를 만들지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.');
+  } finally { btn.disabled = false; box.classList.remove('busy'); $('sh-link').placeholder = '링크가 없어요'; renderShareLink(); }
 };
 W.stopShare = async function () {
   const sh = shPref(), id = sh.id; if (!id) return;
@@ -9129,7 +9230,7 @@ function shareMarkup(data, opt = {}) {
   if (type === 'personas') {
     body = items.map((p, i) => {
       const det = [['app', '외형'], ['per', '성격'], ['bg', '배경']].filter(([k]) => p[k]);
-      return `<article class="sp-card ${p.img ? '' : 'noimg'}">${p.img ? `<div class="sp-pic" style="background-image:url('${p.img}')"></div>` : ''}
+      return `<article class="sp-card ${p.img ? '' : 'noimg'}">${p.img ? `<div class="sp-pic" style="background-image:url('${safeImg(p.img)}')"></div>` : ''}
         <div class="sp-body"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2 class="sp-nm">${esc(p.name) || '이름 없음'}</h2>${p.age || p.folder ? `<div class="sp-meta">${esc([p.age, p.folder].filter(Boolean).join(' · '))}</div>` : ''}</div>${ADD_BTN(i, imp)}</div>
         ${p.features ? `<p class="sp-ft">${esc(p.features)}</p>` : ''}
         ${p.prompt ? `<div class="sp-lbl"><span>Prompt</span><button class="btn btn-sm btn-soft" data-copy="${i}">복사</button></div><pre class="sp-prompt">${esc(p.prompt)}</pre>` : ''}
@@ -9137,9 +9238,12 @@ function shareMarkup(data, opt = {}) {
         </div></article>`;
     }).join('');
   } else if (type === 'prompts') {
-    body = items.map((p, i) => `<article class="sp-card noimg"><div class="sp-body">${p.img ? `<div class="sp-wide" style="background-image:url('${p.img}')"></div>` : ''}
-      <div class="row" style="justify-content:space-between"><div class="tags">${metaChips(p)}</div><div class="sp-acts">${ADD_BTN(i, imp)}<button class="btn btn-sm btn-soft" data-copy="${i}">복사</button></div></div>
-      <pre class="sp-prompt" style="max-height:none">${esc(p.prompt)}</pre></div></article>`).join('');
+    const hidden = items.filter(p => p.adult && !showAdult).length;
+    body = items.map((p, i) => (p.adult && !showAdult) ? '' : `<article class="sp-card noimg ${p.adult ? 'is-adult' : ''}"><div class="sp-body">${safeImg(p.img) ? `<div class="sp-wide" style="background-image:url('${safeImg(p.img)}')"></div>` : ''}
+      <div class="row" style="justify-content:space-between"><div class="tags">${metaChips(p)}</div><div class="sp-acts">${ADD_BTN(i, imp)}<button class="btn btn-sm btn-soft" data-copy="${i}">함께 복사</button></div></div>
+      ${p.prompt ? `<div class="sp-lbl"><span>외형</span><button class="btn btn-sm" data-copy="${i}:a">복사</button></div><pre class="sp-prompt" style="max-height:none">${esc(p.prompt)}</pre>` : ''}
+      ${p.outfit ? `<div class="sp-lbl"><span>의상</span><button class="btn btn-sm" data-copy="${i}:o">복사</button></div><pre class="sp-prompt" style="max-height:none">${esc(p.outfit)}</pre>` : ''}
+      </div></article>`).join('') + (hidden ? `<div class="sp-hidden">🔞 프롬프트 ${hidden}개는 숨겨 두었어요.</div>` : '');
   } else {
     const hidden = items.filter(p => p.adult && !showAdult).length;
     body = items.map((p, i) => (p.adult && !showAdult) ? '' : `<div class="sp-ooc ${p.adult ? 'is-adult' : ''}"><div style="flex:1;min-width:0"><p>${esc(p.text)}</p>${metaChips(p) ? `<div class="meta-row">${metaChips(p)}</div>` : ''}</div>
@@ -9156,12 +9260,26 @@ function shareMarkup(data, opt = {}) {
 }
 function copyOf(data, k, showAdult) {
   const type = data.type || 'personas', items = (data.items || []);
-  const one = p => type === 'ooc' ? (p.text || '') : (p.prompt || '');
+  const one = p => type === 'ooc' ? (p.text || '') : type === 'prompts' ? promptBoth(p) : (p.prompt || '');
   if (k === 'all') {
     const list = items.filter(p => one(p) && (showAdult || !p.adult));
     return type === 'personas' ? list.map(p => `[${p.name || '이름 없음'}]\n${p.prompt}`).join('\n\n') : list.map(one).join('\n\n');
   }
-  return one(items[+k] || {});
+  const [n, part] = String(k).split(':'), it = items[+n] || {};
+  if (part === 'a') return it.prompt || '';
+  if (part === 'o') return it.outfit || '';
+  return one(it);
+}
+function cleanShare(raw) {
+  const r = raw && typeof raw === 'object' ? raw : {};
+  const type = SHARE_TYPES[r.type] ? r.type : 'personas';
+  const items = (Array.isArray(r.items) ? r.items : []).slice(0, 500).map(x => {
+    const p = x && typeof x === 'object' ? x : {};
+    if (type === 'personas') return { name: str(p.name, 200), age: str(p.age, 200), folder: str(p.folder, 100), features: str(p.features, 2000), prompt: str(p.prompt, 60000), app: str(p.app), per: str(p.per), bg: str(p.bg), img: safeImg(p.img) };
+    if (type === 'prompts') return { prompt: str(p.prompt, 60000), outfit: str(p.outfit, 30000), folder: str(p.folder, 100), tags: strList(p.tags), img: safeImg(p.img), adult: p.adult === true };
+    return { text: str(p.text), folder: str(p.folder, 100), tags: strList(p.tags), adult: p.adult === true };
+  });
+  return { type, title: str(r.title, 200), items, adult: items.some(x => x.adult) };
 }
 /* 남의 공유 페이지에서 내 아카이브로 가져오기 */
 function importItem(data, i, shareId) {
@@ -9171,7 +9289,7 @@ function importItem(data, i, shareId) {
   const base = { id: newId(), createdAt: Date.now(), from: key, date: new Date().toLocaleDateString() };
   let item;
   if (type === 'personas') item = { ...base, name: p.name || '', age: p.age || '', folder: p.folder || '미분류', features: p.features || '', prompt: p.prompt || '', app: p.app || '', per: p.per || '', bg: p.bg || '', img: p.img || null };
-  else if (type === 'prompts') item = { ...base, prompt: p.prompt || '', folder: p.folder || '', tags: p.tags || [], img: p.img || null };
+  else if (type === 'prompts') item = { ...base, prompt: p.prompt || '', outfit: p.outfit || '', folder: p.folder || '', tags: p.tags || [], img: p.img || null, adult: !!p.adult };
   else item = { ...base, text: p.text || '', folder: p.folder || '', tags: p.tags || [], adult: !!p.adult };
   touch(item); STATE[T.coll].unshift(item); saveItem(T.coll, item);
   return 1;
@@ -9185,7 +9303,7 @@ async function showSharePage(id) {
   try {
     const s = await getDoc(doc(db, 'shares', id));
     if (!s.exists()) { root.innerHTML = `<div class="card empty">공유가 멈췄거나 없는 링크예요.</div>`; return; }
-    data = s.data();
+    data = cleanShare(s.data());
   } catch (e) { root.innerHTML = `<div class="card empty">공유 페이지를 불러오지 못했어요.</div>`; return; }
   document.title = (data.title || 'Shared') + ' · Studio. Archive';
   let showAdult = true;
@@ -9211,7 +9329,8 @@ W.exportShareHtml = async function () {
   const css = [...document.querySelectorAll('style')].map(s => s.textContent).join('\n');
   const t = theme();
   const vars = `:root{--pk:${t.pk};--pk-ink:${t.ink};--pk-strong:${t.strong};--pk-mid:${t.mid};--pk-soft:${t.soft};--bg:${t.bg};--dot:${t.dot}}`;
-  const copies = JSON.stringify({ all: copyOf(data, 'all', true), allSafe: copyOf(data, 'all', false), list: data.items.map((p, i) => copyOf(data, i, true)) }).replace(/</g, '\\u003c');
+  const keys = {}; data.items.forEach((p, i) => [i, i + ':a', i + ':o'].forEach(k => keys[k] = copyOf(data, k, true)));
+  const copies = JSON.stringify({ all: copyOf(data, 'all', true), allSafe: copyOf(data, 'all', false), list: keys }).replace(/</g, '\\u003c');
   const html = `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${esc(data.title)}</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
@@ -9221,7 +9340,7 @@ W.exportShareHtml = async function () {
 <script>(function(){var P=${copies};var adult=${data.adult ? 'true' : 'false'};var ok=true;
 if(adult){ok=confirm('이 페이지에는 🔞 OOC 메모가 포함돼 있어요. 만 19세 이상인가요?\\n(취소하면 🔞 메모를 숨기고 보여줘요)');if(!ok)document.body.classList.add('hide-adult');}
 function t(m){var e=document.getElementById('toast');e.textContent=m;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove('on')},1800);}
-document.addEventListener('click',function(e){var b=e.target.closest('[data-copy]');if(!b)return;var k=b.getAttribute('data-copy');var s=k==='all'?(ok?P.all:P.allSafe):P.list[+k];
+document.addEventListener('click',function(e){var b=e.target.closest('[data-copy]');if(!b)return;var k=b.getAttribute('data-copy');var s=k==='all'?(ok?P.all:P.allSafe):P.list[k];
 navigator.clipboard.writeText(s).then(function(){t('복사했어요.')},function(){t('복사하지 못했어요.')});});})();<\/script></body></html>`;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
@@ -9239,7 +9358,7 @@ W.runSearch = function () {
   const hit = (...parts) => parts.filter(Boolean).join(' ').toLowerCase().includes(q);
   STATE.personas.forEach((p, i) => { if (hit(p.name, p.folder, p.features, p.prompt, p.app, p.per, p.bg)) add('캐릭터', p.name || '이름 없음', p.features || '', `openPersona(${i})`); });
   STATE.pairs.forEach((p, i) => { if (hit(p.title, p.names, p.intro, (p.tags || []).join(' '))) add('페어', p.title || p.names || '제목 없음', p.intro || '', `go('pair');setTimeout(()=>openPairModal(${i}),40)`); });
-  STATE.prompts.forEach((p, i) => { if (hit(p.prompt, p.folder, (p.tags || []).join(' '))) add('프롬프트', (p.prompt || '').slice(0, 30) || '내용 없음', p.prompt || '', `go('prompt');setTimeout(()=>openPromptModal(${i}),40)`); });
+  STATE.prompts.forEach((p, i) => { if (hit(p.prompt, p.outfit, p.folder, (p.tags || []).join(' '))) add('프롬프트', (p.prompt || '').slice(0, 30) || '내용 없음', p.prompt || '', `go('prompt');setTimeout(()=>openPromptModal(${i}),40)`); });
   STATE.rpwidgets.forEach((w, i) => { if (hit(w.name, (w.fields || []).map(f => f.k + ' ' + f.d).join(' '), w.html)) add('위젯', w.name || '이름 없는 위젯', (w.fields || []).map(f => f.k).join(' · '), `go('rpw');setTimeout(()=>openRpw(${i}),40)`); });
   STATE.usernotes.forEach((n, i) => { if (hit(n.title, n.content)) add('노트', n.title || '제목 없음', n.content || '', `go('usernote');setTimeout(()=>openUserNoteModal(${i}),40)`); });
   STATE.ooc.forEach((o, i) => { if (hit(o.text, o.folder, (o.tags || []).join(' '))) add('OOC', (o.text || '').slice(0, 30), o.text || '', `copyOOC(${i})`); });
