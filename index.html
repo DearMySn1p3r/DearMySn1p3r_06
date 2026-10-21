@@ -477,6 +477,17 @@ body.sharing .content{max-width:860px;padding-top:40px}
   padding:11px 18px;border-radius:999px;pointer-events:none;transition:opacity .25s,transform .25s;box-shadow:0 14px 34px -14px rgba(0,0,0,.5);max-width:calc(100vw - 32px)}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 #capture-root{position:fixed;left:-9999px;top:0}
+/* OOC 점검 중 */
+.maint{display:none}
+body.ooc-maint #view-ooc > :not(.maint){display:none!important}
+body.ooc-maint #view-ooc > .maint{display:flex}
+.maint{flex-direction:column;align-items:center;text-align:center;gap:10px;padding:64px 20px;margin-top:8px}
+.maint .mi{width:52px;height:52px;border-radius:50%;background:var(--pk-soft);color:var(--pk-strong);display:flex;align-items:center;justify-content:center}
+.maint .mi svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.maint h2{margin:6px 0 0;font-size:18px;font-weight:700;letter-spacing:-.03em}
+.maint p{margin:0;font-size:13px;line-height:1.7;color:var(--muted)}
+body.ooc-maint .nav-item[data-view="ooc"] .ct{display:none}
+body.ooc-maint .nav-item[data-view="ooc"]::after{content:'점검 중';margin-left:auto;font-size:10.5px;font-weight:600;color:var(--pk-strong);background:var(--pk-soft);padding:2px 7px;border-radius:999px}
 
 @media (max-width:980px){
   .wm,.bk-layout{grid-template-columns:minmax(0,1fr)}
@@ -683,6 +694,11 @@ body.sharing .content{max-width:860px;padding-top:40px}
 
       <!-- OOC -->
       <section class="view" id="view-ooc" hidden>
+        <div class="card maint" role="status">
+          <span class="mi"><svg viewBox="0 0 24 24"><path d="M14.5 6.5a4 4 0 00-5.2 5.2L4 17v3h3l5.3-5.3a4 4 0 005.2-5.2l-2.4 2.4-2.6-.6-.6-2.6z"/></svg></span>
+          <h2>OOC 메모 점검 중</h2>
+          <p>더 나은 기능으로 다듬는 중이라 잠시 쓸 수 없어요.<br>저장해 둔 메모는 그대로 안전하게 남아 있어요.<br>공유 링크로 받은 OOC 메모는 지금도 그대로 볼 수 있어요.</p>
+        </div>
         <div class="page-head"><div><h1 class="h1">OOC 메모</h1><p class="sub">메모를 누르면 바로 복사돼요.</p></div>
           <div class="toolbar"><button class="btn" onclick="openShareModal('ooc')">공유</button></div></div>
         <div class="card ooc-compose" id="ooc-compose">
@@ -7874,6 +7890,9 @@ if (isConfigured) {
 
 const $ = id => document.getElementById(id);
 const W = window;
+/* OOC 메모 점검 중 — 다시 열려면 false 로 바꾸세요 (공유 링크 페이지는 영향 없음) */
+const OOC_MAINT = true;
+if (OOC_MAINT) document.body.classList.add('ooc-maint');
 
 /* ===== 상태 ===== */
 const COLLECTIONS = ['personas', 'pairs', 'prompts', 'usernotes', 'ooc', 'htmlsnips', 'rpwidgets'];
@@ -8219,7 +8238,7 @@ function renderView(id, quiet) {
   if (id === 'prompt') loadPrompts();
   if (id === 'usernote') loadUserNotes();
   if (id === 'rpw') { if (!rpw) { showRpwEditor(false); loadRpwList(); } }
-  if (id === 'ooc') loadOOC();
+  if (id === 'ooc' && !OOC_MAINT) loadOOC();
   if (id === 'htmlview') { setHvMode(hvMode); updateHtmlPreview(); loadHtmlSnippets(); }
   if (id === 'search') { if (changed) setTimeout(() => $('search-input').focus(), 60); runSearch(); }
 }
@@ -8272,6 +8291,7 @@ const WRENDER = {
     return wbox('shortcuts', `<div class="shortcuts">${s.map(x => `<button onclick="${x[3]}"><svg viewBox="0 0 24 24">${x[2]}</svg>${x[1]}</button>`).join('')}</div>`);
   },
   ooc() {
+    if (OOC_MAINT) return wbox('ooc', wempty('OOC 메모는 지금 점검 중이에요. 잠시 후 다시 만나요.'));
     const items = STATE.ooc.slice(0, 3);
     return wbox('ooc', `<div class="row"><label class="sr" for="wOoc">메모 내용</label><input id="wOoc" class="field" placeholder="떠오른 걸 바로 적기" onkeydown="if(event.key==='Enter'&&!event.isComposing)quickOOC()"><button class="btn btn-pk" onclick="quickOOC()">추가</button></div>
       <div class="mini-list">${items.length ? items.map((o, i) => `<button onclick="copyOOC(${i})" title="눌러서 복사">${o.adult ? '<span class="adult" title="19금" aria-label="19금">🔞</span>' : ''}<span class="s" style="color:var(--ink)">${esc(o.text)}</span></button>`).join('') : `<div class="meta" style="padding:8px 0">아직 메모가 없어요.</div>`}</div>`,
@@ -8327,6 +8347,7 @@ const WRENDER = {
 W.ddayStep = d => { ddayIdx += d; renderHome(); };
 W.shufflePrompt = () => { const n = STATE.prompts.filter(p => p.prompt || p.outfit).length; if (n > 1) { let k; do { k = Math.floor(Math.random() * n); } while (k === promptPick); promptPick = k; } renderHome(); };
 W.quickOOC = function () {
+  if (OOC_MAINT) { toast('OOC 메모는 점검 중이에요.'); return; }
   const el = $('wOoc'); const text = (el.value || '').trim(); if (!text) return;
   if (needLogin()) return;
   const item = { id: newId(), createdAt: Date.now(), text, folder: '', tags: [], date: new Date().toLocaleDateString() };
@@ -8887,6 +8908,7 @@ function resetOocForm() {
 }
 W.cancelOOCEdit = () => { resetOocForm(); loadOOC(); };
 W.addOOC = function () {
+  if (OOC_MAINT) { toast('OOC 메모는 점검 중이에요.'); return; }
   const text = $('ooc-input').value.trim(); if (!text) return;
   const folder = $('ooc-folder').value.trim(), tags = parseTags($('ooc-tags').value), adult = $('ooc-adult').checked;
   let item;
@@ -9383,7 +9405,7 @@ W.runSearch = function () {
   STATE.prompts.forEach((p, i) => { if (hit(p.prompt, p.outfit, p.folder, (p.tags || []).join(' '))) add('프롬프트', (p.prompt || '').slice(0, 30) || '내용 없음', p.prompt || '', `go('prompt');setTimeout(()=>openPromptModal(${i}),40)`); });
   STATE.rpwidgets.forEach((w, i) => { if (hit(w.name, (w.fields || []).map(f => f.k + ' ' + f.d).join(' '), w.html)) add('위젯', w.name || '이름 없는 위젯', (w.fields || []).map(f => f.k).join(' · '), `go('rpw');setTimeout(()=>openRpw(${i}),40)`); });
   STATE.usernotes.forEach((n, i) => { if (hit(n.title, n.content)) add('노트', n.title || '제목 없음', n.content || '', `go('usernote');setTimeout(()=>openUserNoteModal(${i}),40)`); });
-  STATE.ooc.forEach((o, i) => { if (hit(o.text, o.folder, (o.tags || []).join(' '))) add('OOC', (o.text || '').slice(0, 30), o.text || '', `copyOOC(${i})`); });
+  if (!OOC_MAINT) STATE.ooc.forEach((o, i) => { if (hit(o.text, o.folder, (o.tags || []).join(' '))) add('OOC', (o.text || '').slice(0, 30), o.text || '', `copyOOC(${i})`); });
   STATE.htmlsnips.forEach((s, i) => { if (hit(s.name, s.code)) add('HTML', s.name || '이름 없음', '저장된 코드', `go('htmlview');setTimeout(()=>loadHtmlSnippet(${i}),40)`); });
   countEl.textContent = `${results.length}개 결과`;
   box.innerHTML = results.length ? results.map(r => `<button class="item" onclick="${r.action}"><div class="body" style="padding:14px 16px"><div class="row"><span class="tag">${r.type}</span><h3 style="flex:1">${esc(r.title)}</h3></div><p class="txt" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.snippet)}</p></div></button>`).join('')
