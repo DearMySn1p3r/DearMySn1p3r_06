@@ -517,6 +517,38 @@ body.sharing .content{max-width:860px;padding-top:40px}
   .dd-num{font-size:44px}
   .field{font-size:16px}
 }
+.help-btn{width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;line-height:1;padding:0;display:inline-flex;align-items:center;justify-content:center;flex:none;margin-left:2px;transition:color .15s,border-color .15s,background .15s}
+.help-btn:hover{color:var(--pk-strong);border-color:var(--pk);background:var(--pk-soft)}
+.icon-btn .q{font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;line-height:1}
+.side-help{display:flex;align-items:center;gap:8px;width:100%;height:34px;padding:0 10px;margin:0 0 14px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:12.5px;color:var(--muted);text-align:left}
+.side-help:hover{color:var(--ink);border-color:var(--pk)}
+.side-help i{font-style:normal;width:18px;height:18px;border-radius:50%;background:var(--pk-soft);color:var(--pk-strong);font-family:'DM Sans',sans-serif;font-weight:700;font-size:11px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.help-box{max-width:540px;padding:28px 26px 20px}
+.hp-cap{font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pk-strong);display:flex;align-items:center;gap:7px}
+.hp-cap::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--dot)}
+.hp-title{font-size:20px;font-weight:700;letter-spacing:-.03em;margin:8px 0 6px;padding-right:36px;line-height:1.35}
+.hp-intro{font-size:13.5px;color:var(--muted);line-height:1.7;margin:0}
+.hp-intro b,.hp-list b,.hp-tips li b{color:var(--ink);font-weight:600}
+.hp-steps{list-style:none;counter-reset:hp;margin:18px 0 0;padding:0;display:flex;flex-direction:column;gap:13px}
+.hp-steps li{counter-increment:hp;display:grid;grid-template-columns:24px minmax(0,1fr);gap:2px 11px;font-size:13px;line-height:1.65}
+.hp-steps li::before{content:counter(hp);grid-row:span 2;width:24px;height:24px;border-radius:50%;background:var(--pk-soft);color:var(--pk-strong);font-family:'DM Sans',sans-serif;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+.hp-steps li>b{font-weight:700;color:var(--ink)}
+.hp-steps li>span{color:var(--muted)}
+.hp-steps li>span b{color:var(--ink);font-weight:600}
+.hp-tips{margin-top:18px;background:var(--bg);border-radius:14px;padding:12px 14px;font-size:12.5px;line-height:1.65;color:var(--muted)}
+.hp-tips>b{display:block;color:var(--ink);font-size:12px;margin-bottom:4px}
+.hp-tips ul{margin:0;padding-left:16px}
+.hp-list{margin:14px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.hp-list li{font-size:13px;line-height:1.65;color:var(--muted);padding-left:14px;position:relative}
+.hp-list li::before{content:'';position:absolute;left:2px;top:.66em;width:5px;height:5px;border-radius:50%;background:var(--dot)}
+.hp-foot{display:flex;align-items:center;gap:8px;margin-top:22px;padding:14px 0 2px;border-top:1px solid var(--line);position:sticky;bottom:-20px;background:#fff}
+.tour-art{height:118px;border-radius:18px;background:var(--pk-soft);display:flex;align-items:center;justify-content:center;margin-bottom:18px;color:var(--pk-strong)}
+.tour-art svg{width:46px;height:46px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.tour-art .logo{font-size:30px}
+.tour-dots{display:flex;gap:5px;align-items:center}
+.tour-dots i{width:6px;height:6px;border-radius:3px;background:var(--line);transition:width .2s}
+.tour-dots i.on{background:var(--pk-mid);width:16px}
+@media (max-width:640px){.help-box{padding:24px 18px 16px}.hp-title{font-size:18px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -548,6 +580,7 @@ body.sharing .content{max-width:860px;padding-top:40px}
 
     <div class="side-foot">
       <div>
+        <button type="button" class="side-help" onclick="openTour(0)"><i>?</i>사용 방법 보기</button>
         <div class="foot-lbl">사이트 색</div>
         <div class="themes" id="sideThemes"></div>
       </div>
@@ -563,6 +596,7 @@ body.sharing .content{max-width:860px;padding-top:40px}
       <div class="crumb" id="crumb"></div>
       <div class="top-right">
         <button type="button" class="icon-btn" id="editWidgetsBtn" onclick="go('widgets')" aria-label="위젯 편집" title="위젯 편집" hidden><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><path d="M16.5 13.5v6M13.5 16.5h6"/></svg></button>
+        <button type="button" class="icon-btn" id="helpBtn" onclick="openHelp()" aria-label="이 메뉴 사용 방법" title="사용 방법"><span class="q">?</span></button>
         <button type="button" class="icon-btn" onclick="go('search')" aria-label="검색"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></svg></button>
         <button type="button" class="btn btn-sm" id="topLogin" onclick="openAuth()">로그인</button>
       </div>
@@ -960,6 +994,14 @@ body.sharing .content{max-width:860px;padding-top:40px}
       <span class="meta">Enter: 새 항목 · 빈 항목에서 ⌫: 지우기</span>
       <button class="btn btn-pk" onclick="saveUserNoteModal()">저장</button>
     </div>
+  </div>
+</div>
+
+<!-- 사용 방법 -->
+<div class="modal" id="help-modal" hidden onclick="if(event.target===this)closeHelp()">
+  <div class="modal-box help-box" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <button class="x-btn" onclick="closeHelp()" aria-label="닫기">✕</button>
+    <div id="help-body"></div>
   </div>
 </div>
 
@@ -7853,9 +7895,10 @@ window.onload = () => {
 </template>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+/* Firebase는 따로 불러온다 — 불러오지 못해도(차단·오프라인) 사이트의 나머지 기능은 그대로 움직이게 */
+let initializeApp, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously;
+let getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs;
+const FB = 'https://www.gstatic.com/firebasejs/10.12.0/';
 
 /* ============================================================
    Firebase 설정 (기존과 동일)
@@ -7874,11 +7917,23 @@ const firebaseConfig = {
 const isConfigured = !String(firebaseConfig.apiKey).startsWith("YOUR_");
 let auth = null, db = null;
 let shareAuth = null, shareDb = null;
-if (isConfigured) {
-  const app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
-  /* 공유 링크 전용: 로그인하지 않은 사람도 링크를 만들 수 있도록 별도의 익명 계정을 쓴다 (내 기록 저장 방식에는 영향 없음) */
-  const shareApp = initializeApp(firebaseConfig, 'share'); shareAuth = getAuth(shareApp); shareDb = getFirestore(shareApp);
-}
+const fbReady = (async () => {
+  if (!isConfigured) return false;
+  try {
+    const [a, b, c] = await Promise.all([import(FB + 'firebase-app.js'), import(FB + 'firebase-auth.js'), import(FB + 'firebase-firestore.js')]);
+    ({ initializeApp } = a);
+    ({ getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } = b);
+    ({ getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs } = c);
+    const app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
+    /* 공유 링크 전용: 로그인하지 않은 사람도 링크를 만들 수 있도록 별도의 익명 계정을 쓴다 (내 기록 저장 방식에는 영향 없음) */
+    const shareApp = initializeApp(firebaseConfig, 'share'); shareAuth = getAuth(shareApp); shareDb = getFirestore(shareApp);
+    return true;
+  } catch (e) {
+    console.warn('Firebase를 불러오지 못했어요. 이 기기 저장으로만 동작해요.', e);
+    auth = db = shareAuth = shareDb = null;
+    return false;
+  }
+})();
 
 const $ = id => document.getElementById(id);
 const W = window;
@@ -8144,7 +8199,7 @@ function authErrorText(code) {
 }
 W.submitAuth = async function () {
   const errEl = $('auth-error');
-  if (!isConfigured) { errEl.textContent = 'Firebase 설정이 필요해요.'; return; }
+  if (!isConfigured || !auth) { errEl.textContent = '로그인 서버에 연결하지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'; return; }
   const email = $('auth-email').value.trim(), pw = $('auth-password').value;
   errEl.textContent = '';
   if (!email || !pw) { errEl.textContent = '이메일과 비밀번호를 입력해 주세요.'; return; }
@@ -8167,7 +8222,7 @@ function renderAcct() {
     tl.hidden = !authReady;
   }
 }
-if (auth) {
+fbReady.then(ok => { if (!ok || !auth) { authReady = true; renderAcct(); return; }
   onAuthStateChanged(auth, async user => {
     authReady = true;
     if (user) {
@@ -8182,7 +8237,7 @@ if (auth) {
     }
     renderAcct(); updateCounts(); renderView(currentView, true);
   });
-} else { authReady = true; }
+});
 loadGuest();
 
 /* ===== 화면 전환 ===== */
@@ -8197,7 +8252,7 @@ let currentView = (location.hash || '').slice(1);
 if (!VIEWS[currentView]) currentView = 'home';
 W.go = function (id) {
   if (!VIEWS[id]) id = 'home';
-  if (id !== currentView || location.hash.slice(1) !== id) history.pushState(null, '', '#' + id);
+  if (id !== currentView || location.hash.slice(1) !== id) { try { history.pushState(null, '', '#' + id); } catch (e) {} }
   renderView(id);
 };
 window.addEventListener('popstate', () => { const id = (location.hash || '').slice(1); renderView(VIEWS[id] ? id : 'home'); });
@@ -8230,6 +8285,7 @@ function renderView(id, quiet) {
   if (id === 'ooc') loadOOC();
   if (id === 'htmlview') { setHvMode(hvMode); updateHtmlPreview(); loadHtmlSnippets(); }
   if (id === 'search') { if (changed) setTimeout(() => $('search-input').focus(), 60); runSearch(); }
+  autoHelp(id);
 }
 function updateCounts() {
   document.querySelectorAll('[data-ct]').forEach(el => { const n = (STATE[el.dataset.ct] || []).length; el.textContent = n ? n : ''; });
@@ -9441,18 +9497,251 @@ W.runSearch = function () {
     : `<div class="card empty">검색 결과가 없어요.</div>`;
 };
 
+/* ===== 사용 방법 (처음 안내 · 메뉴별 ? 도움말) ===== */
+const HELP = {
+  home: {
+    title: `홈`,
+    intro: `자주 쓰는 것들을 위젯으로 모아 보는 첫 화면이에요.`,
+    steps: [
+      [`위젯 둘러보기`, `페어 디데이, 빠른 OOC 메모, 랜덤 프롬프트, 이번 달 기록 같은 위젯이 떠 있어요. 위젯 안의 항목을 누르면 바로 그 기록이 열려요.`],
+      [`위젯 고르기 · 순서 바꾸기`, `오른쪽 위 <b>네모 네 개 아이콘(위젯 편집)</b>을 누르면 홈에 띄울 위젯을 넣고 빼거나 순서를 바꿀 수 있어요.`],
+      [`빠른 메모`, `‘빠른 OOC 메모’ 칸에 적고 <b>추가</b>를 누르면 OOC 메모에 바로 저장돼요. 아래 메모를 누르면 복사돼요.`],
+      [`검색 · 색 바꾸기`, `오른쪽 위 <b>돋보기</b>로 모든 기록을 한 번에 찾고, 왼쪽 메뉴 아래 <b>사이트 색</b>으로 분위기를 바꿀 수 있어요.`]
+    ],
+    tips: [`페어에 <b>기준일</b>을 넣어야 디데이 위젯에 나타나요.`]
+  },
+  widgets: {
+    title: `홈 위젯 편집`,
+    intro: `홈 화면에 무엇을 어떤 순서로 띄울지 정해요.`,
+    steps: [
+      [`위젯 추가`, `오른쪽 <b>위젯 갤러리</b>에서 마음에 드는 위젯의 <b>추가</b>를 눌러요.`],
+      [`순서 바꾸기 · 빼기`, `왼쪽 <b>내 홈</b>에서 ↑ ↓ 로 순서를 바꾸고, ✕ 로 홈에서 뺄 수 있어요.`],
+      [`처음으로`, `헷갈리면 오른쪽 위 <b>기본값으로</b>를 누르면 처음 구성으로 돌아가요.`]
+    ],
+    tips: [`바꾼 내용은 바로 저장돼요. 로그인했다면 다른 기기에서도 같은 홈이 보여요.`]
+  },
+  excerpt: {
+    title: `조각글 발췌`,
+    intro: `마음에 드는 문장을 예쁜 카드 이미지로 만들어요. 왼쪽(폰은 미리보기 아래)의 분류를 눌러 하나씩 꾸미면 돼요.`,
+    steps: [
+      [`글 넣기`, `<b>본문</b> 분류를 열고 입력칸에 발췌문을 붙여넣으면 카드에 바로 그려져요. 제목·부제는 <b>제목</b> 분류에서 넣어요.`],
+      [`모양 고르기`, `<b>크기</b>(정사각·세로·가로·트위터 헤더) → <b>배경</b> → <b>서체</b> → <b>조정</b>(글자 크기·줄 간격·여백) 순서로 바꿔 보세요. 글이 넘치면 조정의 <b>카드에 맞추기</b>를 눌러요.`],
+      [`형광펜 · 글자색`, `칠하고 싶은 글자를 드래그한 뒤(미리보기에서 드래그해도 돼요) <b>네모 = 형광펜</b>, <b>동그라미 = 글자색</b>을 눌러요. 칠한 부분을 탭하면 형광펜이 지워져요. <b>B</b>·<b>I</b>는 굵게·기울임이에요.`],
+      [`줄 꾸미기 (대화 · 말풍선)`, `<b>꾸미기</b> 분류에서 줄을 탭해 고른 뒤 세로선·인용·말풍선 같은 모양을 눌러요. <b>인물</b>을 추가하고 누르면 그 줄에 이름이 붙어요.`],
+      [`여러 장 만들기`, `본문에 <b>---</b> 만 적힌 줄을 넣으면 거기서 다음 장으로 넘어가요. <b>여러 장</b> 분류에서 ‘넘치면 다음 장으로’를 켤 수도 있어요. 장은 ← → 나 옆으로 밀어서 넘겨요.`],
+      [`저장하기`, `위의 <b>이미지 저장</b>(여러 장이면 ZIP)이나 <b>복사</b>를 눌러요. 컴퓨터에서는 Ctrl(⌘)+S 로도 저장돼요.`]
+    ],
+    tips: [
+      `위의 <b>내 스타일</b>에 지금 모양을 저장해 두면 다음에 한 번에 불러올 수 있어요.`,
+      `되돌리기는 위의 ↶ 버튼이나 Ctrl(⌘)+Z 예요.`,
+      `<b>카드에서 고치기</b>를 켜면 미리보기의 글을 눌러 바로 고칠 수 있어요.`,
+      `쓰던 글과 설정은 이 기기에 자동으로 임시저장돼요.`
+    ]
+  },
+  booklog: {
+    title: `책갈피 로그`,
+    intro: `긴 글을 책 페이지처럼 조판해서 이미지로 저장해요. 글이 길면 알아서 여러 쪽으로 나뉘어요.`,
+    steps: [
+      [`설정 창 열기`, `왼쪽에 설정 창이 있어요. 보이지 않으면(폰) 위의 <b>☰</b>를 눌러 열어요.`],
+      [`템플릿 고르기`, `<b>템플릿</b> 탭에서 ‘기본 책·문고본·먹지·괘선 노트’ 같은 템플릿과 <b>판형</b>을 골라요. 글은 그대로 남아요.`],
+      [`글 쓰기`, `페이지 안의 <b>‘이곳을 눌러 글을 쓰거나 붙여넣으세요’</b>를 누르고 글을 붙여넣어요. 제목·부제·하단 문구도 페이지 위에서 직접 눌러 고쳐요.`],
+      [`꾸미기`, `<b>본문</b> 탭: 서체·크기·행간·글자색·형광펜(글자를 먼저 선택). <b>지면</b> 탭: 여백·종이색·배경 사진·질감·테두리. <b>요소</b> 탭: 제목 모양·세로 제목·표지 사진·쪽번호.`],
+      [`넘겨 보기`, `위 막대의 ◀ ▶ 로 장을 넘기고, − ＋ 로 확대해요. <b>미리보기</b>를 누르면 안내선 없이 완성본처럼 보여요.`],
+      [`이미지로 저장`, `설정 창 맨 아래 <b>이 장만 저장</b> · <b>전체 저장</b> · <b>이미지로 복사</b>를 눌러요.`]
+    ],
+    tips: [
+      `<b>중요!</b> 책갈피 로그의 글은 새로고침하면 비어요. 계속 쓰려면 <b>템플릿 탭 → 프로젝트 → 저장</b>을 눌러 두고, 다음에 <b>불러오기</b>를 눌러요. (Ctrl(⌘)+S 로도 저장돼요)`,
+      `배경 사진은 용량이 커서 프로젝트 저장에 포함되지 않아요.`
+    ]
+  },
+  persona: {
+    title: `캐릭터`,
+    intro: `캐릭터의 설정과 프롬프트를 카드로 모아 두는 곳이에요.`,
+    steps: [
+      [`캐릭터 만들기`, `<b>+ 새 캐릭터</b>를 누르고 이미지, 이름, 한 줄 요약, 프롬프트, 외형·성격·배경을 채운 뒤 <b>저장</b>해요.`],
+      [`폴더로 나누기`, `편집 창의 <b>폴더</b>에 작품명 등을 적으면 목록 위에 폴더 칩이 생겨서 골라 볼 수 있어요.`],
+      [`복사하기`, `카드를 눌러 연 뒤 프롬프트 옆 <b>복사</b>, 또는 아래 <b>전체 복사</b>로 모든 설정을 한 번에 복사해요.`],
+      [`공유하기`, `오른쪽 위 <b>공유</b>를 누르면 링크가 바로 만들어지고 복사돼요. 받은 사람은 로그인 없이 보고, 복사하고, 자기 아카이브에 추가할 수 있어요.`]
+    ],
+    tips: [
+      `공유 창의 <b>담을 항목 · 제목 바꾸기</b>에서 보낼 캐릭터와 보여줄 내용을 고를 수 있어요.`,
+      `링크 대신 <b>HTML 파일로 저장</b>해서 파일로 보낼 수도 있어요.`
+    ]
+  },
+  pair: {
+    title: `페어`,
+    intro: `두 캐릭터의 페어를 기념일(디데이)과 함께 기록해요.`,
+    steps: [
+      [`페어 등록`, `<b>+ 새 페어</b>를 눌러 제목, 페어명(A × B), 태그, 소개를 적어요.`],
+      [`이미지`, `<b>대표 이미지 하나</b> 또는 <b>두 사람 나란히</b>(왼쪽·오른쪽 따로) 중에 골라 올려요.`],
+      [`디데이`, `<b>기준일</b>을 넣으면 며칠째인지 자동으로 계산되고, 홈의 <b>페어 디데이</b> 위젯에도 떠요.`],
+      [`골라 보기`, `태그 칩으로 거르고, 정렬에서 <b>디데이순</b>을 고를 수 있어요.`]
+    ]
+  },
+  prompt: {
+    title: `프롬프트`,
+    intro: `자주 쓰는 프롬프트를 저장해 두고 눌러서 복사해요.`,
+    steps: [
+      [`등록하기`, `<b>+ 프롬프트 등록</b>을 눌러 내용을 붙여넣고 <b>저장</b>해요. 참고 이미지·폴더·태그는 선택이에요.`],
+      [`항목 나누기`, `<b>+ 항목 추가</b>를 누르면 ‘외형 / 의상 / 남자 / 여자’처럼 나눠 저장할 수 있어요. 항목마다 따로 복사돼요.`],
+      [`복사하기`, `목록 카드 아래 <b>전체 복사</b> 또는 항목 이름 버튼을 누르면 바로 복사돼요. 카드를 누르면 편집 창이 열려요.`],
+      [`19금 표시`, `편집 창에서 🔞 를 켜 두면 위의 <b>전체 / 일반 / 🔞</b> 버튼으로 나눠 볼 수 있어요.`]
+    ],
+    tips: [`오른쪽 위 <b>공유</b>로 고른 프롬프트를 링크 하나로 보낼 수 있어요. 🔞 프롬프트가 있으면 받는 사람에게 성인 확인 창이 먼저 떠요.`]
+  },
+  usernote: {
+    title: `유저 노트`,
+    intro: `관계·설정·약속 같은 정보를 한 줄씩 항목으로 정리해요.`,
+    steps: [
+      [`노트 만들기`, `<b>+ 새 노트</b>를 누르고 제목을 적어요.`],
+      [`항목 쓰기`, `한 줄이 항목 하나예요. <b>Enter</b>로 새 항목, 빈 항목에서 <b>⌫</b>로 지워요.`],
+      [`한꺼번에 넣기`, `여러 줄을 붙여넣으면 줄마다 항목으로 자동으로 나뉘어요. 앞에 붙은 · 나 - 는 알아서 지워요.`],
+      [`정리 · 복사`, `항목에 마우스를 올리면(폰은 항상) ↑ ↓ 로 순서 바꾸기, 복사, 삭제가 보여요. <b>글머리</b>를 ·, -, 없음(번호) 중에 고르고 <b>전체 복사</b>로 한 번에 복사해요.`]
+    ],
+    tips: [`다 쓰면 꼭 아래 <b>저장</b>을 눌러 주세요.`]
+  },
+  ooc: {
+    title: `OOC 메모`,
+    intro: `자주 쓰는 OOC 문구를 모아 두고, 누르면 바로 복사해요.`,
+    steps: [
+      [`메모 적기`, `위 칸에 적고 <b>추가</b>를 눌러요. 컴퓨터에서는 Enter로 추가, Shift+Enter로 줄바꿈이에요.`],
+      [`빠른 버튼`, `<b>PC · NPC</b>는 커서 자리에 글자를 넣고, <b>PC ⇄ NPC</b>는 글 속 둘을 서로 바꿔요. <b>OOC 열기 · 닫기</b>로 *[OOC: … ]* 틀을 넣어요.`],
+      [`복사하기`, `목록의 메모 글을 누르면 바로 복사돼요. <b>전체 복사</b>는 지금 화면에 보이는 메모를 한꺼번에 복사해요.`],
+      [`여러 개 고르기`, `<b>선택</b>을 누르고 메모를 골라 한꺼번에 복사하거나 공유해요. 다 고르면 <b>완료</b>.`],
+      [`고치기 · 공유 · 삭제`, `메모 오른쪽 아이콘으로 복사 / 이 메모만 공유 / 수정 / 삭제를 해요.`]
+    ],
+    tips: [`폴더·태그·🔞 를 달아 두면 위의 칩과 버튼으로 골라 볼 수 있어요.`]
+  },
+  htmlview: {
+    title: `HTML 뷰어`,
+    intro: `HTML 코드를 붙여넣으면 어떻게 보이는지 바로 확인해요.`,
+    steps: [
+      [`붙여넣기`, `왼쪽(코드) 칸에 HTML을 붙여넣으면 오른쪽에 바로 미리보기가 나와요.`],
+      [`보기 바꾸기`, `<b>나란히 / 코드 / 미리보기</b>로 화면을 바꿔요. 폰에서는 코드·미리보기를 번갈아 봐요.`],
+      [`저장하기`, `위 칸에 이름을 적고 <b>저장</b>하면 아래 <b>Saved</b> 목록에 쌓여요. 같은 이름으로 다시 저장하면 덮어써요.`],
+      [`더 하기`, `<b>이미지 저장</b>으로 미리보기를 PNG로 받고, 복사·새 창으로 보기·＋(새로 쓰기) 아이콘을 쓸 수 있어요.`]
+    ]
+  },
+  rpw: {
+    title: `위젯 (상태창)`,
+    intro: `롤플 상태창에 쓰는 상태값·지시사항과 HTML을 한 묶음으로 저장해요. (홈 위젯과는 다른 기능이에요)`,
+    steps: [
+      [`새 위젯`, `<b>+ 새 위젯</b>을 누르고 이름을 적어요.`],
+      [`상태값 적기`, `<b>상태값</b>에 이름(예: BGM), 아래 칸에 지시사항을 적어요. <b>여러 줄로 추가</b>에 ‘이름: 지시사항’을 한 줄씩 붙여넣으면 한 번에 들어가요.`],
+      [`HTML 연결`, `오른쪽 <b>코드</b> 탭에 HTML을 붙여넣고, 값이 들어갈 자리에 <b>{{BGM}}</b>처럼 상태값 이름을 넣어요. <b>미리보기 값</b>을 적으면 화면에서 확인할 수 있어요.`],
+      [`확인 · 복사`, `HTML에만 있는 이름은 노란 칸에 표시되니 <b>상태값으로 추가</b>를 눌러요. <b>전체 복사</b>는 ‘이름: 지시사항’ 형태로 복사돼요.`],
+      [`저장`, `위의 <b>저장</b>을 눌러야 보관돼요. <b>복제</b>로 비슷한 위젯을 쉽게 만들 수 있어요.`]
+    ],
+    tips: [`글자수가 10,000자를 넘으면 빨갛게 표시돼요.`]
+  },
+  search: {
+    title: `검색`,
+    intro: `캐릭터·페어·프롬프트·노트·OOC·위젯·HTML을 한 번에 찾아요.`,
+    steps: [
+      [`검색어 입력`, `칸에 적는 대로 결과가 바로 나와요.`],
+      [`결과 열기`, `결과를 누르면 그 기록이 열려요. OOC 메모는 누르면 바로 복사돼요.`]
+    ]
+  }
+};
+const TOUR_ICONS = {
+  menu: '<svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><path d="M9 4.5v15M5.5 8.5h1.5M5.5 11.5h1.5M5.5 14.5h1.5"/></svg>',
+  cloud: '<svg viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 00.6-7.95A5.5 5.5 0 006.6 9.2 4.4 4.4 0 007 18z"/><path d="M12 11v5M9.8 13.8L12 16l2.2-2.2"/></svg>',
+  home: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><path d="M16.5 13.5v6M13.5 16.5h6"/></svg>',
+  help: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 014.9.6c0 1.7-2.5 2.2-2.5 3.8"/><path d="M12 16.9v.2"/></svg>'
+};
+const TOUR = [
+  { art: '<div class="logo"><b>Studio<i></i></b><span>Archive</span></div>', title: `Studio. Archive에 오신 걸 환영해요`,
+    body: `롤플·창작에 쓰는 캐릭터, 페어, 프롬프트, 메모를 한곳에 모아 두고, 마음에 드는 문장은 예쁜 이미지로 만들 수 있는 곳이에요. 30초만 둘러보고 시작해요.` },
+  { art: TOUR_ICONS.menu, title: `왼쪽 메뉴에서 골라요`, body: `폰에서는 왼쪽 위 <b>☰</b>를 누르면 메뉴가 열려요.`,
+    list: [
+      `<b>Create</b> — <b>조각글 발췌</b>: 문장을 카드 이미지로 · <b>책갈피 로그</b>: 긴 글을 책 페이지 이미지로`,
+      `<b>Archive</b> — 캐릭터 · 페어 · 프롬프트 · 유저 노트 · OOC 메모 · HTML 뷰어 · 위젯(상태창)을 모아 두는 보관함`
+    ] },
+  { art: TOUR_ICONS.cloud, title: `로그인 없이도 다 쓸 수 있어요`, body: `기록이 어디에 저장되는지만 알아 두세요.`,
+    list: [
+      `로그인하지 않으면 <b>이 기기(이 브라우저)</b>에만 저장돼요.`,
+      `로그인하면 계정에 저장돼 <b>폰·컴퓨터 어디서든</b> 같은 기록을 봐요. 나중에 로그인해도 이 기기 기록은 계정으로 자동으로 옮겨져요.`,
+      `로그인 안 한 상태에서 브라우저 기록·사이트 데이터를 지우면 기록이 사라질 수 있어요.`
+    ] },
+  { art: TOUR_ICONS.home, title: `홈은 내 마음대로`, body: `홈에는 디데이, 빠른 메모, 랜덤 프롬프트 같은 위젯이 떠요.`,
+    list: [
+      `오른쪽 위 <b>네모 아이콘</b>으로 홈 위젯을 넣고 빼거나 순서를 바꿔요.`,
+      `<b>돋보기</b>로 모든 기록을 한 번에 검색해요.`,
+      `왼쪽 메뉴 아래 <b>사이트 색</b>으로 분위기를 바꿔요.`
+    ] },
+  { art: TOUR_ICONS.help, title: `모르겠으면 ? 를 눌러요`, body: `각 메뉴 제목 옆과 화면 오른쪽 위에 있는 <b>?</b> 를 누르면 그 메뉴의 사용 방법이 떠요.`,
+    list: [
+      `메뉴를 처음 열 때도 한 번 자동으로 알려 드려요.`,
+      `이 안내는 왼쪽 메뉴 아래 <b>사용 방법</b>에서 언제든 다시 볼 수 있어요.`
+    ] }
+];
+const HELP_SEEN_KEY = 'sa.help.seen.v1', TOUR_KEY = 'sa.tour.v1';
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+let helpSeen = {}; try { helpSeen = JSON.parse(lsGet(HELP_SEEN_KEY)) || {}; } catch (e) {}
+function markHelpSeen(id) { helpSeen[id] = 1; lsSet(HELP_SEEN_KEY, JSON.stringify(helpSeen)); }
+let tourIdx = -1;
+function showHelpBox(html) {
+  const m = $('help-modal');
+  $('help-body').innerHTML = html; m.hidden = false;
+  m.querySelector('.modal-box').scrollTop = 0;
+  setTimeout(() => { const f = m.querySelector('[data-focus]'); if (f) f.focus(); }, 40);
+}
+W.openHelp = function (id) {
+  id = id || currentView;
+  const h = HELP[id] || HELP.home;
+  tourIdx = -1; markHelpSeen(id);
+  showHelpBox(`<div class="hp-cap">How to</div><h2 class="hp-title" id="help-title">${h.title} 사용 방법</h2><p class="hp-intro">${h.intro}</p>
+    <ol class="hp-steps">${h.steps.map(([t, d]) => `<li><b>${t}</b><span>${d}</span></li>`).join('')}</ol>
+    ${h.tips && h.tips.length ? `<div class="hp-tips"><b>알아 두면 좋아요</b><ul>${h.tips.map(t => `<li>${t}</li>`).join('')}</ul></div>` : ''}
+    <div class="hp-foot"><button class="w-link" onclick="openTour(0)">처음 안내 다시 보기</button><span style="flex:1"></span><button class="btn btn-pk" data-focus onclick="closeHelp()">알겠어요</button></div>`);
+};
+function renderTour() {
+  const s = TOUR[tourIdx], n = TOUR.length, last = tourIdx === n - 1;
+  showHelpBox(`<div class="tour-art">${s.art}</div><div class="hp-cap">${tourIdx + 1} / ${n}</div><h2 class="hp-title" id="help-title">${s.title}</h2><p class="hp-intro">${s.body}</p>
+    ${s.list ? `<ul class="hp-list">${s.list.map(t => `<li>${t}</li>`).join('')}</ul>` : ''}
+    <div class="hp-foot"><div class="tour-dots" aria-hidden="true">${TOUR.map((x, i) => `<i class="${i === tourIdx ? 'on' : ''}"></i>`).join('')}</div><span style="flex:1"></span>
+    ${tourIdx ? `<button class="btn btn-sm" onclick="tourStep(-1)">이전</button>` : `<button class="w-link" onclick="closeHelp()">건너뛰기</button>`}
+    <button class="btn btn-pk" data-focus onclick="tourStep(1)">${last ? '시작하기' : '다음'}</button></div>`);
+}
+W.openTour = function (i) { tourIdx = i || 0; closeSide(); renderTour(); };
+W.tourStep = function (d) { const n = tourIdx + d; if (n >= TOUR.length) { closeHelp(); return; } if (n < 0) return; tourIdx = n; renderTour(); };
+W.closeHelp = function () {
+  const wasTour = tourIdx >= 0;
+  $('help-modal').hidden = true; tourIdx = -1;
+  if (wasTour) { lsSet(TOUR_KEY, '1'); autoHelp(currentView); }
+};
+function anyModalOpen() { return !!document.querySelector('.modal:not([hidden])'); }
+/* 메뉴를 처음 열면 그 메뉴 사용 방법을 한 번 보여준다 */
+function autoHelp(id) {
+  if (SHARE_ID || !HELP[id] || id === 'home' || id === 'search' || helpSeen[id] || !lsGet(TOUR_KEY)) return;
+  setTimeout(() => { if (currentView === id && !helpSeen[id] && !anyModalOpen()) openHelp(id); }, 450);
+}
+/* 각 메뉴 제목 옆에 ? 버튼 */
+document.querySelectorAll('main > .view').forEach(sec => {
+  const h = sec.querySelector('.page-head .h1'); if (!h) return;
+  const id = sec.id.replace('view-', '');
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'help-btn'; b.textContent = '?';
+  b.title = '사용 방법'; b.setAttribute('aria-label', h.textContent.trim() + ' 사용 방법');
+  b.addEventListener('click', () => openHelp(id));
+  h.appendChild(b);
+});
+if (!SHARE_ID && !lsGet(TOUR_KEY)) setTimeout(() => { if (!anyModalOpen()) openTour(0); }, 600);
+
 /* ===== 시작 ===== */
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  const close = { 'auth-modal': closeAuth, 'pair-modal': closePairModal, 'prompt-modal': closePromptModal, 'usernote-modal': () => closeUserNoteModal(), 'persona-modal': closePersonaModal, 'share-modal': closeShareModal };
+  const close = { 'auth-modal': closeAuth, 'pair-modal': closePairModal, 'prompt-modal': closePromptModal, 'usernote-modal': () => closeUserNoteModal(), 'persona-modal': closePersonaModal, 'share-modal': closeShareModal, 'help-modal': closeHelp };
   if (!$('ask-modal').hidden) { $('ask-no').click(); return; }
+  if (!$('help-modal').hidden) { closeHelp(); return; }
   Object.keys(close).forEach(id => { if (!$(id).hidden) close[id](); });
   closeSide();
 });
 applyTheme();
 renderAcct();
-if (SHARE_ID) { if (db) showSharePage(SHARE_ID); }
-else { history.replaceState(null, '', '#' + currentView); renderView(currentView, true); }
+if (SHARE_ID) { fbReady.then(ok => { if (ok && db) showSharePage(SHARE_ID); else { document.body.classList.add('sharing'); document.querySelectorAll('main > .view').forEach(el => el.hidden = el.id !== 'view-share'); $('share-root').innerHTML = '<div class="card empty">공유 페이지를 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</div>'; } }); }
+else { try { history.replaceState(null, '', '#' + currentView); } catch (e) {} renderView(currentView, true); }
 </script>
 </body>
 </html>
