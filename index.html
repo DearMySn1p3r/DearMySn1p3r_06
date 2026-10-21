@@ -266,6 +266,18 @@ select.field{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .pcard .ptx{margin:0;font-size:13.5px;line-height:1.7;color:var(--ink);white-space:pre-wrap;word-break:break-word;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .pcard .pf{display:flex;align-items:center;gap:6px;margin-top:2px;padding-top:10px;border-top:1px solid #F6F0F2}
 .pcard .pf .tags{flex:1;min-width:0;overflow:hidden;flex-wrap:nowrap}
+.pp-list{display:flex;flex-direction:column;gap:12px}
+.pp{display:flex;flex-direction:column;gap:6px}
+.pp-head{display:flex;align-items:center;gap:6px}
+.pp-name{flex:1;min-width:0;border:none;outline:none;background:transparent;font-size:12px;font-weight:700;color:var(--muted);padding:4px 2px;border-radius:8px}
+.pp-name:focus{background:#FBF7F8;color:var(--ink)}
+.pp-name::placeholder{color:var(--faint);font-weight:600}
+.pp-del{width:28px;height:28px;border:none;background:none;border-radius:8px;color:var(--faint);font-size:12px;padding:0}
+.pp-del:hover{background:var(--bg);color:#B8423C}
+.pp-text{min-height:120px}
+.pp-list.single .pp-text{min-height:240px}
+.pp-add{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.pp-add .lbl{margin:0 4px 0 2px}
 .icon-btn.sm{width:32px;height:32px}
 .icon-btn.sm svg{width:15px;height:15px}
 
@@ -905,18 +917,14 @@ body.sharing .content{max-width:860px;padding-top:40px}
       </div>
       <div class="sheet-main">
         <h2 class="modal-title" id="prompt-m-title" style="padding-right:40px">프롬프트</h2>
-        <div>
-          <div class="row" style="justify-content:space-between;margin-bottom:6px"><label class="lbl" for="modal-prompt-text" style="margin:0 0 0 2px">외형</label><button class="btn btn-sm btn-soft" onclick="copyText($v('modal-prompt-text'))">외형 복사</button></div>
-          <textarea id="modal-prompt-text" class="field soft" style="min-height:170px" placeholder="외형 프롬프트" oninput="updatePromptLen()"></textarea>
-        </div>
-        <div>
-          <div class="row" style="justify-content:space-between;margin-bottom:6px"><label class="lbl" for="modal-prompt-outfit" style="margin:0 0 0 2px">의상</label><button class="btn btn-sm btn-soft" onclick="copyText($v('modal-prompt-outfit'))">의상 복사</button></div>
-          <textarea id="modal-prompt-outfit" class="field soft" style="min-height:120px" placeholder="의상 프롬프트" oninput="updatePromptLen()"></textarea>
+        <div class="pp-list" id="pp-list"></div>
+        <div class="pp-add">
+          <button class="fchip" onclick="addPromptPart('')">+ 항목 추가</button>
         </div>
         <div class="sheet-foot">
           <button class="del" id="prompt-del" onclick="deletePromptModal()">삭제</button>
           <span class="meta" id="prompt-len" style="margin-right:auto"></span>
-          <button class="btn" onclick="copyPromptText()">함께 복사</button>
+          <button class="btn" onclick="copyPromptText()">전체 복사</button>
           <button class="btn btn-pk" onclick="savePromptModal()">저장</button>
         </div>
       </div>
@@ -8283,11 +8291,11 @@ const WRENDER = {
       : wempty('아직 캐릭터가 없어요.', `<button class="btn btn-sm" onclick="go('persona');setTimeout(createNewPersona,30)">첫 캐릭터 만들기</button>`), `<button class="w-link" onclick="go('persona')">전체</button>`);
   },
   prompt() {
-    const list = STATE.prompts.filter(p => p.prompt || p.outfit);
+    const list = STATE.prompts.filter(hasPrompt);
     if (!list.length) return wbox('prompt', wempty('저장한 프롬프트가 여기서 무작위로 떠요.', `<button class="btn btn-sm" onclick="go('prompt')">프롬프트로 가기</button>`));
     if (promptPick < 0 || promptPick >= list.length) promptPick = Math.floor(Math.random() * list.length);
     const p = list[promptPick];
-    return wbox('prompt', `<p class="quote-txt clamp4">${p.adult ? '<span class="adult" aria-label="19금">🔞</span> ' : ''}${esc(promptBoth(p))}</p><div class="row"><button class="btn btn-sm" onclick="shufflePrompt()">다른 거</button><button class="btn btn-sm btn-soft" onclick="copyPromptPart(_STATE.prompts.indexOf(_STATE.prompts.filter(p=>p.prompt||p.outfit)[${promptPick}]),'both')">복사</button>${p.folder ? `<span class="tag gray" style="margin-left:auto">${esc(p.folder)}</span>` : ''}</div>`);
+    return wbox('prompt', `<p class="quote-txt clamp4">${p.adult ? '<span class="adult" aria-label="19금">🔞</span> ' : ''}${esc(promptBoth(p))}</p><div class="row"><button class="btn btn-sm" onclick="shufflePrompt()">다른 거</button><button class="btn btn-sm btn-soft" onclick="copyPromptPart(_STATE.prompts.indexOf(_STATE.prompts.filter(p=>promptParts(p).some(x=>x.text.trim()))[${promptPick}]),'all')">복사</button>${p.folder ? `<span class="tag gray" style="margin-left:auto">${esc(p.folder)}</span>` : ''}</div>`);
   },
   calendar() {
     const now = new Date(), y = now.getFullYear(), m = now.getMonth();
@@ -8325,7 +8333,7 @@ const WRENDER = {
   }
 };
 W.ddayStep = d => { ddayIdx += d; renderHome(); };
-W.shufflePrompt = () => { const n = STATE.prompts.filter(p => p.prompt || p.outfit).length; if (n > 1) { let k; do { k = Math.floor(Math.random() * n); } while (k === promptPick); promptPick = k; } renderHome(); };
+W.shufflePrompt = () => { const n = STATE.prompts.filter(hasPrompt).length; if (n > 1) { let k; do { k = Math.floor(Math.random() * n); } while (k === promptPick); promptPick = k; } renderHome(); };
 W.quickOOC = function () {
   const el = $('wOoc'); const text = (el.value || '').trim(); if (!text) return;
   if (needLogin()) return;
@@ -8526,10 +8534,54 @@ W.deletePairModal = function () {
 /* ===== 프롬프트 ===== */
 let currentPromptIndex = -1, currentModalPromptImg = null, promptFolder = 'all', promptAge = 'all';
 const tidyPrompt = t => String(t || '').trim().replace(/[,\s]+$/, '');
-const promptBoth = p => [tidyPrompt(p.prompt), tidyPrompt(p.outfit)].filter(Boolean).join(', ');
-W.copyPromptPart = (i, k) => { const p = STATE.prompts[i]; if (!p) return; copyText(k === 'a' ? p.prompt : k === 'o' ? p.outfit : promptBoth(p)); };
+/* 프롬프트는 항목(parts) 목록: 기본은 '전체' 하나, 원하면 의상·남자·여자처럼 나눠 둔다.
+   예전 기록(prompt/outfit)은 읽을 때 항목으로 바꿔 보여준다. */
+const promptParts = W.promptParts = p => {
+  if (p && Array.isArray(p.parts) && p.parts.length) return p.parts.map(x => ({ label: String((x && x.label) || ''), text: String((x && x.text) || '') }));
+  const a = String((p && p.prompt) || ''), o = String((p && p.outfit) || '');
+  if (o) return a ? [{ label: '외형', text: a }, { label: '의상', text: o }] : [{ label: '의상', text: o }];
+  return [{ label: '전체', text: a }];
+};
+const promptBoth = p => promptParts(p).map(x => tidyPrompt(x.text)).filter(Boolean).join(', ');
+const hasPrompt = p => promptParts(p).some(x => x.text.trim());
+W.copyPromptPart = (i, k) => { const p = STATE.prompts[i]; if (!p) return; if (typeof k === 'number') { const x = promptParts(p)[k]; copyText(x ? x.text : ''); } else copyText(promptBoth(p)); };
 W.setPromptAge = a => { promptAge = a; document.querySelectorAll('#prompt-age button').forEach(b => b.classList.toggle('on', b.dataset.a === a)); loadPrompts(); };
-W.updatePromptLen = () => { $('prompt-len').textContent = `외형 ${$('modal-prompt-text').value.length}자 · 의상 ${$('modal-prompt-outfit').value.length}자`; };
+let ppItems = [{ label: '전체', text: '' }];
+W.updatePromptLen = () => { $('prompt-len').textContent = `${ppItems.length > 1 ? ppItems.length + '개 항목 · ' : ''}${ppItems.reduce((n, x) => n + x.text.length, 0).toLocaleString()}자`; };
+function renderPromptParts(focus) {
+  const box = $('pp-list'), one = ppItems.length === 1;
+  box.classList.toggle('single', one);
+  box.innerHTML = ppItems.map((x, j) => `<div class="pp"><div class="pp-head">
+      <input class="pp-name" data-j="${j}" value="${esc(x.label)}" placeholder="항목 이름" aria-label="항목 이름" maxlength="30">
+      <button class="btn btn-sm btn-soft" data-act="copy" data-j="${j}">복사</button>
+      ${one ? '' : `<button class="pp-del" data-act="del" data-j="${j}" aria-label="이 항목 지우기" title="이 항목 지우기">✕</button>`}</div>
+    <textarea class="field soft pp-text" data-j="${j}" placeholder="${one ? '프롬프트를 붙여넣으세요' : esc((x.label || '이 항목') + ' 프롬프트')}" aria-label="${esc(x.label || '항목')} 내용">${esc(x.text)}</textarea></div>`).join('');
+  updatePromptLen();
+  if (focus != null) { const el = box.querySelector(focus.name ? `.pp-name[data-j="${focus.j}"]` : `.pp-text[data-j="${focus.j}"]`); if (el) el.focus(); }
+}
+(function bindPromptParts() {
+  const box = $('pp-list');
+  box.addEventListener('input', e => {
+    const t = e.target, j = +t.dataset.j; if (!ppItems[j]) return;
+    if (t.classList.contains('pp-name')) ppItems[j].label = t.value;
+    if (t.classList.contains('pp-text')) { ppItems[j].text = t.value; updatePromptLen(); }
+  });
+  box.addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const j = +b.dataset.j;
+    if (b.dataset.act === 'copy') { copyText((ppItems[j] || {}).text || ''); return; }
+    const x = ppItems[j]; if (!x) return;
+    if (x.text.trim() && !confirm(`‘${x.label || '이름 없는'}’ 항목을 지울까요?`)) return;
+    ppItems.splice(j, 1);
+    if (ppItems.length === 1 && (!ppItems[0].label.trim() || ppItems[0].label.trim() === '기본')) ppItems[0].label = '전체';
+    renderPromptParts();
+  });
+})();
+W.addPromptPart = function (label) {
+  if (ppItems.length === 1 && ppItems[0].label.trim() === '전체') ppItems[0].label = '기본';
+  ppItems.push({ label: label || '', text: '' });
+  renderPromptParts({ j: ppItems.length - 1, name: !label });
+};
 const COPY_ICON = '<svg viewBox="0 0 24 24"><rect x="8" y="8" width="11" height="11" rx="2.5"/><path d="M5 15V7a2 2 0 012-2h8"/></svg>';
 W.setPromptFolder = f => { promptFolder = f; loadPrompts(); };
 W.loadPrompts = function () {
@@ -8553,16 +8605,15 @@ W.loadPrompts = function () {
   if (!all.length) { grid.innerHTML = `<button class="add-card" onclick="openPromptModal(-1)" style="grid-column:1/-1;min-height:220px"><b>+</b>첫 프롬프트를 등록해 보세요</button>`; return; }
   if (!sorted.length) { grid.innerHTML = `<div class="card empty">조건에 맞는 프롬프트가 없어요.</div>`; return; }
   grid.innerHTML = sorted.map(o => {
-    const p = o.item, i = p._i;
+    const p = o.item, i = p._i, allParts = promptParts(p), parts = allParts.filter(x => x.text.trim()), multi = parts.length > 1;
     return `<div class="pcard" tabindex="0" role="button" aria-label="프롬프트 열기" onclick="openPromptModal(${i})" onkeydown="if(event.key==='Enter')openPromptModal(${i})">
       ${p.img ? `<div class="pimg" style="background-image:url('${safeImg(p.img)}')"></div>` : ''}
       <div class="pb">${p.folder || p.adult ? `<span class="pfold">${p.adult ? '<span class="adult" aria-label="19금">🔞</span> ' : ''}${esc(p.folder || '')}</span>` : ''}
-        ${p.prompt ? `<div class="psec"><span class="plbl">외형</span><p class="ptx">${esc(p.prompt)}</p></div>` : ''}
-        ${p.outfit ? `<div class="psec"><span class="plbl">의상</span><p class="ptx" style="-webkit-line-clamp:3">${esc(p.outfit)}</p></div>` : ''}
-        ${!p.prompt && !p.outfit ? '<p class="ptx" style="color:var(--faint)">내용 없음</p>' : ''}
+        ${parts.map((x, j) => `<div class="psec">${multi ? `<span class="plbl">${esc(x.label || '항목 ' + (j + 1))}</span>` : ''}<p class="ptx" ${multi && j ? 'style="-webkit-line-clamp:3"' : ''}>${esc(x.text)}</p></div>`).join('')}
+        ${!parts.length ? '<p class="ptx" style="color:var(--faint)">내용 없음</p>' : ''}
         <div class="pf"><div class="tags">${(p.tags || []).map(t => `<span class="tag">#${esc(t)}</span>`).join('')}</div>
-        ${p.prompt ? `<button class="cbtn" onclick="event.stopPropagation();copyPromptPart(${i},'a')" title="외형만 복사">외형</button>` : ''}${p.outfit ? `<button class="cbtn" onclick="event.stopPropagation();copyPromptPart(${i},'o')" title="의상만 복사">의상</button>` : ''}
-        <button class="icon-btn sm" onclick="event.stopPropagation();copyPromptPart(${i},'both')" aria-label="외형과 의상 함께 복사" title="함께 복사">${COPY_ICON}</button></div></div></div>`;
+        ${multi ? parts.map((x, j) => `<button class="cbtn" onclick="event.stopPropagation();copyPromptPart(${i},${allParts.indexOf(x)})" title="${esc(x.label || '이 항목')}만 복사">${esc(x.label || '항목 ' + (j + 1))}</button>`).join('') : ''}
+        <button class="cbtn" style="background:var(--pk-soft);border-color:transparent;color:var(--pk-strong)" onclick="event.stopPropagation();copyPromptPart(${i},'all')" title="모든 항목을 한 번에 복사">전체 복사</button></div></div></div>`;
   }).join('');
 };
 function setPromptImg(src) { currentModalPromptImg = src || null; showImg('modal-prompt-img', currentModalPromptImg); $('prompt-img-del').hidden = !currentModalPromptImg; $('prompt-img-chg').hidden = !currentModalPromptImg; }
@@ -8572,17 +8623,18 @@ W.openPromptModal = function (i) {
   const p = i >= 0 ? STATE.prompts[i] : {}; if (i >= 0 && !p) return;
   currentPromptIndex = i;
   $('prompt-m-title').textContent = i >= 0 ? '프롬프트 편집' : '프롬프트 등록';
-  $('modal-prompt-text').value = p.prompt || ''; $('modal-prompt-outfit').value = p.outfit || ''; $('modal-prompt-folder').value = p.folder || ''; $('modal-prompt-tags').value = (p.tags || []).join(', ');
+  ppItems = promptParts(p); renderPromptParts(); $('modal-prompt-folder').value = p.folder || ''; $('modal-prompt-tags').value = (p.tags || []).join(', ');
   $('modal-prompt-adult').checked = !!p.adult; updatePromptLen();
   setPromptImg(p.img); $('prompt-del').hidden = i < 0;
   $('prompt-modal').hidden = false;
-  if (i < 0) setTimeout(() => $('modal-prompt-text').focus(), 60);
+  if (i < 0) setTimeout(() => { const el = $('pp-list').querySelector('.pp-text'); if (el) el.focus(); }, 60);
 };
 W.closePromptModal = () => { $('prompt-modal').hidden = true; currentPromptIndex = -1; };
-W.copyPromptText = () => copyText(promptBoth({ prompt: $('modal-prompt-text').value, outfit: $('modal-prompt-outfit').value }));
+W.copyPromptText = () => copyText(promptBoth({ parts: ppItems }));
 W.savePromptModal = function () {
-  const data = { prompt: $('modal-prompt-text').value.trim(), outfit: $('modal-prompt-outfit').value.trim(), folder: $('modal-prompt-folder').value.trim(), tags: parseTags($('modal-prompt-tags').value), img: currentModalPromptImg, adult: $('modal-prompt-adult').checked };
-  if (!data.prompt && !data.outfit && !data.img) { toast('프롬프트 내용을 입력해 주세요.'); return; }
+  let parts = ppItems.map((x, j) => ({ label: x.label.trim() || (ppItems.length === 1 ? '전체' : '항목 ' + (j + 1)), text: x.text.trim() })).filter(x => x.text);
+  const data = { parts, prompt: promptBoth({ parts }), outfit: '', folder: $('modal-prompt-folder').value.trim(), tags: parseTags($('modal-prompt-tags').value), img: currentModalPromptImg, adult: $('modal-prompt-adult').checked };
+  if (!parts.length && !data.img) { toast('프롬프트 내용을 입력해 주세요.'); return; }
   let item;
   if (currentPromptIndex < 0) { item = { ...data, id: newId(), createdAt: Date.now(), date: new Date().toLocaleDateString() }; STATE.prompts.unshift(item); }
   else { item = { ...STATE.prompts[currentPromptIndex], ...data }; STATE.prompts[currentPromptIndex] = item; }
@@ -9144,7 +9196,7 @@ async function buildShareData(maxImg) {
       it = { name: p.name || '', age: p.age || '', folder: p.folder && p.folder !== '미분류' ? p.folder : '' };
       ['features', 'prompt', 'app', 'per', 'bg'].forEach(k => { if (fields[k] && p[k]) it[k] = p[k]; });
     } else if (shareType === 'prompts') {
-      it = { prompt: p.prompt || '' }; if (p.outfit) it.outfit = p.outfit; if (p.adult) it.adult = true;
+      it = { parts: promptParts(p).filter(x => x.text.trim()) }; if (p.adult) it.adult = true;
       if (fields.meta) { if (p.folder) it.folder = p.folder; if ((p.tags || []).length) it.tags = p.tags; }
     } else {
       it = { text: p.text || '' }; if (p.folder) it.folder = p.folder; if ((p.tags || []).length) it.tags = p.tags; if (p.adult) it.adult = true;
@@ -9225,9 +9277,8 @@ function shareMarkup(data, opt = {}) {
   } else if (type === 'prompts') {
     const hidden = items.filter(p => p.adult && !showAdult).length;
     body = items.map((p, i) => (p.adult && !showAdult) ? '' : `<article class="sp-card noimg ${p.adult ? 'is-adult' : ''}" data-i="${i}"><div class="sp-body">${safeImg(p.img) ? `<div class="sp-wide" style="background-image:url('${safeImg(p.img)}')"></div>` : ''}
-      <div class="row" style="justify-content:space-between"><div class="tags">${metaChips(p)}</div><div class="sp-acts">${ADD_BTN(i, imp)}<button class="btn btn-sm btn-soft" data-copy="${i}">함께 복사</button></div></div>
-      ${p.prompt ? `<div class="sp-lbl"><span>외형</span><button class="btn btn-sm" data-copy="${i}:a">복사</button></div>${EDIT(i + ':a', p.prompt)}` : ''}
-      ${p.outfit ? `<div class="sp-lbl"><span>의상</span><button class="btn btn-sm" data-copy="${i}:o">복사</button></div>${EDIT(i + ':o', p.outfit)}` : ''}
+      <div class="row" style="justify-content:space-between"><div class="tags">${metaChips(p)}</div><div class="sp-acts">${ADD_BTN(i, imp)}<button class="btn btn-sm btn-soft" data-copy="${i}">전체 복사</button></div></div>
+      ${(p.parts || []).map((x, j) => `${(p.parts || []).length > 1 ? `<div class="sp-lbl"><span>${esc(x.label || '항목 ' + (j + 1))}</span><button class="btn btn-sm" data-copy="${i}:${j}">복사</button></div>` : ''}${EDIT(i + ':' + j, x.text)}`).join('')}
       </div></article>`).join('') + (hidden ? `<div class="sp-hidden">🔞 프롬프트 ${hidden}개는 숨겨 두었어요.</div>` : '');
   } else {
     const hidden = items.filter(p => p.adult && !showAdult).length;
@@ -9252,7 +9303,7 @@ function shareRuntime(root, O) {
   const shown = el => !!(el.offsetParent || el.closest('details'));
   const val = k => { const el = root.querySelector('textarea.sp-edit[data-f="' + k + '"]'); return el ? el.value : ''; };
   const tidy = t => String(t || '').trim().replace(/[,\s]+$/, '');
-  const one = i => O.type === 'ooc' ? val(i + ':t') : O.type === 'prompts' ? [tidy(val(i + ':a')), tidy(val(i + ':o'))].filter(Boolean).join(', ') : val(i + ':p');
+  const one = i => O.type === 'ooc' ? val(i + ':t') : O.type === 'prompts' ? q('textarea.sp-edit[data-f^="' + i + ':"]').map(el => tidy(el.value)).filter(Boolean).join(', ') : val(i + ':p');
   const items = () => q('[data-i]').filter(el => shown(el)).map(el => el.dataset.i);
   function textOf(k) {
     if (k === 'all') {
@@ -9284,7 +9335,7 @@ function shareOrig(data) {
   const o = {};
   (data.items || []).forEach((p, i) => {
     if (data.type === 'ooc') o[i + ':t'] = p.text || '';
-    else if (data.type === 'prompts') { o[i + ':a'] = p.prompt || ''; o[i + ':o'] = p.outfit || ''; }
+    else if (data.type === 'prompts') (p.parts || []).forEach((x, j) => o[i + ':' + j] = x.text || '');
     else ['prompt', 'app', 'per', 'bg'].forEach(k => o[i + ':' + (k === 'prompt' ? 'p' : k)] = p[k] || '');
   });
   return o;
@@ -9295,7 +9346,7 @@ function cleanShare(raw) {
   const items = (Array.isArray(r.items) ? r.items : []).slice(0, 500).map(x => {
     const p = x && typeof x === 'object' ? x : {};
     if (type === 'personas') return { name: str(p.name, 200), age: str(p.age, 200), folder: str(p.folder, 100), features: str(p.features, 2000), prompt: str(p.prompt, 60000), app: str(p.app), per: str(p.per), bg: str(p.bg), img: safeImg(p.img) };
-    if (type === 'prompts') return { prompt: str(p.prompt, 60000), outfit: str(p.outfit, 30000), folder: str(p.folder, 100), tags: strList(p.tags), img: safeImg(p.img), adult: p.adult === true };
+    if (type === 'prompts') return { parts: (Array.isArray(p.parts) && p.parts.length ? p.parts : promptParts({ prompt: str(p.prompt, 60000), outfit: str(p.outfit, 30000) })).slice(0, 30).map(x => ({ label: str(x && x.label, 30), text: str(x && x.text, 60000) })).filter(x => x.text.trim()), folder: str(p.folder, 100), tags: strList(p.tags), img: safeImg(p.img), adult: p.adult === true };
     return { text: str(p.text), folder: str(p.folder, 100), tags: strList(p.tags), adult: p.adult === true };
   });
   return { type, title: str(r.title, 200), items, adult: items.some(x => x.adult) };
@@ -9309,7 +9360,7 @@ function importItem(data, i, shareId, val) {
   const v = (k, d) => { const x = val(i + ':' + k); return x !== '' || d == null ? x : d; };
   let item;
   if (type === 'personas') item = { ...base, name: p.name || '', age: p.age || '', folder: p.folder || '미분류', features: p.features || '', prompt: v('p', p.prompt || ''), app: v('app', p.app || ''), per: v('per', p.per || ''), bg: v('bg', p.bg || ''), img: p.img || null };
-  else if (type === 'prompts') item = { ...base, prompt: v('a', p.prompt || ''), outfit: v('o', p.outfit || ''), folder: p.folder || '', tags: p.tags || [], img: p.img || null, adult: !!p.adult };
+  else if (type === 'prompts') { const parts = (p.parts || []).map((x, j) => ({ label: x.label, text: v(String(j), x.text || '') })); item = { ...base, parts, prompt: promptBoth({ parts }), outfit: '', folder: p.folder || '', tags: p.tags || [], img: p.img || null, adult: !!p.adult }; }
   else item = { ...base, text: v('t', p.text || ''), folder: p.folder || '', tags: p.tags || [], adult: !!p.adult };
   touch(item); STATE[T.coll].unshift(item); saveItem(T.coll, item);
   return 1;
@@ -9380,7 +9431,7 @@ W.runSearch = function () {
   const hit = (...parts) => parts.filter(Boolean).join(' ').toLowerCase().includes(q);
   STATE.personas.forEach((p, i) => { if (hit(p.name, p.folder, p.features, p.prompt, p.app, p.per, p.bg)) add('캐릭터', p.name || '이름 없음', p.features || '', `openPersona(${i})`); });
   STATE.pairs.forEach((p, i) => { if (hit(p.title, p.names, p.intro, (p.tags || []).join(' '))) add('페어', p.title || p.names || '제목 없음', p.intro || '', `go('pair');setTimeout(()=>openPairModal(${i}),40)`); });
-  STATE.prompts.forEach((p, i) => { if (hit(p.prompt, p.outfit, p.folder, (p.tags || []).join(' '))) add('프롬프트', (p.prompt || '').slice(0, 30) || '내용 없음', p.prompt || '', `go('prompt');setTimeout(()=>openPromptModal(${i}),40)`); });
+  STATE.prompts.forEach((p, i) => { if (hit(promptParts(p).map(x => x.label + ' ' + x.text).join(' '), p.folder, (p.tags || []).join(' '))) add('프롬프트', promptBoth(p).slice(0, 30) || '내용 없음', promptBoth(p), `go('prompt');setTimeout(()=>openPromptModal(${i}),40)`); });
   STATE.rpwidgets.forEach((w, i) => { if (hit(w.name, (w.fields || []).map(f => f.k + ' ' + f.d).join(' '), w.html)) add('위젯', w.name || '이름 없는 위젯', (w.fields || []).map(f => f.k).join(' · '), `go('rpw');setTimeout(()=>openRpw(${i}),40)`); });
   STATE.usernotes.forEach((n, i) => { if (hit(n.title, n.content)) add('노트', n.title || '제목 없음', n.content || '', `go('usernote');setTimeout(()=>openUserNoteModal(${i}),40)`); });
   STATE.ooc.forEach((o, i) => { if (hit(o.text, o.folder, (o.tags || []).join(' '))) add('OOC', (o.text || '').slice(0, 30), o.text || '', `copyOOC(${i})`); });
