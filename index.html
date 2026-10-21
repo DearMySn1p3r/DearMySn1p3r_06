@@ -381,6 +381,22 @@ select.field{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 @media (max-width:980px){.rpw-grid{grid-template-columns:minmax(0,1fr)}.rpw-prev iframe{height:480px}}
 @media (max-width:640px){.fld-key{width:104px}.fld-row{flex-wrap:wrap}.fld .acts{margin-left:auto}}
 
+.sp-tools{position:sticky;top:10px;z-index:20;display:flex;flex-direction:column;gap:8px;margin:0 0 16px;padding:12px 14px;border-radius:18px;
+  background:color-mix(in srgb,#fff 92%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--line);box-shadow:0 10px 30px -22px rgba(43,37,38,.4)}
+.sp-trow{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.sp-nmin{display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:var(--faint)}
+.sp-nmin input{height:32px;width:130px;border:1px solid var(--line);border-radius:999px;padding:0 12px;font:inherit;font-family:'Pretendard',sans-serif;font-size:12.5px;font-weight:400;color:var(--ink);outline:none;background:#fff}
+.sp-nmin input:focus{border-color:var(--pk-mid)}
+.sp-edit{display:block;width:100%;border:none;outline:none;resize:none;overflow:hidden;background:#FBF7F8;border-radius:14px;padding:12px 14px;
+  font:inherit;font-size:13.5px;line-height:1.7;color:var(--ink);white-space:pre-wrap;word-break:break-word;box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .15s,background .15s}
+.sp-edit:hover{box-shadow:inset 0 0 0 1px var(--line)}
+.sp-edit:focus{background:#fff;box-shadow:inset 0 0 0 1.5px var(--pk-mid)}
+.sp-edit.edited{box-shadow:inset 3px 0 0 var(--pk-mid)}
+.sp-edit.edited:focus{box-shadow:inset 0 0 0 1.5px var(--pk-mid)}
+.sp-ooc .sp-edit{background:transparent;padding:4px 6px;margin:-4px -6px;width:calc(100% + 12px);font-size:14px}
+.sp-ooc .sp-edit:focus{background:#FBF7F8}
+.sp-ooc .sp-edit.edited{padding-left:12px}
+@media (max-width:640px){.sp-nmin input{width:calc(50vw - 70px);min-width:90px}.sp-tools{top:6px}}
 /* 공유 페이지: 프롬프트 · OOC */
 .sp-wide{aspect-ratio:16/9;border-radius:14px;background:var(--pk-soft) center/cover no-repeat}
 .sp-acts{display:flex;gap:6px;align-items:center}
@@ -8885,9 +8901,30 @@ W.oocSwap = function () {
   if (!pc || !npc) { toggleOocNames(true); toast('PC와 NPC 이름을 둘 다 적어 주세요.'); return; }
   if (!el.value) return;
   const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const re = new RegExp(reEsc(pc) + '|' + reEsc(npc), 'g');
-  let n = 0;
-  el.value = el.value.replace(re, m => { n++; return m === pc ? npc : pc; });
+  const JOSA = [['이랑', '랑'], ['으로', '로'], ['은', '는'], ['이', '가'], ['을', '를'], ['과', '와'], ['아', '야']];
+  const isHan = c => c >= '가' && c <= '힣';
+  const fixJosa = (name, rest) => {
+    const last = name.charAt(name.length - 1); if (!isHan(last)) return null;
+    const jong = (last.charCodeAt(0) - 0xAC00) % 28;
+    for (const pair of JOSA) for (const form of pair) {
+      if (rest.slice(0, form.length) !== form) continue;
+      const after = rest.charAt(form.length); if (after && isHan(after)) continue;
+      const want = pair[0] === '으로' ? (jong && jong !== 8 ? '으로' : '로') : (jong ? pair[0] : pair[1]);
+      return { len: form.length, want };
+    }
+    return null;
+  };
+  const swapNames = (s, a, b) => {
+    const re = new RegExp(reEsc(a) + '|' + reEsc(b), 'g'); let out = '', last = 0, c = 0, m;
+    while ((m = re.exec(s))) {
+      const to = m[0] === a ? b : a, end = m.index + m[0].length, j = fixJosa(to, s.slice(end));
+      out += s.slice(last, m.index) + to; last = end; c++;
+      if (j) { out += j.want; last = end + j.len; re.lastIndex = last; }
+    }
+    return { s: out + s.slice(last), c };
+  };
+  const r = swapNames(el.value, pc, npc), n = r.c;
+  el.value = r.s;
   autoGrow(el); toast(n ? `이름 ${n}곳을 바꿨어요.` : '바꿀 이름이 없어요.');
 };
 W.oocInsert = function (k) {
@@ -9223,6 +9260,7 @@ W.stopShare = async function () {
 
 /* ── 공유 페이지 화면 (앱 안 · HTML 파일 공통) ── */
 const ADD_BTN = (i, canImport) => canImport ? `<button class="btn btn-sm" data-add="${i}">내 아카이브에 추가</button>` : '';
+const EDIT = (key, val, extra = '') => `<textarea class="sp-edit" data-f="${key}" rows="2" spellcheck="false" aria-label="고쳐 쓸 수 있는 내용" ${extra}>${esc(val)}</textarea>`;
 function shareMarkup(data, opt = {}) {
   const type = data.type || 'personas', items = data.items || [], imp = !!opt.canImport, showAdult = opt.showAdult !== false;
   const metaChips = p => [p.adult ? '<span class="adult" title="19금" aria-label="19금">🔞</span>' : '', p.folder ? `<span class="tag gray">${esc(p.folder)}</span>` : '', ...(p.tags || []).map(t => `<span class="tag">#${esc(t)}</span>`)].join('');
@@ -9230,45 +9268,132 @@ function shareMarkup(data, opt = {}) {
   if (type === 'personas') {
     body = items.map((p, i) => {
       const det = [['app', '외형'], ['per', '성격'], ['bg', '배경']].filter(([k]) => p[k]);
-      return `<article class="sp-card ${p.img ? '' : 'noimg'}">${p.img ? `<div class="sp-pic" style="background-image:url('${safeImg(p.img)}')"></div>` : ''}
+      return `<article class="sp-card ${safeImg(p.img) ? '' : 'noimg'}" data-i="${i}" data-nm="${esc(p.name || '이름 없음')}">${safeImg(p.img) ? `<div class="sp-pic" style="background-image:url('${safeImg(p.img)}')"></div>` : ''}
         <div class="sp-body"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2 class="sp-nm">${esc(p.name) || '이름 없음'}</h2>${p.age || p.folder ? `<div class="sp-meta">${esc([p.age, p.folder].filter(Boolean).join(' · '))}</div>` : ''}</div>${ADD_BTN(i, imp)}</div>
         ${p.features ? `<p class="sp-ft">${esc(p.features)}</p>` : ''}
-        ${p.prompt ? `<div class="sp-lbl"><span>Prompt</span><button class="btn btn-sm btn-soft" data-copy="${i}">복사</button></div><pre class="sp-prompt">${esc(p.prompt)}</pre>` : ''}
-        ${det.length ? `<details class="sp-det"><summary>설정 더 보기</summary>${det.map(([k, l]) => `<h4>${l}</h4><p>${esc(p[k])}</p>`).join('')}</details>` : ''}
+        ${p.prompt ? `<div class="sp-lbl"><span>Prompt</span><button class="btn btn-sm btn-soft" data-copy="${i}:p">복사</button></div>${EDIT(i + ':p', p.prompt)}` : ''}
+        ${det.length ? `<details class="sp-det"><summary>설정 더 보기</summary>${det.map(([k, l]) => `<div class="sp-lbl" style="margin-top:12px"><span>${l}</span><button class="btn btn-sm" data-copy="${i}:${k}">복사</button></div>${EDIT(i + ':' + k, p[k])}`).join('')}</details>` : ''}
         </div></article>`;
     }).join('');
   } else if (type === 'prompts') {
     const hidden = items.filter(p => p.adult && !showAdult).length;
-    body = items.map((p, i) => (p.adult && !showAdult) ? '' : `<article class="sp-card noimg ${p.adult ? 'is-adult' : ''}"><div class="sp-body">${safeImg(p.img) ? `<div class="sp-wide" style="background-image:url('${safeImg(p.img)}')"></div>` : ''}
+    body = items.map((p, i) => (p.adult && !showAdult) ? '' : `<article class="sp-card noimg ${p.adult ? 'is-adult' : ''}" data-i="${i}"><div class="sp-body">${safeImg(p.img) ? `<div class="sp-wide" style="background-image:url('${safeImg(p.img)}')"></div>` : ''}
       <div class="row" style="justify-content:space-between"><div class="tags">${metaChips(p)}</div><div class="sp-acts">${ADD_BTN(i, imp)}<button class="btn btn-sm btn-soft" data-copy="${i}">함께 복사</button></div></div>
-      ${p.prompt ? `<div class="sp-lbl"><span>외형</span><button class="btn btn-sm" data-copy="${i}:a">복사</button></div><pre class="sp-prompt" style="max-height:none">${esc(p.prompt)}</pre>` : ''}
-      ${p.outfit ? `<div class="sp-lbl"><span>의상</span><button class="btn btn-sm" data-copy="${i}:o">복사</button></div><pre class="sp-prompt" style="max-height:none">${esc(p.outfit)}</pre>` : ''}
+      ${p.prompt ? `<div class="sp-lbl"><span>외형</span><button class="btn btn-sm" data-copy="${i}:a">복사</button></div>${EDIT(i + ':a', p.prompt)}` : ''}
+      ${p.outfit ? `<div class="sp-lbl"><span>의상</span><button class="btn btn-sm" data-copy="${i}:o">복사</button></div>${EDIT(i + ':o', p.outfit)}` : ''}
       </div></article>`).join('') + (hidden ? `<div class="sp-hidden">🔞 프롬프트 ${hidden}개는 숨겨 두었어요.</div>` : '');
   } else {
     const hidden = items.filter(p => p.adult && !showAdult).length;
-    body = items.map((p, i) => (p.adult && !showAdult) ? '' : `<div class="sp-ooc ${p.adult ? 'is-adult' : ''}"><div style="flex:1;min-width:0"><p>${esc(p.text)}</p>${metaChips(p) ? `<div class="meta-row">${metaChips(p)}</div>` : ''}</div>
+    body = items.map((p, i) => (p.adult && !showAdult) ? '' : `<div class="sp-ooc ${p.adult ? 'is-adult' : ''}" data-i="${i}"><div style="flex:1;min-width:0">${EDIT(i + ':t', p.text)}${metaChips(p) ? `<div class="meta-row">${metaChips(p)}</div>` : ''}</div>
       <div class="sp-acts" style="flex-direction:column;align-items:stretch"><button class="btn btn-sm btn-soft" data-copy="${i}">복사</button>${ADD_BTN(i, imp)}</div></div>`).join('')
       + (hidden ? `<div class="sp-hidden">🔞 메모 ${hidden}개는 숨겨 두었어요.</div>` : '');
   }
   const label = { personas: `캐릭터 ${items.length}명`, prompts: `프롬프트 ${items.length}개`, ooc: `OOC 메모 ${items.length}개` }[type];
   const hasCopy = type === 'personas' ? items.some(p => p.prompt) : items.length;
+  const nm = opt.names || {};
   return `<header class="sp-head"><a class="logo" href="${opt.home || '#'}" ${opt.home ? '' : 'onclick="return false"'}><b>Studio<i></i></b><span>Archive</span></a>
     <div><h1 class="sp-title">${esc(data.title || '')}</h1><p class="sp-sub">${label}</p></div>
     <div class="row">${hasCopy ? `<button class="btn btn-pk" data-copy="all">${type === 'ooc' ? '메모 전체 복사' : '프롬프트 전체 복사'}</button>` : ''}${imp ? `<button class="btn" data-add="all">전체 내 아카이브에 추가</button>` : ''}${opt.home ? `<a class="btn" href="${opt.home}">내 아카이브 열기</a>` : ''}</div></header>
+    <div class="sp-tools" role="group" aria-label="이름 바꾸기">
+      <div class="sp-trow">
+        <label class="sp-nmin"><span>PC</span><input type="text" data-name="pc" value="${esc(nm.pc || '')}" placeholder="PC 이름"></label>
+        <label class="sp-nmin"><span>NPC</span><input type="text" data-name="npc" value="${esc(nm.npc || '')}" placeholder="NPC 이름"></label>
+        <button class="tbtn swap" data-swap>PC ⇄ NPC</button>
+      </div>
+      <div class="sp-trow">
+        <label class="sp-nmin"><span class="sr">바꿀 말</span><input type="text" data-from placeholder="바꿀 말"></label>
+        <span class="meta" aria-hidden="true">→</span>
+        <label class="sp-nmin"><span class="sr">새로 넣을 말</span><input type="text" data-to placeholder="새로 넣을 말"></label>
+        <button class="tbtn" data-replace>모두 바꾸기</button>
+        <button class="tbtn ghost" data-reset>원래대로</button>
+      </div>
+      <p class="meta" style="margin:0">아래 글은 눌러서 바로 고칠 수 있어요. 복사하면 고친 그대로 복사돼요.</p>
+    </div>
     <div class="sp-list">${body}</div>
     <p class="sp-foot">Studio. Archive</p>`;
 }
-function copyOf(data, k, showAdult) {
-  const type = data.type || 'personas', items = (data.items || []);
-  const one = p => type === 'ooc' ? (p.text || '') : type === 'prompts' ? promptBoth(p) : (p.prompt || '');
-  if (k === 'all') {
-    const list = items.filter(p => one(p) && (showAdult || !p.adult));
-    return type === 'personas' ? list.map(p => `[${p.name || '이름 없음'}]\n${p.prompt}`).join('\n\n') : list.map(one).join('\n\n');
+/* 공유 페이지에서 고치기 · 이름 바꾸기 · 복사 (HTML 파일에도 그대로 들어가므로 바깥 변수를 쓰지 않는다) */
+function shareRuntime(root, O) {
+  const q = s => Array.prototype.slice.call(root.querySelectorAll(s));
+  const fields = () => q('textarea.sp-edit');
+  const grow = el => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; };
+  const mark = el => { el.classList.toggle('edited', el.value !== (O.orig[el.dataset.f] || '')); };
+  const shown = el => !!(el.offsetParent || el.closest('details'));
+  const val = k => { const el = root.querySelector('textarea.sp-edit[data-f="' + k + '"]'); return el ? el.value : ''; };
+  const tidy = t => String(t || '').trim().replace(/[,\s]+$/, '');
+  const one = i => O.type === 'ooc' ? val(i + ':t') : O.type === 'prompts' ? [tidy(val(i + ':a')), tidy(val(i + ':o'))].filter(Boolean).join(', ') : val(i + ':p');
+  const items = () => q('[data-i]').filter(el => shown(el)).map(el => el.dataset.i);
+  function textOf(k) {
+    if (k === 'all') {
+      const list = items().filter(i => one(i).trim());
+      if (O.type === 'personas') return list.map(i => '[' + root.querySelector('[data-i="' + i + '"]').dataset.nm + ']\n' + val(i + ':p')).join('\n\n');
+      return list.map(one).join('\n\n');
+    }
+    return k.indexOf(':') > 0 ? val(k) : one(k);
   }
-  const [n, part] = String(k).split(':'), it = items[+n] || {};
-  if (part === 'a') return it.prompt || '';
-  if (part === 'o') return it.outfit || '';
-  return one(it);
+  const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const JOSA = [['이랑', '랑'], ['으로', '로'], ['은', '는'], ['이', '가'], ['을', '를'], ['과', '와'], ['아', '야']];
+  const isHan = c => c >= '가' && c <= '힣';
+  const fixJosa = (name, rest) => {
+    const last = name.charAt(name.length - 1); if (!isHan(last)) return null;
+    const jong = (last.charCodeAt(0) - 0xAC00) % 28;
+    for (const pair of JOSA) for (const form of pair) {
+      if (rest.slice(0, form.length) !== form) continue;
+      const after = rest.charAt(form.length); if (after && isHan(after)) continue;
+      const want = pair[0] === '으로' ? (jong && jong !== 8 ? '으로' : '로') : (jong ? pair[0] : pair[1]);
+      return { len: form.length, want };
+    }
+    return null;
+  };
+  const swapNames = (s, a, b) => {
+    const re = new RegExp(reEsc(a) + '|' + reEsc(b), 'g'); let out = '', last = 0, c = 0, m;
+    while ((m = re.exec(s))) {
+      const to = m[0] === a ? b : a, end = m.index + m[0].length, j = fixJosa(to, s.slice(end));
+      out += s.slice(last, m.index) + to; last = end; c++;
+      if (j) { out += j.want; last = end + j.len; re.lastIndex = last; }
+    }
+    return { s: out + s.slice(last), c };
+  };
+  function names() { const g = n => (root.querySelector('[data-name="' + n + '"]') || {}).value || ''; return { pc: g('pc').trim(), npc: g('npc').trim() }; }
+  function each(fn) { let n = 0; fields().forEach(el => { const v = fn(el.value); if (v.c) { el.value = v.s; n += v.c; grow(el); mark(el); } }); return n; }
+  fields().forEach(el => { grow(el); mark(el); });
+  root.addEventListener('input', e => {
+    const t = e.target;
+    if (t.classList && t.classList.contains('sp-edit')) { grow(t); mark(t); }
+    if (t.dataset && t.dataset.name && O.onNames) O.onNames(names());
+  });
+  root.addEventListener('click', e => {
+    const c = e.target.closest('[data-copy]'); if (c) { O.copy(textOf(c.dataset.copy)); return; }
+    if (e.target.closest('[data-swap]')) {
+      const { pc, npc } = names();
+      if (!pc || !npc) { O.toast('PC와 NPC 이름을 둘 다 적어 주세요.'); return; }
+      const n = each(s => swapNames(s, pc, npc));
+      O.toast(n ? '이름 ' + n + '곳을 서로 바꿨어요.' : '글에서 두 이름을 찾지 못했어요.'); return;
+    }
+    if (e.target.closest('[data-replace]')) {
+      const from = (root.querySelector('[data-from]') || {}).value || '', to = (root.querySelector('[data-to]') || {}).value || '';
+      if (!from) { O.toast('바꿀 말을 적어 주세요.'); return; }
+      const re = new RegExp(reEsc(from), 'g');
+      const n = each(s => { let c = 0; const r = s.replace(re, () => { c++; return to; }); return { s: r, c }; });
+      O.toast(n ? n + '곳을 바꿨어요.' : '‘' + from + '’을(를) 찾지 못했어요.'); return;
+    }
+    if (e.target.closest('[data-reset]')) {
+      fields().forEach(el => { el.value = O.orig[el.dataset.f] || ''; grow(el); mark(el); });
+      O.toast('처음 받은 내용으로 되돌렸어요.');
+    }
+  });
+  root.addEventListener('toggle', e => { if (e.target.tagName === 'DETAILS') e.target.querySelectorAll('textarea.sp-edit').forEach(grow); }, true);
+  window.addEventListener('resize', () => fields().forEach(grow));
+  return { val, textOf };
+}
+function shareOrig(data) {
+  const o = {};
+  (data.items || []).forEach((p, i) => {
+    if (data.type === 'ooc') o[i + ':t'] = p.text || '';
+    else if (data.type === 'prompts') { o[i + ':a'] = p.prompt || ''; o[i + ':o'] = p.outfit || ''; }
+    else ['prompt', 'app', 'per', 'bg'].forEach(k => o[i + ':' + (k === 'prompt' ? 'p' : k)] = p[k] || '');
+  });
+  return o;
 }
 function cleanShare(raw) {
   const r = raw && typeof raw === 'object' ? raw : {};
@@ -9281,16 +9406,17 @@ function cleanShare(raw) {
   });
   return { type, title: str(r.title, 200), items, adult: items.some(x => x.adult) };
 }
-/* 남의 공유 페이지에서 내 아카이브로 가져오기 */
-function importItem(data, i, shareId) {
+/* 남의 공유 페이지에서 내 아카이브로 가져오기 (고친 내용 그대로) */
+function importItem(data, i, shareId, val) {
   const type = data.type || 'personas', T = SHARE_TYPES[type], p = (data.items || [])[i]; if (!p) return 0;
   const key = shareId + ':' + i;
   if (STATE[T.coll].some(x => x.from === key)) return 0;
   const base = { id: newId(), createdAt: Date.now(), from: key, date: new Date().toLocaleDateString() };
+  const v = (k, d) => { const x = val(i + ':' + k); return x !== '' || d == null ? x : d; };
   let item;
-  if (type === 'personas') item = { ...base, name: p.name || '', age: p.age || '', folder: p.folder || '미분류', features: p.features || '', prompt: p.prompt || '', app: p.app || '', per: p.per || '', bg: p.bg || '', img: p.img || null };
-  else if (type === 'prompts') item = { ...base, prompt: p.prompt || '', outfit: p.outfit || '', folder: p.folder || '', tags: p.tags || [], img: p.img || null, adult: !!p.adult };
-  else item = { ...base, text: p.text || '', folder: p.folder || '', tags: p.tags || [], adult: !!p.adult };
+  if (type === 'personas') item = { ...base, name: p.name || '', age: p.age || '', folder: p.folder || '미분류', features: p.features || '', prompt: v('p', p.prompt || ''), app: v('app', p.app || ''), per: v('per', p.per || ''), bg: v('bg', p.bg || ''), img: p.img || null };
+  else if (type === 'prompts') item = { ...base, prompt: v('a', p.prompt || ''), outfit: v('o', p.outfit || ''), folder: p.folder || '', tags: p.tags || [], img: p.img || null, adult: !!p.adult };
+  else item = { ...base, text: v('t', p.text || ''), folder: p.folder || '', tags: p.tags || [], adult: !!p.adult };
   touch(item); STATE[T.coll].unshift(item); saveItem(T.coll, item);
   return 1;
 }
@@ -9307,21 +9433,22 @@ async function showSharePage(id) {
   } catch (e) { root.innerHTML = `<div class="card empty">공유 페이지를 불러오지 못했어요.</div>`; return; }
   document.title = (data.title || 'Shared') + ' · Studio. Archive';
   let showAdult = true;
-  if (data.adult) showAdult = await askConfirm({ badge: true, title: '성인용 내용이 있어요', body: '이 페이지에는 🔞 OOC 메모가 포함돼 있어요. 만 19세 이상인가요?', yes: '19세 이상이에요', no: '숨기고 보기' });
-  const home = location.pathname;
-  const paint = () => { root.innerHTML = shareMarkup(data, { canImport: true, showAdult, home }); };
-  paint();
-  root.onclick = async e => {
-    const c = e.target.closest('[data-copy]');
-    if (c) { copyText(copyOf(data, c.dataset.copy, showAdult)); return; }
+  if (data.adult) {
+    const what = data.type === 'prompts' ? '프롬프트' : 'OOC 메모';
+    showAdult = await askConfirm({ badge: true, title: '성인용 내용이 있어요', body: `이 페이지에는 🔞 ${what}가 포함돼 있어요. 만 19세 이상인가요?`, yes: '19세 이상이에요', no: '숨기고 보기' });
+  }
+  root.innerHTML = shareMarkup(data, { canImport: true, showAdult, home: location.pathname, names: PREFS.oocNames || {} });
+  const rt = shareRuntime(root, { type: data.type, orig: shareOrig(data), copy: copyText, toast,
+    onNames: n => { PREFS.oocNames = n; savePrefs(); } });
+  root.addEventListener('click', async e => {
     const a = e.target.closest('[data-add]'); if (!a) return;
     while (!authReady) await new Promise(r => setTimeout(r, 100));
-    const idxs = a.dataset.add === 'all' ? (data.items || []).map((p, i) => i).filter(i => showAdult || !data.items[i].adult) : [+a.dataset.add];
-    let n = 0; idxs.forEach(i => n += importItem(data, i, id));
+    const idxs = a.dataset.add === 'all' ? [...root.querySelectorAll('[data-i]')].map(el => +el.dataset.i) : [+a.dataset.add];
+    let n = 0; idxs.forEach(i => n += importItem(data, i, id, rt.val));
     updateCounts();
     toast(n ? `내 아카이브에 ${n}개 추가했어요.${currentUser ? '' : ' (이 기기에 저장)'}` : '이미 추가한 항목이에요.');
     a.textContent = '추가됨 ✓'; a.disabled = true;
-  };
+  });
 }
 W.exportShareHtml = async function () {
   if (!(await confirmAdultShare())) return;
@@ -9329,19 +9456,21 @@ W.exportShareHtml = async function () {
   const css = [...document.querySelectorAll('style')].map(s => s.textContent).join('\n');
   const t = theme();
   const vars = `:root{--pk:${t.pk};--pk-ink:${t.ink};--pk-strong:${t.strong};--pk-mid:${t.mid};--pk-soft:${t.soft};--bg:${t.bg};--dot:${t.dot}}`;
-  const keys = {}; data.items.forEach((p, i) => [i, i + ':a', i + ':o'].forEach(k => keys[k] = copyOf(data, k, true)));
-  const copies = JSON.stringify({ all: copyOf(data, 'all', true), allSafe: copyOf(data, 'all', false), list: keys }).replace(/</g, '\\u003c');
+  const what = data.type === 'prompts' ? '프롬프트' : 'OOC 메모';
+  const opts = JSON.stringify({ type: data.type, orig: shareOrig(data), adult: !!data.adult, what }).replace(/</g, '\\u003c');
   const html = `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${esc(data.title)}</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap">
 <style>${css}\n${vars}\nbody.hide-adult .is-adult{display:none}</style></head>
 <body class="sharing"><main class="content">${shareMarkup(data, { canImport: false })}</main><div id="toast"></div>
-<script>(function(){var P=${copies};var adult=${data.adult ? 'true' : 'false'};var ok=true;
-if(adult){ok=confirm('이 페이지에는 🔞 OOC 메모가 포함돼 있어요. 만 19세 이상인가요?\\n(취소하면 🔞 메모를 숨기고 보여줘요)');if(!ok)document.body.classList.add('hide-adult');}
-function t(m){var e=document.getElementById('toast');e.textContent=m;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove('on')},1800);}
-document.addEventListener('click',function(e){var b=e.target.closest('[data-copy]');if(!b)return;var k=b.getAttribute('data-copy');var s=k==='all'?(ok?P.all:P.allSafe):P.list[k];
-navigator.clipboard.writeText(s).then(function(){t('복사했어요.')},function(){t('복사하지 못했어요.')});});})();<\/script></body></html>`;
+<script>(function(){var O=${opts};
+function toast(m){var e=document.getElementById('toast');e.textContent=m;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove('on')},1800);}
+function copy(s){if(!s){toast('복사할 내용이 없어요.');return;}function fb(){var t=document.createElement('textarea');t.value=s;t.style.cssText='position:fixed;left:-9999px';document.body.appendChild(t);t.select();var ok=false;try{ok=document.execCommand('copy')}catch(e){}t.remove();toast(ok?'복사했어요.':'복사하지 못했어요.');}
+if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(s).then(function(){toast('복사했어요.')},fb);}else fb();}
+if(O.adult&&!confirm('이 페이지에는 🔞 '+O.what+'가 포함돼 있어요. 만 19세 이상인가요?\\n(취소하면 🔞 항목을 숨기고 보여줘요)'))document.body.classList.add('hide-adult');
+(${shareRuntime.toString()})(document.querySelector('main'),{type:O.type,orig:O.orig,copy:copy,toast:toast});
+})();<\/script></body></html>`;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
   a.download = (data.title || 'share').replace(/[\\/:*?"<>|]/g, '_') + '.html';
