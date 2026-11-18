@@ -249,6 +249,9 @@ select.field{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .auth-box{max-width:380px;padding:30px 26px 24px}
 .auth-box .logo{font-size:26px;margin-bottom:6px}
 .err{font-size:12px;color:#B8423C;min-height:16px;margin:0 2px}
+.err.ok{color:#2E7D5B;line-height:1.5}
+.auth-forgot{align-self:flex-end;background:none;border:none;padding:0;margin:-4px 2px 0;font-size:12px;color:var(--muted);text-decoration:underline;text-underline-offset:2px}
+.auth-forgot:hover{color:var(--pk-strong)}
 
 
 /* 프롬프트 */
@@ -866,9 +869,10 @@ button.sp-pic{display:block;width:100%;padding:0;border:none;overflow:hidden;cur
     <div class="logo"><b>Studio<i></i></b><span>Archive</span></div>
     <p class="sub" id="auth-title" style="margin:10px 0 18px"></p>
     <div class="stack">
-      <input type="email" id="auth-email" class="field" placeholder="이메일" autocomplete="username">
+      <input type="email" id="auth-email" class="field" placeholder="이메일" autocomplete="username" onkeydown="if(event.key==='Enter'&&authModeIsReset())submitAuth()">
       <input type="password" id="auth-password" class="field" placeholder="비밀번호 (6자 이상)" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuth()">
-      <p class="err" id="auth-error"></p>
+      <button type="button" class="auth-forgot" id="auth-forgot" onclick="openReset()">비밀번호를 잊으셨나요?</button>
+      <p class="err" id="auth-error" aria-live="polite"></p>
       <button class="btn btn-pk btn-block" id="auth-submit" onclick="submitAuth()">로그인</button>
       <button class="btn btn-block" style="border:none;color:var(--muted);font-weight:500" id="auth-toggle" onclick="toggleAuthMode()">계정이 없으신가요? 회원가입</button>
     </div>
@@ -9842,7 +9846,7 @@ window.onload = () => {
 
 <script type="module">
 /* Firebase는 따로 불러온다 — 불러오지 못해도(차단·오프라인) 사이트의 나머지 기능은 그대로 움직이게 */
-let initializeApp, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously;
+let initializeApp, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, sendPasswordResetEmail;
 let getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs;
 const FB = 'https://www.gstatic.com/firebasejs/10.12.0/';
 
@@ -9868,9 +9872,10 @@ const fbReady = (async () => {
   try {
     const [a, b, c] = await Promise.all([import(FB + 'firebase-app.js'), import(FB + 'firebase-auth.js'), import(FB + 'firebase-firestore.js')]);
     ({ initializeApp } = a);
-    ({ getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } = b);
+    ({ getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, sendPasswordResetEmail } = b);
     ({ getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs } = c);
     const app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
+    auth.languageCode = 'ko'; /* 비밀번호 재설정 메일을 한국어로 보냄 */
     /* 공유 링크 전용: 로그인하지 않은 사람도 링크를 만들 수 있도록 별도의 익명 계정을 쓴다 (내 기록 저장 방식에는 영향 없음) */
     const shareApp = initializeApp(firebaseConfig, 'share'); shareAuth = getAuth(shareApp); shareDb = getFirestore(shareApp);
     return true;
@@ -10131,30 +10136,62 @@ W.copyText = copyText;
 
 /* ===== 인증 ===== */
 let authMode = 'login';
+const AUTH_BTN = { login: '로그인', signup: '회원가입', reset: '재설정 메일 보내기' };
 function setAuthMode(m) {
-  authMode = m; $('auth-error').textContent = '';
-  $('auth-submit').textContent = m === 'login' ? '로그인' : '회원가입';
-  $('auth-toggle').textContent = m === 'login' ? '계정이 없으신가요? 회원가입' : '이미 계정이 있으신가요? 로그인';
+  authMode = m; const errEl = $('auth-error'); errEl.textContent = ''; errEl.classList.remove('ok');
+  $('auth-submit').textContent = AUTH_BTN[m];
+  $('auth-toggle').textContent = m === 'signup' ? '이미 계정이 있으신가요? 로그인' : m === 'reset' ? '← 로그인으로 돌아가기' : '계정이 없으신가요? 회원가입';
+  $('auth-password').hidden = m === 'reset';
+  $('auth-forgot').hidden = m !== 'login';
   $('auth-password').setAttribute('autocomplete', m === 'login' ? 'current-password' : 'new-password');
 }
+W.authModeIsReset = () => authMode === 'reset';
+W.openReset = function () {
+  setAuthMode('reset');
+  $('auth-title').textContent = '가입한 이메일을 입력하면 비밀번호를 다시 정할 수 있는 링크를 보내드려요.';
+  setTimeout(() => $('auth-email').focus(), 50);
+};
 W.openAuth = function (mode, msg) {
   setAuthMode(mode === 'signup' ? 'signup' : 'login');
   $('auth-title').textContent = msg || (mode === 'signup' ? '새 계정을 만들어요. 이 기기에 있던 기록도 함께 옮겨져요.' : '로그인하면 기록이 계정에 저장돼 어느 기기에서든 볼 수 있어요.');
   $('auth-modal').hidden = false; setTimeout(() => $('auth-email').focus(), 50);
 };
 W.closeAuth = () => { $('auth-modal').hidden = true; };
-W.toggleAuthMode = () => setAuthMode(authMode === 'login' ? 'signup' : 'login');
+W.toggleAuthMode = () => {
+  if (authMode === 'reset') { W.openAuth('login'); return; }
+  setAuthMode(authMode === 'login' ? 'signup' : 'login');
+};
+W.submitReset = async function () {
+  const errEl = $('auth-error'); errEl.classList.remove('ok');
+  if (!isConfigured || !auth) { errEl.textContent = '로그인 서버에 연결하지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'; return; }
+  const email = $('auth-email').value.trim();
+  if (!email) { errEl.textContent = '이메일을 입력해 주세요.'; return; }
+  const btn = $('auth-submit'); btn.disabled = true; btn.textContent = '보내는 중…';
+  try {
+    await sendPasswordResetEmail(auth, email);
+    sentReset();
+  } catch (e) {
+    /* 가입 여부가 드러나지 않도록, 없는 이메일도 보낸 것처럼 안내 */
+    if (e.code === 'auth/user-not-found') sentReset();
+    else errEl.textContent = authErrorText(e.code);
+  } finally { btn.disabled = false; btn.textContent = AUTH_BTN[authMode]; }
+  function sentReset() {
+    errEl.classList.add('ok');
+    errEl.textContent = `${email}(으)로 가입된 계정이 있다면 재설정 메일을 보냈어요. 메일함(스팸함 포함)을 확인해 주세요.`;
+  }
+};
 function authErrorText(code) {
   const map = {
     'auth/invalid-email': '이메일 형식이 올바르지 않아요.', 'auth/missing-password': '비밀번호를 입력해 주세요.',
     'auth/weak-password': '비밀번호는 6자 이상이어야 해요.', 'auth/email-already-in-use': '이미 가입된 이메일이에요.',
     'auth/invalid-credential': '이메일 또는 비밀번호가 올바르지 않아요.', 'auth/wrong-password': '이메일 또는 비밀번호가 올바르지 않아요.',
-    'auth/user-not-found': '이메일 또는 비밀번호가 올바르지 않아요.', 'auth/too-many-requests': '잠시 후 다시 시도해 주세요.'
+    'auth/user-not-found': '이메일 또는 비밀번호가 올바르지 않아요.', 'auth/too-many-requests': '잠시 후 다시 시도해 주세요.', 'auth/missing-email': '이메일을 입력해 주세요.'
   };
   return map[code] || '오류가 생겼어요. 다시 시도해 주세요.';
 }
 W.submitAuth = async function () {
-  const errEl = $('auth-error');
+  if (authMode === 'reset') return W.submitReset();
+  const errEl = $('auth-error'); errEl.classList.remove('ok');
   if (!isConfigured || !auth) { errEl.textContent = '로그인 서버에 연결하지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'; return; }
   const email = $('auth-email').value.trim(), pw = $('auth-password').value;
   errEl.textContent = '';
@@ -10165,7 +10202,7 @@ W.submitAuth = async function () {
     else await signInWithEmailAndPassword(auth, email, pw);
     closeAuth(); $('auth-password').value = '';
   } catch (e) { errEl.textContent = authErrorText(e.code); }
-  finally { btn.disabled = false; btn.textContent = authMode === 'signup' ? '회원가입' : '로그인'; }
+  finally { btn.disabled = false; btn.textContent = AUTH_BTN[authMode]; }
 };
 W.logout = async function () { if (auth) { try { await signOut(auth); toast('로그아웃했어요.'); } catch (e) {} } };
 function renderAcct() {
