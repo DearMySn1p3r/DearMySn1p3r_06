@@ -252,6 +252,17 @@ select.field{appearance:none;-webkit-appearance:none;padding-right:34px;backgrou
 .err.ok{color:#2E7D5B;line-height:1.5}
 .auth-forgot{align-self:flex-end;background:none;border:none;padding:0;margin:-4px 2px 0;font-size:12px;color:var(--muted);text-decoration:underline;text-underline-offset:2px}
 .auth-forgot:hover{color:var(--pk-strong)}
+.pwr-h{font-size:17px;font-weight:700;margin:18px 0 0;letter-spacing:-.02em}
+.pwr-target{display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:12px;background:var(--pk-soft);font-size:13px;min-width:0}
+.pwr-target span{flex:none;font-size:11px;font-weight:700;color:var(--pk-strong);background:#fff;border-radius:999px;padding:2px 8px}
+.pwr-target b{font-weight:600;color:var(--pk-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pwr-wrap{position:relative}
+.pwr-wrap .field{padding-right:44px}
+.pwr-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:none;border-radius:50%;background:none;color:var(--faint);
+  background-repeat:no-repeat;background-position:center;background-size:18px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B5A9AC' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E")}
+.pwr-eye.on{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D9668A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17.9 17.9A10.4 10.4 0 0 1 12 19c-6.4 0-10-7-10-7a18.5 18.5 0 0 1 5.1-5.9M9.9 5.2A9.7 9.7 0 0 1 12 5c6.4 0 10 7 10 7a18.6 18.6 0 0 1-2.2 3.2M14.1 14.1a3 3 0 1 1-4.2-4.2'/%3E%3Cpath d='M2 2l20 20'/%3E%3C/svg%3E")}
+.pwr-eye:hover{background-color:var(--pk-soft)}
 
 
 /* 프롬프트 */
@@ -875,6 +886,29 @@ button.sp-pic{display:block;width:100%;padding:0;border:none;overflow:hidden;cur
       <p class="err" id="auth-error" aria-live="polite"></p>
       <button class="btn btn-pk btn-block" id="auth-submit" onclick="submitAuth()">로그인</button>
       <button class="btn btn-block" style="border:none;color:var(--muted);font-weight:500" id="auth-toggle" onclick="toggleAuthMode()">계정이 없으신가요? 회원가입</button>
+    </div>
+  </div>
+</div>
+
+<!-- 비밀번호 재설정 (메일 링크로 들어왔을 때) -->
+<div class="modal" id="pwreset-modal" hidden style="z-index:95">
+  <div class="modal-box auth-box" role="dialog" aria-modal="true" aria-labelledby="pwreset-title">
+    <button class="x-btn" onclick="closePwReset()" aria-label="닫기">✕</button>
+    <div class="logo"><b>Studio<i></i></b><span>Archive</span></div>
+    <h2 class="pwr-h" id="pwreset-title">비밀번호 재설정</h2>
+    <p class="sub" id="pwreset-sub" style="margin:4px 0 18px">링크를 확인하고 있어요…</p>
+    <div class="stack" id="pwreset-form" hidden>
+      <div class="pwr-target"><span>대상</span><b id="pwreset-email"></b></div>
+      <div class="pwr-wrap">
+        <input type="password" id="pwreset-pw" class="field" placeholder="새 비밀번호 (6자 이상)" autocomplete="new-password" onkeydown="if(event.key==='Enter')document.getElementById('pwreset-pw2').focus()">
+        <button type="button" class="pwr-eye" onclick="togglePwEye()" aria-label="비밀번호 보기" id="pwreset-eye"></button>
+      </div>
+      <input type="password" id="pwreset-pw2" class="field" placeholder="새 비밀번호 확인" autocomplete="new-password" onkeydown="if(event.key==='Enter')submitPwReset()">
+      <p class="err" id="pwreset-error" aria-live="polite"></p>
+      <button class="btn btn-pk btn-block" id="pwreset-submit" onclick="submitPwReset()">저장</button>
+    </div>
+    <div class="stack" id="pwreset-done" hidden>
+      <button class="btn btn-pk btn-block" id="pwreset-next" onclick="pwResetNext()">로그인하기</button>
     </div>
   </div>
 </div>
@@ -9846,7 +9880,7 @@ window.onload = () => {
 
 <script type="module">
 /* Firebase는 따로 불러온다 — 불러오지 못해도(차단·오프라인) 사이트의 나머지 기능은 그대로 움직이게 */
-let initializeApp, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, sendPasswordResetEmail;
+let initializeApp, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, sendPasswordResetEmail, verifyPasswordResetCode, confirmPasswordReset;
 let getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs;
 const FB = 'https://www.gstatic.com/firebasejs/10.12.0/';
 
@@ -9872,7 +9906,7 @@ const fbReady = (async () => {
   try {
     const [a, b, c] = await Promise.all([import(FB + 'firebase-app.js'), import(FB + 'firebase-auth.js'), import(FB + 'firebase-firestore.js')]);
     ({ initializeApp } = a);
-    ({ getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, sendPasswordResetEmail } = b);
+    ({ getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously, sendPasswordResetEmail, verifyPasswordResetCode, confirmPasswordReset } = b);
     ({ getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs } = c);
     const app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
     auth.languageCode = 'ko'; /* 비밀번호 재설정 메일을 한국어로 보냄 */
@@ -10133,6 +10167,65 @@ function copyText(t) {
   else done(copyFallback(t));
 }
 W.copyText = copyText;
+
+/* ===== 비밀번호 재설정 (메일 링크 → 이 사이트에서 처리) =====
+   Firebase 콘솔 → Authentication → 템플릿 → 비밀번호 재설정 → 수정(연필) → ‘작업 URL 맞춤설정’에
+   이 사이트 주소(예: https://내사이트주소/)를 넣으면 메일 링크가 여기로 와요. */
+const PWR = (() => { const q = new URLSearchParams(location.search); return q.get('mode') === 'resetPassword' && q.get('oobCode') ? { code: q.get('oobCode') } : null; })();
+let pwrEmail = '', pwrDoneOk = false;
+function pwrClearUrl() {
+  try { const u = new URL(location.href); ['mode', 'oobCode', 'apiKey', 'lang', 'continueUrl', 'tenantId'].forEach(k => u.searchParams.delete(k)); history.replaceState(null, '', u.pathname + u.search + u.hash); } catch (e) {}
+}
+function pwrState(sub, form, done, nextLabel) {
+  $('pwreset-sub').textContent = sub; $('pwreset-form').hidden = !form; $('pwreset-done').hidden = !done;
+  if (nextLabel) $('pwreset-next').textContent = nextLabel;
+}
+function pwrErrText(code) {
+  return ({ 'auth/expired-action-code': '링크가 만료됐어요. 비밀번호 찾기를 다시 해 주세요.',
+    'auth/invalid-action-code': '이미 사용했거나 올바르지 않은 링크예요. 비밀번호 찾기를 다시 해 주세요.',
+    'auth/user-disabled': '사용할 수 없는 계정이에요.', 'auth/user-not-found': '계정을 찾을 수 없어요.',
+    'auth/weak-password': '비밀번호는 6자 이상이어야 해요.', 'auth/too-many-requests': '잠시 후 다시 시도해 주세요.',
+    'auth/network-request-failed': '인터넷 연결을 확인해 주세요.' })[code] || '오류가 생겼어요. 다시 시도해 주세요.';
+}
+W.togglePwEye = function () {
+  const show = $('pwreset-pw').type === 'password';
+  ['pwreset-pw', 'pwreset-pw2'].forEach(id => { $(id).type = show ? 'text' : 'password'; });
+  const b = $('pwreset-eye'); b.classList.toggle('on', show); b.setAttribute('aria-label', show ? '비밀번호 숨기기' : '비밀번호 보기');
+};
+W.closePwReset = function () { $('pwreset-modal').hidden = true; pwrClearUrl(); };
+W.pwResetNext = function () {
+  W.closePwReset();
+  if (pwrDoneOk) { W.openAuth('login', '새 비밀번호로 로그인해 주세요.'); $('auth-email').value = pwrEmail; setTimeout(() => $('auth-password').focus(), 60); }
+  else { W.openAuth('login'); W.openReset(); }
+};
+W.submitPwReset = async function () {
+  const errEl = $('pwreset-error'), pw = $('pwreset-pw').value, pw2 = $('pwreset-pw2').value;
+  errEl.textContent = '';
+  if (pw.length < 6) { errEl.textContent = '비밀번호는 6자 이상이어야 해요.'; return; }
+  if (pw !== pw2) { errEl.textContent = '두 비밀번호가 서로 달라요.'; return; }
+  const btn = $('pwreset-submit'); btn.disabled = true; btn.textContent = '저장 중…';
+  try {
+    await confirmPasswordReset(auth, PWR.code, pw);
+    pwrDoneOk = true; pwrClearUrl();
+    $('pwreset-pw').value = $('pwreset-pw2').value = '';
+    pwrState('비밀번호를 바꿨어요. 이제 새 비밀번호로 로그인할 수 있어요.', false, true, '로그인하기');
+  } catch (e) {
+    if (/expired-action-code|invalid-action-code/.test(e.code || '')) pwrState(pwrErrText(e.code), false, true, '비밀번호 찾기 다시 하기');
+    else errEl.textContent = pwrErrText(e.code);
+  } finally { btn.disabled = false; btn.textContent = '저장'; }
+};
+if (PWR) {
+  $('pwreset-modal').hidden = false;
+  fbReady.then(async ok => {
+    if (!ok || !auth) { pwrState('로그인 서버에 연결하지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.', false, false); return; }
+    try {
+      pwrEmail = await verifyPasswordResetCode(auth, PWR.code);
+      $('pwreset-email').textContent = pwrEmail; $('pwreset-email').title = pwrEmail;
+      pwrState('이 계정에서 사용할 새 비밀번호를 정해 주세요.', true, false);
+      setTimeout(() => $('pwreset-pw').focus(), 60);
+    } catch (e) { pwrClearUrl(); pwrState(pwrErrText(e.code), false, true, '비밀번호 찾기 다시 하기'); }
+  });
+}
 
 /* ===== 인증 ===== */
 let authMode = 'login';
