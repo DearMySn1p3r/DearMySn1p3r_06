@@ -10254,14 +10254,28 @@ W.toggleAuthMode = () => {
   if (authMode === 'reset') { W.openAuth('login'); return; }
   setAuthMode(authMode === 'login' ? 'signup' : 'login');
 };
+/* 비밀번호 재설정 메일을 보내는 서버 함수 주소 (Google Cloud에 만든 sendReset 함수의 URL을 따옴표 안에 붙여넣기)
+   비워 두면 Firebase 기본 메일로 보내요. */
+const RESET_FN_URL = '';
 W.submitReset = async function () {
   const errEl = $('auth-error'); errEl.classList.remove('ok');
-  if (!isConfigured || !auth) { errEl.textContent = '로그인 서버에 연결하지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'; return; }
   const email = $('auth-email').value.trim();
   if (!email) { errEl.textContent = '이메일을 입력해 주세요.'; return; }
+  if (!RESET_FN_URL && (!isConfigured || !auth)) { errEl.textContent = '로그인 서버에 연결하지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.'; return; }
   const btn = $('auth-submit'); btn.disabled = true; btn.textContent = '보내는 중…';
   try {
-    await sendPasswordResetEmail(auth, email);
+    if (RESET_FN_URL) {
+      let r;
+      try { r = await fetch(RESET_FN_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) }); }
+      catch (e) { errEl.textContent = '메일 서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.'; return; }
+      if (r.ok) sentReset();
+      else if (r.status === 400) errEl.textContent = authErrorText('auth/invalid-email');
+      else if (r.status === 429) errEl.textContent = '방금 메일을 보냈어요. 1분쯤 뒤에 다시 시도해 주세요.';
+      else errEl.textContent = '메일을 보내지 못했어요. 잠시 후 다시 시도해 주세요.';
+      return;
+    }
+    try { await sendPasswordResetEmail(auth, email, { url: location.origin + location.pathname }); }
+    catch (e2) { if (/unauthorized-continue-uri|invalid-continue-uri|missing-continue-uri/.test(e2.code || '')) await sendPasswordResetEmail(auth, email); else throw e2; }
     sentReset();
   } catch (e) {
     /* 가입 여부가 드러나지 않도록, 없는 이메일도 보낸 것처럼 안내 */
